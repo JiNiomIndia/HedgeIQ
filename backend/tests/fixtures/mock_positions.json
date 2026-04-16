@@ -1,0 +1,12 @@
+[
+  {
+    "broker": "Fidelity",
+    "account_name": "Sankar Rollover IRA",
+    "account_id": "FID-001",
+    "symbol": "AAL",
+    "quantity": "5000",
+    "entry_price": "14.20",
+    "current_price": "12.80",
+    "asset_type": "STOCK"
+  }
+]

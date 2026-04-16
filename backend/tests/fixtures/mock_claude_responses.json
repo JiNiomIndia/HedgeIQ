@@ -1,0 +1,7 @@
+{
+  "hedge_explanation": {
+    "content": "The AAL Jun 18 $10 Put at $0.51 mid provides downside protection below $10.00. With 5,000 shares you'd buy 50 contracts. Total cost: $2,550. Breakeven: $9.49. At a 10% drop to $11.52, your puts gain approximately $750, offsetting 29% of the loss.",
+    "model_used": "claude-opus-4-6",
+    "cached": false
+  }
+}
