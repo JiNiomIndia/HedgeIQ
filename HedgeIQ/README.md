@@ -1,2 +1,0 @@
-# HedgeIQ
-HedgeIQ - Hedging App
