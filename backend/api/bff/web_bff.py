@@ -61,6 +61,7 @@ def shape_hedge_response(recommendations: List[HedgeRecommendation]) -> dict:
             "strike": float(r.contract.strike),
             "ask": float(r.contract.ask),
             "open_interest": r.contract.open_interest,
+            "contracts_to_buy": r.contracts_to_buy,
             "total_cost": float(r.total_cost),
             "breakeven_price": float(r.breakeven_price),
             "coverage_at_10pct_drop": float(r.coverage_at_10pct_drop),

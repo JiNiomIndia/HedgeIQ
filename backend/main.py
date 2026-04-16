@@ -1,10 +1,31 @@
+"""HedgeIQ FastAPI application entry point."""
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from backend.api.v1 import positions, options, hedge, ai, auth
 
 app = FastAPI(
     title="HedgeIQ API",
     version="0.1.0",
-    description="AI-powered trading assistant.",
+    description=(
+        "AI-powered trading assistant — "
+        "hedge your portfolio at midnight in 60 seconds."
+    ),
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(positions.router, prefix="/api/v1")
+app.include_router(options.router, prefix="/api/v1")
+app.include_router(hedge.router, prefix="/api/v1")
+app.include_router(ai.router, prefix="/api/v1")
 
 
 @app.get("/health")
