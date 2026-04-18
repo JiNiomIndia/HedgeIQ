@@ -86,10 +86,10 @@ async def get_current_user(
 )
 async def login(request: LoginRequest):
     """Authenticate with email/password, receive JWT access token."""
-    if (
-        request.email == settings.admin_email
-        and request.password == settings.admin_password
-    ):
+    # Compare case-insensitively for email, strip whitespace from both sides
+    email_match = request.email.strip().lower() == settings.admin_email.strip().lower()
+    pwd_match = request.password.strip() == settings.admin_password.strip()
+    if email_match and pwd_match:
         return TokenResponse(access_token=create_token(str(uuid.uuid4())))
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
