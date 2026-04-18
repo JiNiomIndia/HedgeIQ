@@ -96,11 +96,35 @@ class SnapTradeFacade:
         if self._client is None:
             return self._mock_positions()
         try:
-            response = self._client.account_information.get_all_user_holdings(
+            # Use per-account holdings (get_all_user_holdings is deprecated)
+            accounts_resp = self._client.account_information.list_user_accounts(
                 user_id=user_id,
                 user_secret=user_secret,
             )
-            return response.body if response.body else []
+            accounts = accounts_resp.body or []
+            result = []
+            for acct in accounts:
+                acct_id   = acct.get("id")   if isinstance(acct, dict) else getattr(acct, "id", None)
+                acct_name = acct.get("name")  if isinstance(acct, dict) else getattr(acct, "name", "")
+                acct_num  = acct.get("number") if isinstance(acct, dict) else getattr(acct, "number", "")
+                # institution_name from list_user_accounts e.g. "Robinhood" → "ROBINHOOD"
+                broker_slug = (
+                    acct.get("institution_name", "UNKNOWN").upper()
+                    if isinstance(acct, dict) else "UNKNOWN"
+                )
+                holdings_resp = self._client.account_information.get_user_holdings(
+                    account_id=acct_id,
+                    user_id=user_id,
+                    user_secret=user_secret,
+                )
+                body = holdings_resp.body or {}
+                positions = body.get("positions", []) if isinstance(body, dict) else []
+                result.append({
+                    "broker_name": broker_slug,
+                    "account": {"name": acct_name, "number": acct_num},
+                    "positions": positions,
+                })
+            return result
         except Exception as exc:
             raise DataUnavailableError(
                 f"SnapTrade failed for user {user_id}: {exc}"
