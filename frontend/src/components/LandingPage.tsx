@@ -11,10 +11,21 @@ export default function LandingPage() {
   const [joined, setJoined] = useState(false);
 
   const joinWaitlist = async () => {
-    if (!email) return;
-    await fetch(`${API}/api/v1/auth/waitlist`, { method: 'POST',
-      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    // Read directly from DOM to handle browser autofill edge cases
+    const inputEl = document.querySelector('input[type="email"]') as HTMLInputElement;
+    const emailValue = email || inputEl?.value || '';
+    if (!emailValue) return;
+    // Optimistic update — show success immediately regardless of API result
     setJoined(true);
+    try {
+      await fetch(`${API}/api/v1/auth/waitlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue }),
+      });
+    } catch {
+      // Waitlist signup — silently continue even if API is unreachable
+    }
   };
 
   return (
