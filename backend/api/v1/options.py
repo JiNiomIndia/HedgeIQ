@@ -19,7 +19,7 @@ router = APIRouter(prefix="/options", tags=["Options"])
     ),
 )
 async def get_options_chain(
-    symbol: str = Path(..., example="AAL"),
+    symbol: str = Path(..., examples=["AAL"]),
     expiry_date: Optional[str] = Query(None),
     current_user=Depends(get_current_user),
 ):

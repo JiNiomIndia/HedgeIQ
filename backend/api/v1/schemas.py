@@ -43,10 +43,10 @@ class OptionsChainResponse(BaseModel):
 
 
 class HedgeRequest(BaseModel):
-    symbol: str = Field(..., example="AAL")
-    shares_held: int = Field(..., example=5000)
-    entry_price: float = Field(..., example=11.30)
-    current_price: float = Field(..., example=10.97)
+    symbol: str = Field(..., examples=["AAL"])
+    shares_held: int = Field(..., examples=[5000])
+    entry_price: float = Field(..., examples=[11.30])
+    current_price: float = Field(..., examples=[10.97])
     num_recommendations: int = Field(default=3, ge=1, le=5)
 
 
@@ -90,7 +90,7 @@ class TokenResponse(BaseModel):
 
 
 class WaitlistRequest(BaseModel):
-    email: str = Field(..., example="trader@example.com")
+    email: str = Field(..., examples=["trader@example.com"])
 
 
 class WaitlistResponse(BaseModel):

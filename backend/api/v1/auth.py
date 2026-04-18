@@ -1,6 +1,6 @@
 """JWT authentication endpoints and dependency."""
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from types import SimpleNamespace
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -30,10 +30,11 @@ def create_token(user_id: str) -> str:
     Returns:
         Signed JWT string
     """
+    now = datetime.now(UTC).replace(tzinfo=None)
     payload = {
         "sub": user_id,
-        "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=24),
+        "iat": now,
+        "exp": now + timedelta(hours=24),
     }
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)
 
