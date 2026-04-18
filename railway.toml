@@ -1,0 +1,21 @@
+# ── Railway deployment config for HedgeIQ backend ────────────────────────────
+#
+# Railway auto-detects this file. The backend is deployed from the repo root.
+# Set environment variables in the Railway dashboard (not committed here):
+#   ANTHROPIC_API_KEY, POLYGON_API_KEY, SNAPTRADE_CLIENT_ID,
+#   SNAPTRADE_CONSUMER_KEY, SNAPTRADE_PERSONAL_USER_ID, SNAPTRADE_USER_SECRET,
+#   SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile.backend"
+
+[deploy]
+startCommand = "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[environments.production.deploy]
+numReplicas = 1

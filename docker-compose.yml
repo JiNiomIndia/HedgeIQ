@@ -1,18 +1,55 @@
 version: "3.9"
 
+# ── HedgeIQ local stack ───────────────────────────────────────────────────────
+#
+# Usage:
+#   docker compose up --build          # first run
+#   docker compose up                  # subsequent runs
+#   docker compose down -v             # teardown
+#
+# Requires: .env file at repo root (see .env.example).
+
 services:
-  api:
-    build: .
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: hedgeiq-backend:dev
+    container_name: hedgeiq-backend
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
-      - ./data:/app/data
+      # Persist ChromaDB cache and SQLite DB across restarts
+      - hedgeiq-data:/app/data
     env_file:
       - .env
-    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - CHROMADB_PATH=/app/data/chroma_cache
+      - DATABASE_URL=sqlite:////app/data/hedgeiq.db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+    image: hedgeiq-frontend:dev
+    container_name: hedgeiq-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  hedgeiq-data:
+    driver: local

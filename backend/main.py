@@ -15,7 +15,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",           # local Vite dev
+        "http://localhost:80",             # local Docker nginx
+        "https://*.vercel.app",            # Vercel preview deployments
+        "https://hedgeiq.vercel.app",      # Vercel production
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
