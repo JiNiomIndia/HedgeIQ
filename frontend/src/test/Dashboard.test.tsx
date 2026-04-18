@@ -53,7 +53,6 @@ describe('Dashboard', () => {
   });
 
   it('sign out clears token and redirects', () => {
-    const assignSpy = vi.fn();
     Object.defineProperty(window, 'location', {
       value: { href: '/' },
       writable: true,
