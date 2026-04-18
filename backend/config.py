@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     snaptrade_client_id: str = ""
     snaptrade_consumer_key: str = ""
     snaptrade_personal_user_id: str = ""
+    snaptrade_user_secret: str = ""
     secret_key: str = "dev-secret-change-in-production"
     database_url: str = "sqlite:///./hedgeiq.db"
     chromadb_path: str = "./data/chroma_cache"

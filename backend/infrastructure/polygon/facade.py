@@ -131,6 +131,16 @@ class PolygonFacade:
             return contracts
 
         except Exception as exc:
+            exc_str = str(exc)
+            # Free-tier Polygon keys don't include options data.
+            # Fall back to the deterministic mock chain so the hedge engine
+            # still works in development without a paid subscription.
+            if "NOT_AUTHORIZED" in exc_str or "not entitled" in exc_str.lower():
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Polygon free tier — options data unavailable, using mock chain for %s", symbol
+                )
+                return self._mock_chain(symbol)
             raise DataUnavailableError(
                 f"Failed to fetch options chain for {symbol}: {exc}"
             ) from exc

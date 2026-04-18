@@ -29,5 +29,10 @@ async def get_positions(current_user=Depends(get_current_user)):
     facade = SnapTradeFacade(settings.snaptrade_client_id, settings.snaptrade_consumer_key)
     repo = SnapTradePositionRepository(facade, AdapterRegistry())
     service = PositionService(repo)
-    portfolio = await service.get_portfolio(current_user.snaptrade_user_id)
+    # Use stored user_secret from config (personal account); multi-user v2 will
+    # look this up from the DB per authenticated user.
+    user_secret = settings.snaptrade_user_secret or current_user.snaptrade_user_id
+    portfolio = await service.get_portfolio(
+        current_user.snaptrade_user_id, user_secret=user_secret
+    )
     return shape_portfolio_response(portfolio)

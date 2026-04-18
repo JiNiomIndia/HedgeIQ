@@ -47,7 +47,7 @@ class SnapTradeFacade:
     # Public API
     # ------------------------------------------------------------------
 
-    async def get_connection_url(self, user_id: str, broker: str) -> str:
+    async def get_connection_url(self, user_id: str, broker: str, user_secret: str | None = None) -> str:
         """Generate a broker OAuth connection URL for the given user.
 
         We never receive or store the user's broker credentials — SnapTrade
@@ -56,17 +56,20 @@ class SnapTradeFacade:
         Args:
             user_id: Internal HedgeIQ user identifier (registered with SnapTrade).
             broker: SnapTrade broker slug, e.g. "FIDELITY", "IBKR", "PUBLIC".
+            user_secret: SnapTrade user secret (required by SDK for live calls).
 
         Returns:
             URL string the user visits to authorise their broker account.
         """
-        if self._client is None:
+        if self._client is None or not user_secret:
             return (
                 f"https://app.snaptrade.com/connect"
                 f"?user={user_id}&broker={broker}"
             )
         response = self._client.authentication.login_snap_trade_user(
-            user_id=user_id, broker=broker
+            user_id=user_id,
+            user_secret=user_secret,
+            broker=broker,
         )
         return response.body.get("redirectURI", "")
 

@@ -25,11 +25,13 @@ class SnapTradePositionRepository(AbstractPositionRepository):
         self._facade = facade
         self._registry = registry
 
-    async def get_positions(self, user_id: str) -> List[Position]:
+    async def get_positions(self, user_id: str, user_secret: str | None = None) -> List[Position]:
         """Fetch all positions across all connected broker accounts.
 
         Args:
-            user_id: SnapTrade user ID (also used as user_secret in mock mode).
+            user_id: SnapTrade user ID.
+            user_secret: SnapTrade user secret. Defaults to user_id for
+                         backwards compatibility with mocked / test calls.
 
         Returns:
             Normalised Position list sorted alphabetically by broker name.
@@ -37,7 +39,7 @@ class SnapTradePositionRepository(AbstractPositionRepository):
         Raises:
             DataUnavailableError: If SnapTrade is unreachable.
         """
-        raw_data = await self._facade.get_raw_positions(user_id, user_id)
+        raw_data = await self._facade.get_raw_positions(user_id, user_secret or user_id)
         all_positions: List[Position] = []
 
         for account_data in raw_data:

@@ -19,16 +19,18 @@ class PositionService:
     def __init__(self, repository: AbstractPositionRepository):
         self._repository = repository
 
-    async def get_portfolio(self, user_id: str) -> Portfolio:
+    async def get_portfolio(self, user_id: str, user_secret: str | None = None) -> Portfolio:
         """Fetch all positions and build the Portfolio aggregate.
 
         Args:
             user_id: Authenticated user ID.
+            user_secret: SnapTrade user secret. Falls back to user_id for
+                         backwards compatibility (mocked / test mode).
 
         Returns:
             Portfolio with all positions and computed totals.
         """
-        positions = await self._repository.get_positions(user_id)
+        positions = await self._repository.get_positions(user_id, user_secret or user_id)
         return Portfolio(user_id=user_id, positions=positions)
 
     async def get_positions_for_symbol(

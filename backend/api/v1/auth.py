@@ -125,5 +125,9 @@ async def connect_broker(
         settings.snaptrade_client_id,
         settings.snaptrade_consumer_key,
     )
-    url = await facade.get_connection_url(current_user.snaptrade_user_id, broker.upper())
+    url = await facade.get_connection_url(
+        current_user.snaptrade_user_id,
+        broker.upper(),
+        user_secret=settings.snaptrade_user_secret or None,
+    )
     return {"connection_url": url, "broker": broker.upper()}
