@@ -17,7 +17,7 @@ DISCLAIMER = (
     "not investment advice. Options involve risk and are not suitable "
     "for all investors."
 )
-HAIKU_MODEL = "claude-haiku-4-5-20251001"
+HAIKU_MODEL = "claude-haiku-4-5"
 FREE_DAILY_LIMIT = 5
 
 
