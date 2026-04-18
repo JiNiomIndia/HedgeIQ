@@ -116,6 +116,48 @@ Use plain English. No jargon. Each sentence under 25 words."""
         self._cache.set(cache_key, response, ttl_hours=24)
         return response
 
+    async def chat(
+        self,
+        message: str,
+        history: list,
+        portfolio_context: dict | None = None,
+    ) -> str:
+        """Have a natural language conversation about trading and hedging.
+
+        Args:
+            message: The user's latest message.
+            history: List of previous {"role": ..., "content": ...} dicts.
+            portfolio_context: Optional dict with the user's current positions.
+
+        Returns:
+            Claude's response as a plain string.
+        """
+        system = (
+            "You are HedgeIQ's AI trading advisor — an expert in options, hedging, "
+            "and portfolio risk management. You help retail investors:\n"
+            "- Understand their portfolio risk and P&L\n"
+            "- Choose the right put options to hedge downside\n"
+            "- Interpret market events and their impact on positions\n"
+            "- Decide between rolling, closing, or adding to a hedge\n\n"
+            "Style: concise, specific, use the actual numbers from the portfolio. "
+            "Plain English — no jargon unless you define it. "
+            "Always clarify this is analysis/education, not personalised investment advice."
+        )
+        if portfolio_context:
+            import json
+            system += f"\n\nUser's current portfolio:\n{json.dumps(portfolio_context, indent=2)}"
+
+        messages = [{"role": m["role"], "content": m["content"]} for m in history]
+        messages.append({"role": "user", "content": message})
+
+        response = self._client.messages.create(
+            model=HAIKU_MODEL,
+            max_tokens=600,
+            system=system,
+            messages=messages,
+        )
+        return response.content[0].text
+
     async def explain_hedge_recommendation(
         self,
         position_data: dict,

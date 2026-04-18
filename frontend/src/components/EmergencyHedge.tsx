@@ -10,6 +10,7 @@ interface Recommendation {
   expiry_date: string; strike: number; ask: number;
   total_cost: number; breakeven_price: number;
   open_interest: number; value_score: number; ai_explanation?: string;
+  _localExplain?: string; _explaining?: boolean;
 }
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -23,6 +24,32 @@ export default function EmergencyHedge() {
   const [recs, setRecs] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const explainRec = async (idx: number, rec: Recommendation) => {
+    setRecs(prev => prev.map((r, i) => i === idx ? { ...r, _explaining: true } : r));
+    try {
+      const res = await fetch(`${API}/api/v1/ai/explain`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
+        body: JSON.stringify({
+          contract: {
+            symbol, expiry: rec.expiry_date, strike: rec.strike,
+            option_type: 'put', ask: rec.ask,
+            open_interest: rec.open_interest,
+            total_cost: rec.total_cost, breakeven: rec.breakeven_price,
+          }
+        }),
+      });
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      setRecs(prev => prev.map((r, i) => i === idx
+        ? { ...r, _localExplain: data.explanation, _explaining: false } : r));
+    } catch {
+      setRecs(prev => prev.map((r, i) => i === idx
+        ? { ...r, _localExplain: 'Could not load explanation. Try again.', _explaining: false } : r));
+    }
+  };
 
   const positionValue = parseFloat(shares) * parseFloat(currentPrice);
   const positionLoss = (parseFloat(currentPrice) - parseFloat(entryPrice)) * parseFloat(shares);
@@ -90,8 +117,21 @@ export default function EmergencyHedge() {
             <span className="text-gray-500">Breakeven: <span style={{color:'#E8EAF0'}}>${rec.breakeven_price?.toFixed(2)}</span></span>
             <span className="text-gray-500">OI: <span style={{color:'#E8EAF0'}}>{rec.open_interest?.toLocaleString()}</span></span>
           </div>
-          {rec.ai_explanation && <p className="text-gray-400 text-xs border-t border-gray-800 pt-2">{rec.ai_explanation}</p>}
-          <div className="flex gap-2 mt-3">
+          {(rec.ai_explanation || rec._localExplain) && (
+            <p className="text-gray-400 text-xs border-t border-gray-800 pt-2 leading-relaxed">
+              {rec._localExplain || rec.ai_explanation}
+            </p>
+          )}
+          <div className="flex gap-2 mt-3 flex-wrap">
+            {!rec._localExplain && !rec.ai_explanation && (
+              <button
+                onClick={() => explainRec(i, rec)}
+                disabled={rec._explaining}
+                className="text-xs px-3 py-1 rounded font-bold disabled:opacity-50"
+                style={{backgroundColor:'rgba(0,212,255,0.15)', color:'#00D4FF', border:'1px solid rgba(0,212,255,0.3)'}}>
+                {rec._explaining ? 'Claude is thinking…' : '🤖 Ask Claude to explain'}
+              </button>
+            )}
             <button className="text-xs px-3 py-1 rounded" style={{backgroundColor:'#1F2937', color:'#E8EAF0'}}>Buy on Fidelity</button>
             <button className="text-xs px-3 py-1 rounded" style={{backgroundColor:'#1F2937', color:'#E8EAF0'}}>Buy on Public</button>
           </div>

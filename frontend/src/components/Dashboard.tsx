@@ -7,8 +7,9 @@ import { useState } from 'react';
 import PositionsTable from './PositionsTable';
 import OptionsChain from './OptionsChain';
 import EmergencyHedge from './EmergencyHedge';
+import AIChat from './AIChat';
 
-type View = 'positions' | 'options' | 'hedge';
+type View = 'positions' | 'options' | 'hedge' | 'chat';
 
 export default function Dashboard() {
   const [view, setView] = useState<View>('positions');
@@ -16,6 +17,7 @@ export default function Dashboard() {
     { id: 'positions' as View, label: 'Positions', icon: '📊' },
     { id: 'options' as View, label: 'Options Chain', icon: '⛓️' },
     { id: 'hedge' as View, label: 'Emergency Hedge', icon: '🛡️' },
+    { id: 'chat' as View, label: 'AI Advisor', icon: '🤖' },
   ];
   return (
     <div className="flex h-screen" style={{backgroundColor: '#0A0E1A', color: '#E8EAF0', fontFamily: 'monospace'}}>
@@ -44,6 +46,7 @@ export default function Dashboard() {
         {view === 'positions' && <PositionsTable />}
         {view === 'options' && <OptionsChain />}
         {view === 'hedge' && <EmergencyHedge />}
+        {view === 'chat' && <AIChat />}
       </div>
     </div>
   );

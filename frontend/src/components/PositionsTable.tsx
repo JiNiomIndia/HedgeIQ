@@ -22,30 +22,57 @@ export default function PositionsTable() {
   const [totalValue, setTotalValue] = useState(0);
   const [totalPnl, setTotalPnl] = useState(0);
 
+  const [isDemo, setIsDemo] = useState(false);
+
   useEffect(() => {
     fetch(`${API}/api/v1/positions`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` }
     }).then(r => r.json()).then(data => {
-      setPositions(data.positions || []);
+      const pos = data.positions || [];
+      setPositions(pos);
       setTotalValue(data.total_value || 0);
       setTotalPnl(data.total_unrealised_pnl || 0);
+      // Detect demo data: mock uses ROBINHOOD + FIDELITY with DOGE
+      const hasDemo = pos.some((p: Position) => p.symbol === 'DOGE' && p.broker === 'ROBINHOOD');
+      setIsDemo(hasDemo);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const connectBroker = async () => {
+    try {
+      const res = await fetch(`${API}/api/v1/auth/connect-broker?broker=ROBINHOOD`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
+      });
+      const data = await res.json();
+      if (data.connection_url) window.open(data.connection_url, '_blank');
+    } catch { alert('Could not generate broker connection link. Try again.'); }
+  };
 
   const brokers = [...new Set(positions.map(p => p.broker))];
   if (loading) return <div className="p-6 text-gray-500">Loading positions...</div>;
   if (!positions.length) return (
     <div className="p-6 text-center">
       <p className="text-gray-500 mb-4">No broker accounts connected.</p>
-      <button className="px-4 py-2 rounded text-sm font-bold" style={{backgroundColor:'#00D4FF',color:'#0A0E1A'}}>
-        Connect your broker
+      <button onClick={connectBroker} className="px-4 py-2 rounded text-sm font-bold" style={{backgroundColor:'#00D4FF',color:'#0A0E1A'}}>
+        Connect Robinhood
       </button>
     </div>
   );
 
   return (
     <div className="p-6">
+      {isDemo && (
+        <div className="rounded-lg px-4 py-3 mb-4 flex items-center justify-between text-sm"
+          style={{backgroundColor:'rgba(255,196,0,0.08)', border:'1px solid rgba(255,196,0,0.25)', color:'#FFC400'}}>
+          <span>⚠️ Showing <strong>demo data</strong> — connect your broker to see live positions</span>
+          <button onClick={connectBroker}
+            className="ml-4 px-3 py-1 rounded text-xs font-bold"
+            style={{backgroundColor:'#FFC400', color:'#0A0E1A'}}>
+            Connect Broker
+          </button>
+        </div>
+      )}
       <div className="flex gap-6 mb-6">
         <div className="rounded p-4" style={{backgroundColor:'#131929'}}>
           <p className="text-gray-500 text-xs mb-1">Total Portfolio</p>

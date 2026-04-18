@@ -79,6 +79,22 @@ class ExplainResponse(BaseModel):
     cached: bool = False
 
 
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    history: List[ChatMessage] = []
+    portfolio_context: Optional[dict] = None
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    model_used: str
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str
