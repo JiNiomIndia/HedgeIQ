@@ -1,7 +1,14 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_ignore_empty=True,
+        extra="ignore",
+    )
+
     anthropic_api_key: str = ""
     polygon_api_key: str = ""
     snaptrade_client_id: str = ""
@@ -13,9 +20,6 @@ class Settings(BaseSettings):
     environment: str = "development"
     admin_email: str = ""
     admin_password: str = ""
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
