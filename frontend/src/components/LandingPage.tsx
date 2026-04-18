@@ -60,7 +60,9 @@ export default function LandingPage() {
         <p className="text-gray-500 text-sm mb-4">47 traders already on the waitlist</p>
         {joined ? <p className="font-bold" style={{color:'#00FF88'}}>You're on the list. We'll be in touch.</p> : (
           <div className="flex gap-2">
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" type="email"
+            <input value={email} onChange={e => setEmail(e.target.value)}
+              onInput={e => setEmail((e.target as HTMLInputElement).value)}
+              placeholder="your@email.com" type="email"
               className="flex-1 rounded px-3 py-2 text-sm border border-gray-700"
               style={{backgroundColor:'#131929', color:'#E8EAF0'}} />
             <button onClick={joinWaitlist} className="px-4 py-2 rounded text-sm font-bold"
