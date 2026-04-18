@@ -4,7 +4,6 @@
  * @component
  */
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -13,7 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
-  const navigate = useNavigate();
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +30,7 @@ export default function LoginPage() {
       }
       const data = await res.json();
       localStorage.setItem('hedgeiq_token', data.access_token);
-      navigate('/dashboard');
+      window.location.href = '/dashboard';
     } catch {
       setError('Connection error. Please try again.');
       setLoading(false);
