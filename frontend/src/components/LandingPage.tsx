@@ -34,7 +34,7 @@ export default function LandingPage() {
       <div className="max-w-3xl mx-auto px-6 pt-20 pb-16 text-center">
         <h1 className="text-4xl font-bold mb-4" style={{color:'#00D4FF'}}>Hedge your portfolio at midnight — in 60 seconds</h1>
         <p className="text-gray-400 text-lg mb-8">The AI trading assistant built from a $2,355 lesson at 11pm on a Sunday</p>
-        <a href="/dashboard" className="px-8 py-4 rounded text-lg font-bold inline-block"
+        <a href="/login" className="px-8 py-4 rounded text-lg font-bold inline-block"
           style={{backgroundColor:'#00D4FF', color:'#0A0E1A'}}>Try it free — no credit card</a>
       </div>
 
