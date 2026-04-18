@@ -1,7 +1,4 @@
 {
-  "hedge_explanation": {
-    "content": "The AAL Jun 18 $10 Put at $0.51 mid provides downside protection below $10.00. With 5,000 shares you'd buy 50 contracts. Total cost: $2,550. Breakeven: $9.49. At a 10% drop to $11.52, your puts gain approximately $750, offsetting 29% of the loss.",
-    "model_used": "claude-opus-4-6",
-    "cached": false
-  }
+  "explain_option": "This put gives you the right to sell AAL at $10 before June 18, 2026. You profit if AAL falls below $9.49. Maximum loss is $2,550 for 50 contracts if AAL stays above $10 at expiry.",
+  "explain_hedge": "This Jun 18 $10 put is best value with OI of 75,310 ensuring easy exit, costing $2,550 to protect a $54,850 position against a drop below $9.49."
 }

@@ -1,12 +1,8 @@
 [
-  {
-    "broker": "Fidelity",
-    "account_name": "Sankar Rollover IRA",
-    "account_id": "FID-001",
-    "symbol": "AAL",
-    "quantity": "5000",
-    "entry_price": "14.20",
-    "current_price": "12.80",
-    "asset_type": "STOCK"
-  }
+  {"broker": "Fidelity", "account_name": "Sankar Rollover IRA", "account_id": "***7040",
+   "symbol": "AAL", "quantity": "5000", "entry_price": "11.30", "current_price": "10.97"},
+  {"broker": "Fidelity", "account_name": "Bhuvana Traditional IRA", "account_id": "***8821",
+   "symbol": "AAL", "quantity": "500", "entry_price": "11.20", "current_price": "10.97"},
+  {"broker": "Public", "account_name": "Public Brokerage", "account_id": "pub-001",
+   "symbol": "AAL", "quantity": "2000", "entry_price": "11.05", "current_price": "10.97"}
 ]

@@ -1,19 +1,18 @@
-# ADR-001: Pattern Selection
+# ADR-001: Design Pattern Selection
 
-**Status:** Accepted  
-**Date:** 2026-04-15
-
-## Context
-HedgeIQ aggregates broker positions and options data across multiple brokers (Fidelity, IBKR, Public) and surfaces AI-powered hedge recommendations.
+**Status:** Accepted | **Date:** April 2026
 
 ## Decision
-Adopt 7 architectural patterns: DDD, Repository, Adapter, Facade, Strategy, API Gateway, BFF.
+Implement 7 patterns: DDD, Repository, Adapter, Facade, Strategy, API Gateway, BFF (scaffold).
+
+## Rationale
+- DDD: Each domain extractable as microservice for SaaS scaling
+- Repository: Swap Polygon for new data provider = one class, zero domain changes
+- Adapter: New broker = one adapter, zero other changes
+- Facade: Domain services never know about rate limiting or retry logic
+- Strategy: New hedge algorithm = one class, HedgeService unchanged
+- API Gateway: Ready for third-party API consumers without touching domain
+- BFF: Scaffold now, activate per client (mobile/desktop) without changing domain
 
 ## Consequences
-- DDD: clear bounded contexts for Positions, Options, Hedging, Analysis
-- Repository: swap data sources without touching domain logic
-- Adapter: normalise broker quirks behind a uniform interface
-- Facade: insulate from SDK churn (Polygon, SnapTrade, Claude)
-- Strategy: plug in new hedge algorithms (Protective Put → Collar → Iron Condor)
-- API Gateway: centralised rate limiting + API key auth
-- BFF: tailor responses to web/desktop/mobile without polluting core API
+More files than a simple script approach. Each layer independently testable.
