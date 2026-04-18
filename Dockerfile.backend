@@ -23,8 +23,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY backend/ ./backend/
-COPY alembic/ ./alembic/ 2>/dev/null || true
-COPY alembic.ini ./alembic.ini 2>/dev/null || true
+COPY alembic.ini ./alembic.ini
 
 # Create data directory for ChromaDB cache and SQLite
 RUN mkdir -p /app/data/chroma_cache
