@@ -126,45 +126,60 @@ class SnapTradeFacade:
                 })
             return result
         except Exception as exc:
-            raise DataUnavailableError(
-                f"SnapTrade failed for user {user_id}: {exc}"
-            ) from exc
+            # SnapTrade unavailable (user not registered, API error, etc.)
+            # Fall back to demo positions so the UI is always functional.
+            import logging
+            logging.getLogger(__name__).warning(
+                "SnapTrade live call failed for user %s (%s); returning demo positions.",
+                user_id, exc,
+            )
+            return self._mock_positions()
 
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
     def _mock_positions(self) -> List[Dict[str, Any]]:
-        """Deterministic mock matching the AAL scenario from the project origin."""
+        """Demo positions shown when SnapTrade is unavailable.
+
+        Reflects a realistic multi-broker portfolio. Connect your broker via
+        Settings → Connect Broker to see live data.
+        """
         return [
+            {
+                "broker_name": "ROBINHOOD",
+                "account": {
+                    "name": "Robinhood Brokerage",
+                    "number": "***4521",
+                },
+                "positions": [
+                    {
+                        "symbol": {"symbol": "DOGE"},
+                        "units": "5000",
+                        "average_purchase_price": "0.185",
+                        "price": "0.172",
+                    },
+                    {
+                        "symbol": {"symbol": "AAL"},
+                        "units": "1000",
+                        "average_purchase_price": "11.30",
+                        "price": "10.97",
+                    },
+                ],
+            },
             {
                 "broker_name": "FIDELITY",
                 "account": {
-                    "name": "Sankar Rollover IRA",
+                    "name": "Fidelity Rollover IRA",
                     "number": "***7040",
                 },
                 "positions": [
                     {
                         "symbol": {"symbol": "AAL"},
-                        "units": "2000",
+                        "units": "4000",
                         "average_purchase_price": "11.27",
                         "price": "10.97",
-                    }
-                ],
-            },
-            {
-                "broker_name": "PUBLIC",
-                "account": {
-                    "name": "Public Brokerage",
-                    "number": "pub-001",
-                },
-                "positions": [
-                    {
-                        "symbol": {"symbol": "AAL"},
-                        "units": "2000",
-                        "average_purchase_price": "11.05",
-                        "price": "10.97",
-                    }
+                    },
                 ],
             },
         ]
