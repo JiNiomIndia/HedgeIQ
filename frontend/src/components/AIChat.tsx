@@ -64,9 +64,22 @@ export default function AIChat() {
     setLoading(true);
 
     try {
-      const portfolioContext = positions.length
+      // Always refresh positions on send so Claude has the latest snapshot,
+      // even if the positions fetch hadn't completed before this first message.
+      let livePositions = positions;
+      if (!livePositions.length) {
+        try {
+          const pr = await fetch(`${API}/api/v1/positions`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
+          });
+          const pd = await pr.json();
+          livePositions = pd.positions || [];
+          setPositions(livePositions);
+        } catch { /* fall through — chat works without context */ }
+      }
+      const portfolioContext = livePositions.length
         ? {
-            positions: positions.map(p => ({
+            positions: livePositions.map(p => ({
               broker: p.broker,
               symbol: p.symbol,
               quantity: p.quantity,
