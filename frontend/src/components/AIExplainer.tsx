@@ -13,6 +13,7 @@ interface Props {
 }
 
 import { API } from '../lib/api';
+import { Markdown } from '../lib/markdown';
 
 export default function AIExplainer({ contract, onClose }: Props) {
   const [explanation, setExplanation] = useState('');
@@ -44,7 +45,7 @@ export default function AIExplainer({ contract, onClose }: Props) {
       <div className="border-t border-gray-800 pt-3">
         <p className="text-gray-500 text-xs mb-2">🤖 AI Explanation</p>
         {loading ? <div className="space-y-2">{[...Array(3)].map((_,i) => <div key={i} className="h-3 bg-gray-800 rounded animate-pulse" />)}</div>
-          : <p className="text-gray-300 text-xs leading-relaxed">{explanation}</p>}
+          : <div className="text-gray-300 text-xs"><Markdown text={explanation} /></div>}
       </div>
       <p className="text-gray-600 text-xs mt-3 border-t border-gray-900 pt-2">AI only — not investment advice.</p>
     </div>

@@ -14,6 +14,8 @@ interface Recommendation {
 }
 
 import { API } from '../lib/api';
+import { Markdown } from '../lib/markdown';
+import PayoffChart from './PayoffChart';
 const fmt = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export default function EmergencyHedge() {
@@ -106,21 +108,41 @@ export default function EmergencyHedge() {
         </button>
       </div>
       {error && <div className="rounded p-3 text-sm mb-4 border" style={{borderColor:'#FF4466', color:'#FF4466', backgroundColor:'rgba(255,68,102,0.1)'}}>{error}</div>}
-      {recs.map((rec, i) => (
+      {recs.map((rec, i) => {
+        const contracts = Math.ceil(parseInt(shares || '0') / 100);
+        return (
         <div key={i} className="rounded p-4 mb-3 border border-gray-800" style={{backgroundColor:'#131929'}}>
           <div className="flex justify-between items-start mb-2">
-            <span className="font-bold text-lg" style={{color:'#00D4FF'}}>{rec.expiry_date} ${rec.strike} PUT</span>
+            <div>
+              <span className="font-bold text-lg" style={{color:'#00D4FF'}}>{rec.expiry_date} ${rec.strike} PUT</span>
+              <span className="ml-2 text-xs px-2 py-0.5 rounded" style={{backgroundColor:'rgba(0,212,255,0.1)', color:'#00D4FF'}}>#{i+1}</span>
+            </div>
             <span className="font-bold text-lg" style={{color:'#E8EAF0'}}>{fmt(rec.total_cost)}</span>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+          <div className="grid grid-cols-4 gap-2 text-xs mb-3">
             <span className="text-gray-500">Ask: <span style={{color:'#E8EAF0'}}>${rec.ask?.toFixed(2)}</span></span>
             <span className="text-gray-500">Breakeven: <span style={{color:'#E8EAF0'}}>${rec.breakeven_price?.toFixed(2)}</span></span>
             <span className="text-gray-500">OI: <span style={{color:'#E8EAF0'}}>{rec.open_interest?.toLocaleString()}</span></span>
+            <span className="text-gray-500">Contracts: <span style={{color:'#E8EAF0'}}>{contracts}</span></span>
           </div>
+
+          {/* Payoff chart */}
+          <div className="mb-3 pt-2 border-t border-gray-800">
+            <p className="text-xs text-gray-500 mb-1">Payoff at expiry — combined stock + put</p>
+            <PayoffChart
+              shares={parseInt(shares)}
+              entryPrice={parseFloat(entryPrice)}
+              currentPrice={parseFloat(currentPrice)}
+              strike={rec.strike}
+              premium={rec.ask}
+              contracts={contracts}
+            />
+          </div>
+
           {(rec.ai_explanation || rec._localExplain) && (
-            <p className="text-gray-400 text-xs border-t border-gray-800 pt-2 leading-relaxed">
-              {rec._localExplain || rec.ai_explanation}
-            </p>
+            <div className="text-gray-300 text-xs border-t border-gray-800 pt-2">
+              <Markdown text={rec._localExplain || rec.ai_explanation || ''} />
+            </div>
           )}
           <div className="flex gap-2 mt-3 flex-wrap">
             {!rec._localExplain && !rec.ai_explanation && (
@@ -136,7 +158,8 @@ export default function EmergencyHedge() {
             <button className="text-xs px-3 py-1 rounded" style={{backgroundColor:'#1F2937', color:'#E8EAF0'}}>Buy on Public</button>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

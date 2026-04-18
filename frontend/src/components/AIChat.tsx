@@ -4,6 +4,7 @@
  * @component
  */
 import { useState, useRef, useEffect } from 'react';
+import { Markdown } from '../lib/markdown';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -119,14 +120,14 @@ export default function AIChat() {
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
-              className="max-w-xl rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
+              className="max-w-2xl rounded-2xl px-4 py-3 text-sm"
               style={
                 m.role === 'user'
                   ? { backgroundColor: '#00D4FF', color: '#0A0E1A' }
                   : { backgroundColor: '#131929', color: '#E8EAF0', border: '1px solid #1F2937' }
               }
             >
-              {m.content}
+              {m.role === 'assistant' ? <Markdown text={m.content} /> : m.content}
             </div>
           </div>
         ))}
