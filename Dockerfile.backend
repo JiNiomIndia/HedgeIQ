@@ -3,9 +3,9 @@ FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
-# Install build deps for native wheels (chromadb, cryptography)
+# Install build deps for native wheels (chromadb, cryptography, hnswlib)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential gcc libffi-dev && \
+    build-essential gcc g++ libffi-dev && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -16,6 +16,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 FROM python:3.12-slim
 
 WORKDIR /app
+
+# Runtime system libraries needed by chromadb (hnswlib uses OpenMP + libstdc++)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 libstdc++6 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy installed packages from builder
 COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
@@ -34,8 +39,7 @@ USER hedgeiq
 
 EXPOSE 8000
 
-# Health check so Railway/Docker knows when the container is ready
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
