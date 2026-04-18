@@ -28,8 +28,8 @@ MAX_DAYS = 90
 MIN_STRIKE_PCT = Decimal("0.80")
 MAX_STRIKE_PCT = Decimal("1.05")
 
-# Standard number of contracts for a 5,000-share position
-CONTRACTS = 50
+# Each option contract represents 100 shares
+SHARES_PER_CONTRACT = 100
 
 
 class ProtectivePutStrategy(AbstractHedgeStrategy):
@@ -106,7 +106,11 @@ class ProtectivePutStrategy(AbstractHedgeStrategy):
         Returns:
             HedgeRecommendation with all metrics populated.
         """
-        total_cost = (option.ask * 100 * CONTRACTS).quantize(Decimal("0.01"))
+        # Contracts needed to cover the full position (1 contract = 100 shares)
+        # Round up so the full position is protected; minimum 1 contract.
+        contracts = max(1, int((position.quantity + SHARES_PER_CONTRACT - 1) // SHARES_PER_CONTRACT))
+
+        total_cost = (option.ask * SHARES_PER_CONTRACT * contracts).quantize(Decimal("0.01"))
         breakeven = (option.strike - option.ask).quantize(Decimal("0.01"))
 
         # Coverage: intrinsic value of the put at a 10% stock decline, net of premium
@@ -114,7 +118,7 @@ class ProtectivePutStrategy(AbstractHedgeStrategy):
         coverage = Decimal("0")
         if option.strike > drop_10_price:
             coverage = (
-                (option.strike - drop_10_price - option.ask) * 100 * CONTRACTS
+                (option.strike - drop_10_price - option.ask) * SHARES_PER_CONTRACT * contracts
             ).quantize(Decimal("0.01"))
 
         value_score = (
@@ -125,7 +129,7 @@ class ProtectivePutStrategy(AbstractHedgeStrategy):
 
         return HedgeRecommendation(
             contract=option,
-            contracts_to_buy=CONTRACTS,
+            contracts_to_buy=contracts,
             total_cost=total_cost,
             breakeven_price=breakeven,
             coverage_at_10pct_drop=coverage,

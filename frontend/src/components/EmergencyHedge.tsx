@@ -10,6 +10,7 @@ interface Recommendation {
   expiry_date: string; strike: number; ask: number;
   total_cost: number; breakeven_price: number;
   open_interest: number; value_score: number; ai_explanation?: string;
+  contracts_to_buy: number;
   _localExplain?: string; _explaining?: boolean;
 }
 
@@ -109,7 +110,7 @@ export default function EmergencyHedge() {
       </div>
       {error && <div className="rounded p-3 text-sm mb-4 border" style={{borderColor:'#FF4466', color:'#FF4466', backgroundColor:'rgba(255,68,102,0.1)'}}>{error}</div>}
       {recs.map((rec, i) => {
-        const contracts = Math.ceil(parseInt(shares || '0') / 100);
+        const contracts = rec.contracts_to_buy || Math.ceil(parseInt(shares || '0') / 100);
         return (
         <div key={i} className="rounded p-4 mb-3 border border-gray-800" style={{backgroundColor:'#131929'}}>
           <div className="flex justify-between items-start mb-2">
