@@ -13,7 +13,7 @@ interface Recommendation {
   _localExplain?: string; _explaining?: boolean;
 }
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API } from '../lib/api';
 const fmt = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export default function EmergencyHedge() {

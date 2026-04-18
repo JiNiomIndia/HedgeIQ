@@ -16,7 +16,7 @@ interface Position {
   marketValue: number; unrealisedPnl: number;
 }
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API } from '../lib/api';
 
 const STARTERS = [
   'What positions are most exposed right now?',

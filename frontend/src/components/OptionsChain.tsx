@@ -13,7 +13,7 @@ interface Contract {
   implied_volatility: number; delta: number; expiry_date: string;
 }
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API } from '../lib/api';
 
 export default function OptionsChain() {
   const [symbol, setSymbol] = useState('');

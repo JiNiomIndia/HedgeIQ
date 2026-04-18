@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API } from '../lib/api';
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('');

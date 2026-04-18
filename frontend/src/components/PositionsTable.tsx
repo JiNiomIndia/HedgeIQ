@@ -12,7 +12,7 @@ interface Position {
   marketValue: number; unrealisedPnl: number; unrealisedPnlPct: number;
 }
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API } from '../lib/api';
 const fmt = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 const pct = (n: number) => `${n >= 0 ? '+' : ''}${n?.toFixed(2)}%`;
 
