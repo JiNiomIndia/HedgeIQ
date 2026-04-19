@@ -1,0 +1,42 @@
+{
+  "$schema": "https://claude.com/schemas/claude-code-settings.json",
+  "description": "Pre-authorized tool permissions for the Phase 2 autonomous build. Copy this file to .claude/settings.json (or merge with existing) before running scripts/run-phase-2.ps1 or when you want approval-free interactive runs of the autonomous prompt.",
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(gh *)",
+      "Bash(sleep *)",
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(cd *)",
+      "Bash(chmod *)",
+      "Bash(echo *)",
+      "Bash(curl *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(pwd)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
+      "Grep(*)",
+      "Glob(*)",
+      "TodoWrite(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "Monitor(*)",
+      "ScheduleWakeup(*)",
+      "mcp__Claude_in_Chrome__*",
+      "mcp__ccd_session__*"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(* --no-verify*)",
+      "Bash(git reset --hard*)"
+    ]
+  }
+}

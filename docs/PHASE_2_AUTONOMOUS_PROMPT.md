@@ -1,0 +1,322 @@
+# HedgeIQ Phase 2 — Autonomous Build Prompt
+
+> This is a self-contained prompt. Paste it (or reference via the run script
+> at `scripts/run-phase-2.ps1`) into a fresh Claude Code session. Claude will
+> execute the entire Phase 2 build end-to-end without asking for approval.
+>
+> **Run it unattended. It creates its own branch, builds features, commits,
+> pushes, verifies in the real browser, and opens a PR when done.**
+
+---
+
+## Prompt body (paste verbatim to Claude)
+
+```
+You are Claude Code executing the HedgeIQ Phase 2 build autonomously.
+
+═══════════════════════════════════════════════════════════════════════════
+OPERATING MODE — READ CAREFULLY
+═══════════════════════════════════════════════════════════════════════════
+
+You are running in AUTONOMOUS mode. Until you finish or hit an unrecoverable
+error:
+
+1. DO NOT ask the user any questions. Make the best engineering choice and
+   proceed. If a choice is truly ambiguous, pick the option that matches
+   Fidelity's screenshots in docs/PHASE_2_FEATURES_FROM_FIDELITY.md.
+2. DO NOT wait for confirmation between steps. Commit, push, and continue.
+3. DO NOT roll back. Always fix forward.
+4. DO use TodoWrite to track every session and item — this is your only
+   persistent memory across long context.
+5. DO verify every session in the real browser via the Chrome MCP tools
+   (screenshot + assert key DOM elements exist).
+6. DO commit after every meaningful change with conventional-commit style
+   messages.
+7. DO self-diagnose and fix build errors (up to 3 retries) before moving on.
+
+The user has explicitly authorized:
+  - All file writes under C:\AgenticAI\Claude Apps\HedgeIQ
+  - All git commits and pushes to the phase-2 branch
+  - npm install of packages listed per session
+  - Browser automation via Claude-in-Chrome MCP
+  - Any Bash command needed for build / test / deploy
+
+═══════════════════════════════════════════════════════════════════════════
+STEP 0 — SETUP & BRANCHING (do this first, no exceptions)
+═══════════════════════════════════════════════════════════════════════════
+
+Working directory: C:\AgenticAI\Claude Apps\HedgeIQ
+
+Execute in order:
+
+  git fetch origin
+  git checkout main
+  git pull --rebase origin main
+  # Create phase-2 branch (or reset if it exists)
+  git branch -D phase-2 2>/dev/null || true
+  git checkout -b phase-2
+  git push -u origin phase-2
+
+Read these files to load full context:
+  - docs/PHASE_2_ROADMAP.md        ← session-by-session plan
+  - docs/PHASE_2_FEATURES_FROM_FIDELITY.md  ← exhaustive feature checklist
+  - backend/main.py                 ← current backend entry
+  - frontend/src/App.tsx            ← current frontend entry
+  - frontend/src/components/Dashboard.tsx ← current shell
+
+Then initialize your TodoWrite list with all 10 sessions from the roadmap,
+plus "Final: merge to main PR" as item 11.
+
+═══════════════════════════════════════════════════════════════════════════
+STEP 1..10 — EXECUTE EACH SESSION FROM docs/PHASE_2_ROADMAP.md
+═══════════════════════════════════════════════════════════════════════════
+
+For each session 1 through 10:
+
+  a. Mark the session in_progress in TodoWrite.
+  b. Read the session's Scope from PHASE_2_ROADMAP.md.
+  c. Implement every Scope bullet AND every matching feature item from
+     PHASE_2_FEATURES_FROM_FIDELITY.md. If the roadmap and feature list
+     conflict, the feature list wins (it is verbatim from screenshots).
+  d. After each file-edit chunk, run `cd frontend && npm run build`. If it
+     fails, read errors, fix, retry. Up to 3 build-fix cycles per session.
+  e. Commit with message: "feat(<session-slug>): <summary>"
+     Include Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>.
+  f. Push: git push origin phase-2
+  g. Wait 180 seconds for Vercel preview build (use Bash sleep
+     run_in_background:true, don't poll).
+  h. Open the Vercel preview URL in Chrome MCP. The preview URL pattern
+     is https://hedge-iq-git-phase-2-<user>.vercel.app — if unknown, run
+     `npx vercel ls --token=$VERCEL_TOKEN 2>/dev/null || gh pr view phase-2
+     --json url` to discover. Fallback to the production URL
+     https://hedge-iq-five.vercel.app if preview is unavailable.
+  i. Verify acceptance criteria from the roadmap via:
+       - Take screenshot, save_to_disk=true
+       - Query DOM for required elements via javascript_tool
+       - If a criterion fails, fix the code, commit fix, push, retry once.
+  j. Mark session completed in TodoWrite. Move to next.
+
+IMPORTANT — dev-mode cache: set ENV=development in all new backend code and
+make every new facade method go through TieredCache (Session 7 deliverable).
+Even if Session 7 hasn't run yet, stub out `from backend.infrastructure.cache
+.tiered_cache import TieredCache` so later sessions don't need refactoring.
+
+═══════════════════════════════════════════════════════════════════════════
+STEP 11 — FINAL PR
+═══════════════════════════════════════════════════════════════════════════
+
+When all 10 sessions are done (or you hit hard failures you can't fix):
+
+  a. Take final screenshots of every page in both themes.
+  b. Update README.md with new screenshots + feature list.
+  c. git add . && git commit -m "docs: Phase 2 complete — final screenshots"
+  d. git push origin phase-2
+  e. Create PR:
+       gh pr create --base main --head phase-2 \
+         --title "Phase 2: Fidelity-level trading UI" \
+         --body-file docs/PHASE_2_PR_BODY.md
+     (Generate PR_BODY.md listing sessions completed, sessions skipped with
+     reasons, known issues, migration notes.)
+  f. Print the PR URL.
+  g. Exit.
+
+═══════════════════════════════════════════════════════════════════════════
+ERROR HANDLING POLICY
+═══════════════════════════════════════════════════════════════════════════
+
+Category → action:
+
+  TypeScript error after 3 retries   → log in PR_BODY "Session X blocked:
+                                        <error>", skip session, continue.
+  Missing npm package                 → npm install it (auto-approved).
+  Vercel build fails 3 times          → push anyway, log failure, continue.
+  Railway deploy fails                → continue; backend changes may revert.
+  External API rate limit             → respect, wait 60s, retry once.
+  User interrupts (rare)              → save state to TodoWrite, exit.
+  Browser automation hangs            → skip verify for that session, log.
+  Git push conflict                   → pull --rebase, re-push. If still
+                                        fails, force-push to phase-2
+                                        (it's a dedicated branch).
+
+NEVER:
+  - Push force to main
+  - Skip hook signing
+  - Commit .env or secrets
+  - Delete existing commits
+  - Mutate any file outside the HedgeIQ workspace
+
+═══════════════════════════════════════════════════════════════════════════
+CACHING DISCIPLINE (from roadmap §3 — enforced from Session 1 onward)
+═══════════════════════════════════════════════════════════════════════════
+
+Every new facade method must:
+  1. Accept a TieredCache instance (inject via constructor).
+  2. Check cache first with appropriate tier.
+  3. On miss, call live API, store in cache, return.
+  4. In dev mode (ENV=development), TieredCache.get() returns None 10% of
+     the time to force a live call.
+
+Common TTLs (dev mode):
+  QUOTE 6h, OPTIONS_CHAIN 4h, DAILY_BARS 24h, POSITIONS 10m,
+  AI_RESPONSE 7d, NEWS 1h, METADATA 30d.
+
+═══════════════════════════════════════════════════════════════════════════
+SUCCESS DEFINITION
+═══════════════════════════════════════════════════════════════════════════
+
+Phase 2 is complete when:
+  1. Every checkbox in docs/PHASE_2_FEATURES_FROM_FIDELITY.md is ✅.
+  2. npm run build passes with 0 errors and bundle <400KB gzipped.
+  3. Lighthouse Performance ≥ 80, Accessibility ≥ 95.
+  4. Real-browser verification of all 5 Fidelity-parity screens.
+  5. A PR from phase-2 → main is open and the GitHub Actions check (if any)
+     is green.
+
+Begin now. Start with STEP 0. Report progress by updating TodoWrite. Do NOT
+ask for confirmation.
+```
+
+---
+
+## How to execute this prompt without interaction
+
+### Option A — one-shot via Claude Code CLI (recommended)
+
+Claude Code supports `--dangerously-skip-permissions` which auto-approves
+every tool call. Combined with `-p` (print mode) and stdin piping, this
+runs unattended.
+
+**PowerShell (Windows):**
+
+```powershell
+cd "C:\AgenticAI\Claude Apps\HedgeIQ"
+
+# The prompt content is below the --- line in this file.
+# Extract and pipe to claude-code.
+$prompt = Get-Content docs/PHASE_2_AUTONOMOUS_PROMPT.md -Raw
+$prompt = $prompt -split '## Prompt body \(paste verbatim to Claude\)\s*```', 2 |
+  Select-Object -Last 1 |
+  ForEach-Object { $_ -replace '```[\s\S]*$', '' }
+
+$prompt | claude `
+  --dangerously-skip-permissions `
+  --model claude-opus-4-7 `
+  --output-format stream-json `
+  2>&1 | Tee-Object -FilePath "phase-2-run-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
+```
+
+**Bash (macOS/Linux/WSL):**
+
+```bash
+cd "/path/to/HedgeIQ"
+
+sed -n '/^## Prompt body/,$p' docs/PHASE_2_AUTONOMOUS_PROMPT.md \
+  | sed '1,/^```$/d' \
+  | sed -e '/^```$/,$d' \
+  | claude \
+    --dangerously-skip-permissions \
+    --model claude-opus-4-7 \
+    --output-format stream-json \
+  2>&1 | tee "phase-2-run-$(date +%Y%m%d-%H%M%S).log"
+```
+
+### Option B — settings-based auto-approval (safer)
+
+Edit `.claude/settings.json` in the project root (create if absent):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(gh *)",
+      "Bash(sleep *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Edit(*)",
+      "Write(*)",
+      "Read(*)",
+      "Grep(*)",
+      "Glob(*)",
+      "TodoWrite(*)",
+      "WebFetch(*)",
+      "mcp__Claude_in_Chrome__*"
+    ]
+  }
+}
+```
+
+Then run interactively with the prompt — Claude will still proceed without
+approval prompts because every tool it needs is in the allow list.
+
+```powershell
+claude --model claude-opus-4-7
+# then paste the prompt body
+```
+
+### Option C — headless script wrapper (simplest)
+
+Use the PowerShell wrapper below (`scripts/run-phase-2.ps1`). It extracts
+the prompt, sets env vars, and invokes Claude with all safety flags.
+
+```powershell
+.\scripts\run-phase-2.ps1
+```
+
+The wrapper handles:
+- Branch creation (if Claude crashes mid-run, re-running resumes from the
+  current TodoWrite state)
+- Log file rotation
+- Failure notification via Windows toast
+- Auto-open of the PR URL on success
+
+---
+
+## Monitoring the run
+
+While Claude works (can take 2-4 hours for all 10 sessions):
+
+- **Terminal**: stream-json output shows every tool call.
+- **File watch**: `git log phase-2 --oneline -20` in another terminal to see
+  commits landing.
+- **Vercel dashboard**: https://vercel.com/<your-team>/hedge-iq — each push
+  creates a preview deploy.
+- **GitHub**: https://github.com/JiNiomIndia/HedgeIQ/tree/phase-2 to browse
+  intermediate code.
+
+## If something goes wrong
+
+If Claude crashes or you kill the run:
+
+1. `git log phase-2 --oneline` — inspect what made it in.
+2. Re-run the prompt. Claude reads TodoWrite state at the start and resumes
+   from the first incomplete session.
+3. Worst case: `git checkout phase-2`, manually finish a session, push, then
+   re-run to continue.
+
+If the PR is opened but a session was skipped:
+- PR body lists the reason under "Skipped sessions".
+- You can create a follow-up branch from phase-2 to pick up the skipped
+  work, or revise the session prompt in the roadmap and re-run.
+
+---
+
+## Why this design
+
+- **Branch isolation**: phase-2 never touches main until the PR is reviewed
+  and merged. If you hate Phase 2, just close the PR — main is untouched.
+- **TodoWrite as persistent state**: Claude's context window is limited,
+  but TodoWrite survives across subagent invocations and re-runs, so long
+  builds remain resumable.
+- **Real-browser verification**: every session must pass a live screenshot
+  + DOM assertion check before the next session starts, so you can't end
+  up with a "built but broken" app.
+- **Fail-forward, never rollback**: if a session gets stuck, it's logged
+  in the PR body and skipped — you still get 9 of 10 sessions shipped
+  instead of zero.
+- **Feature spec tied to your screenshots**: every acceptance criterion
+  links back to a specific pixel in the Fidelity images, so there's no
+  ambiguity about "what does professional look like".
