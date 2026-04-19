@@ -85,6 +85,92 @@ class PolygonFacade:
     # Public API
     # ------------------------------------------------------------------
 
+    async def get_daily_bars(self, symbol: str, days: int = 90) -> list:
+        """Fetch daily OHLC bars for a stock from Polygon (free tier OK).
+
+        Args:
+            symbol: Stock ticker.
+            days: Number of trailing days to fetch.
+
+        Returns:
+            List of {date, open, high, low, close, volume} dicts sorted by date.
+        """
+        from datetime import date, timedelta
+        cache_key = f"polygon:bars:{symbol}:{days}"
+        cached = self._cache.get(cache_key)
+        if cached:
+            return json.loads(cached) if isinstance(cached, str) else cached
+
+        if self._client is None:
+            return self._mock_bars(symbol, days)
+
+        end = date.today()
+        start = end - timedelta(days=int(days * 1.6))  # extra days to account for weekends
+
+        try:
+            await self._limiter.acquire()
+            aggs = self._client.list_aggs(
+                ticker=symbol, multiplier=1, timespan="day",
+                from_=start.isoformat(), to=end.isoformat(), limit=days,
+            )
+            bars = []
+            for a in aggs:
+                ts = getattr(a, "timestamp", None)
+                if ts is None:
+                    continue
+                d = date.fromtimestamp(ts / 1000).isoformat()
+                bars.append({
+                    "date": d,
+                    "open": float(a.open or 0),
+                    "high": float(a.high or 0),
+                    "low": float(a.low or 0),
+                    "close": float(a.close or 0),
+                    "volume": int(a.volume or 0),
+                })
+            bars.sort(key=lambda b: b["date"])
+            bars = bars[-days:]  # keep the most recent N bars
+            if bars:
+                self._cache.set(cache_key, json.dumps(bars), ttl_hours=2)
+            return bars
+        except Exception:
+            return self._mock_bars(symbol, days)
+
+    def _mock_bars(self, symbol: str, days: int) -> list:
+        """Synthetic price history — deterministic random walk around recent price."""
+        import math, random
+        from datetime import date, timedelta
+        price_map = {
+            "AAL": 10.97, "AAPL": 175.00, "MSFT": 380.00, "TSLA": 240.00,
+            "GOOGL": 140.00, "META": 490.00, "NVDA": 880.00, "AMZN": 180.00,
+            "SPY": 520.00, "QQQ": 440.00, "TWLO": 138.90, "DOGE": 0.10,
+            "F": 12.50, "BA": 190.00, "COIN": 245.00, "PLTR": 22.00,
+            "SHOP": 75.00, "UBER": 72.00, "DIS": 110.00, "NFLX": 98.00,
+        }
+        base = price_map.get(symbol.upper(), 50.00)
+        rng = random.Random(hash(symbol) & 0xFFFFFFFF)
+        vol = 0.02  # 2% daily vol
+        bars = []
+        price = base * 0.92  # start ~8% below for a mild uptrend illusion
+        today = date.today()
+        for i in range(days):
+            d = today - timedelta(days=days - 1 - i)
+            # drift toward base price + noise
+            drift = (base - price) * 0.03
+            ret = drift + rng.gauss(0, vol) * price
+            new_price = max(0.01, price + ret)
+            high = max(price, new_price) * (1 + abs(rng.gauss(0, 0.005)))
+            low = min(price, new_price) * (1 - abs(rng.gauss(0, 0.005)))
+            bars.append({
+                "date": d.isoformat(),
+                "open": round(price, 2),
+                "high": round(high, 2),
+                "low": round(low, 2),
+                "close": round(new_price, 2),
+                "volume": int(abs(rng.gauss(5_000_000, 2_000_000))),
+            })
+            price = new_price
+        return bars
+
     async def get_options_chain(
         self,
         symbol: str,

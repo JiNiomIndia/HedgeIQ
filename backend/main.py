@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.v1 import positions, options, hedge, ai, auth
+from backend.api.v1 import positions, options, hedge, ai, auth, quotes
 
 app = FastAPI(
     title="HedgeIQ API",
@@ -27,6 +27,7 @@ app.include_router(positions.router, prefix="/api/v1")
 app.include_router(options.router, prefix="/api/v1")
 app.include_router(hedge.router, prefix="/api/v1")
 app.include_router(ai.router, prefix="/api/v1")
+app.include_router(quotes.router, prefix="/api/v1")
 
 
 @app.get("/health")
