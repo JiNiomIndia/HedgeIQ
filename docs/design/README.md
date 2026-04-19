@@ -1,0 +1,119 @@
+# HedgeIQ Design System
+
+This folder holds the canonical visual specification for HedgeIQ. When
+designs exist here, they **override** inferred styling from screenshots
+or natural-language feedback. The autonomous build prompt
+(`docs/PHASE_2_AUTONOMOUS_PROMPT.md`) reads this folder before generating
+any UI code.
+
+## Folder layout
+
+| Path | Contents |
+|---|---|
+| `tokens.json` | Colors, spacing, type scale, radii, shadows — the source of truth for theme generation |
+| `components/` | Individual component PNGs + `.md` annotations |
+| `pages/` | Full-page compositions (`dashboard-dark.png`, `dashboard-light.png`, `mobile-768.png`) |
+| `states/` | Interaction states (hover, selected, loading, error, empty) |
+| `figma-links.md` | Figma share URLs if designs live in Figma |
+
+## Naming convention
+
+- Component PNGs: `<component-slug>.png` + optional `<component-slug>@2x.png`
+- State PNGs: `<component>-<state>.png` (e.g. `chain-atm-highlight.png`)
+- Page PNGs: `<page>-<theme>-<viewport>.png` (e.g. `dashboard-dark-1920.png`)
+- All PNGs at 1x minimum, 2x preferred for retina.
+
+## How Claude uses these files
+
+1. Before starting Session 1 (theme system), Claude reads `tokens.json` and
+   generates `frontend/src/lib/theme.css` from it. Any color/spacing/radius
+   referenced elsewhere in the codebase must come from the tokens.
+2. Before implementing each component, Claude reads the matching PNG from
+   `components/` + its `.md` annotation file.
+3. After implementation, Claude takes a screenshot of the rendered
+   component in the real browser and visually compares against the design
+   PNG. If misaligned, iterates until it matches.
+4. If a design exists for both themes, both must be implemented and
+   visually verified.
+
+## Authoring workflow (yours)
+
+1. Finish a design in Claude Design / Figma / whatever tool.
+2. Export each frame as PNG (1x + 2x).
+3. Drop into the appropriate subfolder.
+4. Write a short `.md` alongside the PNG with annotations Claude can't
+   infer from the image (spacing in px, responsive breakpoints, ARIA
+   labels, empty-state text, etc). Use the template at the bottom of
+   this file.
+5. If using Figma: paste the share URL into `figma-links.md`.
+6. Update `tokens.json` if any new colors/spacing/types were introduced.
+7. Commit everything.
+8. Re-run the Phase 2 autonomous script — it will pick up the new
+   designs and regenerate affected components.
+
+## Design iteration mid-build
+
+If the autonomous build is already running and you add a new design:
+1. Don't interrupt the run.
+2. When it finishes (or when it's idle between sessions), add the new
+   design files and re-trigger the affected session by name:
+   `./scripts/run-phase-2.sh --resume-from session-5`
+3. Alternatively, the autonomous prompt polls this folder at the start
+   of each session — if new designs appear, it picks them up.
+
+## Annotation template (`components/<name>.md`)
+
+Copy this into every new component annotation:
+
+```markdown
+# <Component Name>
+
+## Design source
+<!-- file path or Figma URL -->
+
+## Purpose
+One sentence describing what this component does for the user.
+
+## Layout / spacing (px)
+- Container padding: X
+- Gap between child items: X
+- Min width / max width: X / X
+- Grid / flex rules
+
+## Typography
+- Heading: <size> / <weight> / <token ref>
+- Body: <size> / <weight> / <token ref>
+- Numbers: tabular-nums always
+
+## Colors (reference tokens.json)
+- Background: <token>
+- Foreground: <token>
+- Accent: <token>
+- Error: <token>
+
+## Responsive behavior
+- Desktop (≥1440px): ...
+- Laptop (≥1024px): ...
+- Tablet (≥768px): ...
+- Mobile (<768px): ...
+
+## Interaction states
+- Default: ...
+- Hover: ...
+- Focus: ...
+- Active / pressed: ...
+- Disabled: ...
+- Loading: ...
+- Empty: ...
+- Error: ...
+
+## Accessibility
+- Role: <e.g. table, button, dialog>
+- ARIA labels: ...
+- Keyboard nav: ...
+- Focus order: ...
+- Screen reader text: ...
+
+## Don'ts
+- Things the design has rejected (important for avoiding regression)
+```

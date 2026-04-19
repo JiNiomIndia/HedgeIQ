@@ -60,9 +60,37 @@ Execute in order:
 Read these files to load full context:
   - docs/PHASE_2_ROADMAP.md        ← session-by-session plan
   - docs/PHASE_2_FEATURES_FROM_FIDELITY.md  ← exhaustive feature checklist
+  - docs/design/README.md          ← design system entry point (see below)
+  - docs/design/tokens.json        ← colors / spacing / type source of truth
+  - docs/design/figma-links.md     ← Figma file references (use Figma MCP if present)
   - backend/main.py                 ← current backend entry
   - frontend/src/App.tsx            ← current frontend entry
   - frontend/src/components/Dashboard.tsx ← current shell
+
+DESIGN-FIRST PROTOCOL (critical):
+  Before implementing ANY visual component, check for a design reference
+  in this order:
+    1. docs/design/components/<component-slug>.png (+ matching .md file)
+    2. docs/design/states/<component>-<state>.png for state variants
+    3. docs/design/pages/<page>-<theme>-<viewport>.png for page composition
+    4. A Figma node listed in docs/design/figma-links.md — if present,
+       call the Figma MCP (mcp__81f7cd01-375e-4943-8b23-82fb55adff92__*)
+       to fetch the frame and extracted tokens
+    5. If NO design reference exists, fall back to the Fidelity screenshot
+       analogue from PHASE_2_FEATURES_FROM_FIDELITY.md
+
+  When a design exists, it OVERRIDES the Fidelity screenshot — the
+  Fidelity screenshots are feature references, not visual specs. The
+  design files are the visual spec.
+
+  Session 1 (theme system) MUST read docs/design/tokens.json and generate
+  frontend/src/lib/theme.css from it. Never hardcode a color/spacing/type
+  value that could come from a token.
+
+  After rendering a component in the browser, take a screenshot and
+  visually compare to the design PNG. If they diverge meaningfully
+  (layout, spacing, colors, typography), iterate up to 3 times before
+  moving on.
 
 Then initialize your TodoWrite list with all 10 sessions from the roadmap,
 plus "Final: merge to main PR" as item 11.
