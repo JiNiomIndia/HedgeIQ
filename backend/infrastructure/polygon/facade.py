@@ -131,7 +131,11 @@ class PolygonFacade:
             bars = bars[-days:]  # keep the most recent N bars
             if bars:
                 self._cache.set(cache_key, json.dumps(bars), ttl_hours=2)
-            return bars
+                return bars
+            # Polygon returned no aggregates (e.g., crypto tickers not available
+            # on the equities endpoint). Fall back to synthetic data so the UI
+            # sparklines still render.
+            return self._mock_bars(symbol, days)
         except Exception:
             return self._mock_bars(symbol, days)
 

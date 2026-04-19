@@ -15,7 +15,6 @@ interface Position {
 }
 
 const fmt = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-const fmt0 = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const pct = (n: number) => `${n >= 0 ? '+' : ''}${n?.toFixed(2)}%`;
 
 interface ChartData { day_change: number; day_change_pct: number; last_close: number; }
@@ -177,7 +176,7 @@ export default function PositionsTable() {
             <tfoot>
               <tr className="border-t border-gray-700" style={{backgroundColor:'#0F1420'}}>
                 <td colSpan={6} className="py-2 pl-4 font-bold text-gray-400">Account total</td>
-                <td className="text-right tabular-nums font-bold" style={{color:'#E8EAF0'}}>{fmt0(accountValue)}</td>
+                <td className="text-right tabular-nums font-bold" style={{color:'#E8EAF0'}}>{fmt(accountValue)}</td>
                 <td colSpan={4}></td>
               </tr>
             </tfoot>
