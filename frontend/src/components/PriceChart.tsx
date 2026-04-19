@@ -33,7 +33,7 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
   const W = 700;
   const priceH = height * 0.72;
   const volH = height * 0.22;
-  const padL = 55, padR = 15, padT = 10, padB = 20;
+  const padL = 55, padR = 15, padT = 10;
   const plotW = W - padL - padR;
 
   const highs = bars.map(b => b.high);
@@ -47,7 +47,6 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
   const step = plotW / bars.length;
 
   const priceY = (p: number) => padT + priceH - ((p - priceMin) / priceRange) * priceH;
-  const volY = (v: number) => padT + priceH + (volH - (v / maxVol) * volH);
 
   const gridLevels = 4;
   const gridLines = Array.from({ length: gridLevels + 1 }, (_, i) => priceMin + (priceRange / gridLevels) * i);

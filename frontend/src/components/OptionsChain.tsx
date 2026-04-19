@@ -4,7 +4,7 @@
  * grouped by expiry, ATM highlighting, inline Buy/Sell buttons.
  * @component
  */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import AIExplainer from './AIExplainer';
 import PriceChart from './PriceChart';
 import { API } from '../lib/api';
