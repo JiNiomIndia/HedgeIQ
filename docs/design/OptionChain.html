@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1400"/>
+<title>Option Chain — HedgeIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles/theme.css"/>
+<style>
+  body { overflow: auto; }
+  .oc-header { padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 16px; }
+  .oc-breadcrumb { font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .oc-quote { padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .oc-quote-field { display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
+  .oc-quote-field .label { color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .oc-quote-field .value { color: var(--text); font-weight: 600; font-size: 12px; }
+  .oc-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; background: var(--surface); }
+  .oc-tab { padding: 10px 20px; cursor: pointer; font-size: 14px; color: var(--text-muted); font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+  .oc-tab.active { color: var(--text); border-bottom-color: var(--pos, #2D7B3E); font-weight: 600; }
+  .oc-filters { padding: 12px 24px; display: flex; align-items: flex-end; gap: 20px; background: var(--surface-2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .oc-filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .oc-filter-group .filter-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .oc-select { padding: 6px 26px 6px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); min-width: 140px; position: relative; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 8px center; }
+  .oc-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; background: var(--surface); }
+  .oc-seg button { padding: 6px 14px; font-size: 13px; background: var(--surface); color: var(--text); border: 0; cursor: pointer; font-weight: 500; }
+  .oc-seg button.active { background: var(--pos, #2D7B3E); color: white; }
+  .oc-switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--text); }
+  .oc-switch-track { width: 34px; height: 18px; border-radius: 999px; background: var(--pos, #2D7B3E); position: relative; transition: background 0.15s; }
+  .oc-switch-track.off { background: var(--surface-sunken); border: 1px solid var(--border); }
+  .oc-switch-thumb { position: absolute; top: 1px; left: 17px; width: 14px; height: 14px; border-radius: 999px; background: white; transition: left 0.15s; }
+  .oc-switch-track.off .oc-switch-thumb { left: 1px; background: var(--text-muted); }
+  .oc-expiry { padding: 10px 24px; background: var(--surface-2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .exp-pill { padding: 4px 10px; border-radius: 4px; background: var(--pos, #2D7B3E); color: white; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; min-width: 42px; position: relative; }
+  .exp-pill .m { font-size: 11px; }
+  .exp-pill .d { font-size: 11px; }
+  .exp-pill .w { font-size: 9px; background: rgba(255,255,255,0.2); padding: 0 3px; border-radius: 2px; margin-top: 1px; }
+  .exp-pill.future { background: transparent; color: var(--text-muted); font-weight: 500; writing-mode: vertical-rl; transform: rotate(180deg); padding: 6px 2px; min-width: 14px; }
+  .exp-pill.earnings::after { content: 'E'; position: absolute; top: -4px; right: -4px; background: var(--accent); color: white; font-size: 8px; padding: 0 3px; border-radius: 999px; font-weight: 700; }
+  .oc-chain { padding: 0 24px 32px; }
+  .chain-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }
+  .chain-table th { text-align: right; font-weight: 500; color: var(--text-muted); padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 11px; }
+  .chain-table th.strike-col { text-align: center; background: var(--surface-sunken); font-weight: 700; color: var(--text); }
+  .chain-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; text-align: right; }
+  .chain-table td.strike { text-align: center; background: var(--surface-sunken); font-weight: 700; font-family: 'Inter Tight', sans-serif; }
+  .chain-table tr:hover td { background: color-mix(in oklch, var(--pos, #2D7B3E) 4%, transparent); }
+  .chain-table tr:hover td.strike { background: color-mix(in oklch, var(--pos, #2D7B3E) 12%, var(--surface-sunken)); }
+  .bid-btn, .ask-btn { border: 1px solid var(--border); padding: 3px 10px; border-radius: 3px; background: var(--surface); font-size: 11px; font-family: 'JetBrains Mono', monospace; cursor: pointer; color: var(--pos, #2D7B3E); font-weight: 500; min-width: 64px; display: inline-block; }
+  .bid-btn:hover, .ask-btn:hover { background: var(--pos-bg); border-color: var(--pos, #2D7B3E); }
+  .chain-row-hover { position: relative; }
+  .expiry-row { background: var(--surface-sunken); font-weight: 600; font-size: 12px; }
+  .expiry-row td { text-align: left !important; padding: 8px 6px !important; font-family: 'Inter Tight', sans-serif !important; }
+  .custom-range { padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-top: 12px; }
+  .custom-range-title { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .range-inputs { display: flex; align-items: center; gap: 8px; }
+  .range-inputs input { padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; font-family: 'JetBrains Mono', monospace; width: 90px; background: var(--surface); }
+  .range-inputs input:focus { outline: 2px solid var(--pos, #2D7B3E); outline-offset: -1px; border-color: var(--pos, #2D7B3E); }
+  .apply-btn { padding: 6px 18px; background: var(--pos, #2D7B3E); color: white; border: 0; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .apply-btn:hover { filter: brightness(0.95); }
+  .action-row { display: flex; gap: 4px; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.1s; padding: 4px; }
+  tr:hover .action-row { opacity: 1; }
+  .action-btn { padding: 4px 10px; font-size: 11px; border-radius: 3px; font-weight: 700; cursor: pointer; border: 0; color: white; }
+  .action-btn.buy { background: var(--pos, #2D7B3E); }
+  .action-btn.sell { background: var(--neg, #C4282B); }
+  .action-btn.cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border); font-weight: 500; }
+  .strat-badge { display: inline-block; padding: 2px 8px; background: var(--chip); color: var(--accent); font-size: 10px; font-weight: 700; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .oc-dropdown-wrap { position: relative; }
+  .oc-dropdown { position: absolute; top: calc(100% + 2px); left: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; box-shadow: var(--shadow-md); z-index: 50; min-width: 180px; max-height: 300px; overflow-y: auto; padding: 4px 0; }
+  .oc-dropdown-item { padding: 7px 12px; font-size: 13px; cursor: pointer; color: var(--text); }
+  .oc-dropdown-item:hover, .oc-dropdown-item.active { background: var(--pos-bg); color: var(--pos, #2D7B3E); font-weight: 600; }
+  .pos-pill { padding: 1px 8px; background: var(--pos-bg); color: var(--pos); border-radius: 3px; font-size: 11px; font-weight: 600; }
+  .neg-pill { padding: 1px 8px; background: var(--neg-bg); color: var(--neg); border-radius: 3px; font-size: 11px; font-weight: 600; }
+  .feedback-fab { position: fixed; right: 0; top: 40%; writing-mode: vertical-rl; background: var(--accent); color: white; padding: 8px 6px; border-radius: 4px 0 0 4px; font-size: 11px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-md); }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-theme="meridian" data-density="balanced">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+// Apply persisted theme
+try {
+  const s = JSON.parse(localStorage.getItem('hedgeiq.tweaks') || '{}');
+  if (s.theme) document.body.dataset.theme = s.theme;
+  if (s.density) document.body.dataset.density = s.density;
+  if (s.colorblind) document.body.dataset.colorblind = 'true';
+} catch {}
+
+const qs = new URLSearchParams(location.search);
+const SYMBOL = (qs.get('symbol') || 'FSLY').toUpperCase();
+
+const TICKER_DATA = {
+  FSLY: { name: 'Fastly Class A', price: 24.56, chg: -0.32, chgPct: -1.29, bid: 24.38, bidSize: 300, ask: 24.56, askSize: 1000, volume: 12701046, iv30: 120.62, ivChg: -5.40, hv30: 135.20, hvChg: -0.07, exDiv: '—', earnings: 'May 6, 2026', putCall: 0.18, dayHigh: 26.29, dayLow: 23.965, low52: 5.125, high52: 34.82, sector: '6', sentiment: 'bullish', logo: '🔴' },
+  NVDA: { name: 'NVIDIA Corp', price: 892.40, chg: 14.22, chgPct: 1.62, bid: 892.34, bidSize: 200, ask: 892.46, askSize: 100, volume: 41.2e6, iv30: 48.2, ivChg: -2.1, hv30: 52.4, hvChg: 0.3, exDiv: 'Jun 15', earnings: 'May 22, 2026', putCall: 0.42, dayHigh: 895.20, dayLow: 882.10, low52: 394.50, high52: 974.00, sector: 'Tech', sentiment: 'bullish' },
+  SNOW: { name: 'Snowflake Inc', price: 143.98, chg: 0.43, chgPct: 0.30, bid: 143.94, bidSize: 200, ask: 144.02, askSize: 300, volume: 4.3e6, iv30: 62.1, ivChg: -0.8, hv30: 58.3, hvChg: 0.2, exDiv: '—', earnings: 'May 28, 2026', putCall: 0.54, dayHigh: 145.20, dayLow: 142.10, low52: 133.75, high52: 237.72, sector: 'Tech', sentiment: 'neutral' },
+  PSKY: { name: 'Paramount Skydance Class B', price: 11.74, chg: 0.01, chgPct: 0.09, bid: 11.71, bidSize: 1000, ask: 11.80, askSize: 200, volume: 7187774, iv30: 45.2, ivChg: -0.6, hv30: 42.8, hvChg: 0.1, exDiv: 'Jun 1', earnings: 'May 10, 2026', putCall: 0.38, dayHigh: 11.82, dayLow: 11.62, low52: 9.25, high52: 14.80, sector: 'Media', sentiment: 'neutral' },
+};
+
+const t = TICKER_DATA[SYMBOL] || TICKER_DATA.FSLY;
+
+const STRATEGIES = ['Calls & puts', 'Buy write', 'Collar', 'Combo', 'Spread (calendar)', 'Spread (diagonal)', 'Spread (ratio)', 'Spread (vertical)', 'Straddle', 'Strangle', 'Butterfly', 'Condor'];
+const STRIKE_COUNTS = ['5', '10', '20', 'All'];
+
+const EXPIRATIONS = [
+  { month: 'Apr', day: '24', weekly: true, year: 2026 },
+  { month: 'May', day: '01', weekly: true, year: 2026 },
+  { month: 'May', day: '08', weekly: true, year: 2026, earnings: true },
+  { month: 'May', day: '15', weekly: true, year: 2026 },
+  { month: 'May', day: '22', weekly: true, year: 2026 },
+  { month: 'May', day: '29', weekly: true, year: 2026 },
+  { month: 'Jun', day: '18', weekly: false, year: 2026 },
+  { month: 'Sep', day: '18', weekly: false, year: 2026 },
+  { month: 'Dec', day: '18', weekly: false, year: 2026 },
+  { month: 'Jan', day: '15', weekly: false, year: 2027 },
+  { month: 'Jul', day: '16', weekly: false, year: 2027 },
+  { month: 'Oct', day: '15', weekly: false, year: 2027 },
+  { month: 'Jan', day: '21', weekly: false, year: 2028 },
+];
+
+// Generate mock option data
+function genOptions(strike, atmPrice, baseIV) {
+  const moneyness = (atmPrice - strike) / atmPrice;
+  const callITM = strike < atmPrice;
+  const putITM = strike > atmPrice;
+  const callLast = Math.max(0.05, atmPrice - strike + Math.random() * 0.5 + Math.abs(moneyness) * 0.8);
+  const putLast = Math.max(0.05, strike - atmPrice + Math.random() * 0.5 + Math.abs(moneyness) * 0.8);
+  const callIV = baseIV + (1 - Math.abs(moneyness)) * 20 + Math.random() * 5;
+  const putIV = baseIV + (1 - Math.abs(moneyness)) * 20 + Math.random() * 5;
+  const callDelta = Math.max(0.01, Math.min(0.99, 0.5 + moneyness * 2));
+  const putDelta = -Math.max(0.01, Math.min(0.99, 0.5 - moneyness * 2));
+  return {
+    call: {
+      last: callLast.toFixed(2),
+      change: 0.00,
+      bid: (callLast - 0.1).toFixed(2),
+      ask: (callLast + 0.05).toFixed(2),
+      volume: callITM ? Math.floor(Math.random() * 100) : Math.floor(Math.random() * 200),
+      openInterest: Math.floor(Math.random() * 1500),
+      iv: callIV.toFixed(2),
+      delta: callDelta.toFixed(4),
+    },
+    put: {
+      last: putLast.toFixed(2),
+      change: 0.00,
+      bid: (putLast - 0.1).toFixed(2),
+      ask: (putLast + 0.05).toFixed(2),
+      volume: putITM ? Math.floor(Math.random() * 100) : Math.floor(Math.random() * 300),
+      openInterest: Math.floor(Math.random() * 4000),
+      iv: putIV.toFixed(2),
+      delta: putDelta.toFixed(4),
+    },
+  };
+}
+
+// Custom dropdown component
+const Dropdown = ({ value, options, onChange, width }) => {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef();
+  React.useEffect(() => {
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+  return (
+    <div ref={ref} className="oc-dropdown-wrap">
+      <button className="oc-select" style={{ width: width || 160, textAlign: 'left' }} onClick={() => setOpen(o => !o)}>
+        {value}
+      </button>
+      {open && (
+        <div className="oc-dropdown" style={{ minWidth: width || 160 }}>
+          {options.map(o => (
+            <div key={o} className={'oc-dropdown-item' + (o === value ? ' active' : '')} onClick={() => { onChange(o); setOpen(false); }}>
+              {o}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Strike-prices dropdown: list of counts + custom range UI
+const StrikeDropdown = ({ value, onChange, range, setRange, onApplyRange }) => {
+  const [open, setOpen] = React.useState(false);
+  const [fromVal, setFromVal] = React.useState(range.from || '');
+  const [toVal, setToVal] = React.useState(range.to || '');
+  const ref = React.useRef();
+  React.useEffect(() => {
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+  const apply = () => {
+    onApplyRange(parseFloat(fromVal), parseFloat(toVal));
+    setOpen(false);
+  };
+  return (
+    <div ref={ref} className="oc-dropdown-wrap">
+      <button className="oc-select" style={{ width: 110, textAlign: 'left' }} onClick={() => setOpen(o => !o)}>
+        {range.from != null ? `${range.from}–${range.to}` : value}
+      </button>
+      {open && (
+        <div className="oc-dropdown" style={{ minWidth: 260, padding: 0 }}>
+          {STRIKE_COUNTS.map(c => (
+            <div key={c} className={'oc-dropdown-item' + (c === value && range.from == null ? ' active' : '')} onClick={() => { onChange(c); setRange({ from: null, to: null }); setOpen(false); }}>
+              {c}
+            </div>
+          ))}
+          <div className="custom-range" style={{ margin: 10, marginTop: 4 }}>
+            <div className="custom-range-title">Custom strike prices range</div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+              <div>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 2 }}>From</div>
+                <input type="number" value={fromVal} onChange={e => setFromVal(e.target.value)} placeholder=""/>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 2 }}>To</div>
+                <input type="number" value={toVal} onChange={e => setToVal(e.target.value)} placeholder=""/>
+              </div>
+              <button className="apply-btn" onClick={apply}>Apply</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const App = () => {
+  const [tab, setTab] = React.useState('chain');
+  const [strategy, setStrategy] = React.useState('Calls & puts');
+  const [optionClass, setOptionClass] = React.useState('Both');
+  const [strikeCount, setStrikeCount] = React.useState('20');
+  const [strikeRange, setStrikeRange] = React.useState({ from: null, to: null });
+  const [weeklies, setWeeklies] = React.useState(true);
+  const [activeExpiry, setActiveExpiry] = React.useState(0);
+  const [showExpirations, setShowExpirations] = React.useState(true);
+
+  // Generate strikes around ATM
+  const atmStrike = Math.round(t.price);
+  const stepSize = t.price > 100 ? 5 : t.price > 30 ? 1 : 0.5;
+  const count = strikeRange.from != null ? null : (strikeCount === 'All' ? 40 : parseInt(strikeCount));
+
+  let strikes;
+  if (strikeRange.from != null && strikeRange.to != null) {
+    strikes = [];
+    for (let s = strikeRange.from; s <= strikeRange.to; s += stepSize) {
+      strikes.push(parseFloat(s.toFixed(2)));
+    }
+  } else {
+    strikes = [];
+    const half = Math.floor(count / 2);
+    for (let i = -half; i <= half; i++) {
+      strikes.push(parseFloat((atmStrike + i * stepSize).toFixed(2)));
+    }
+  }
+
+  const expirations = weeklies ? EXPIRATIONS : EXPIRATIONS.filter(e => !e.weekly);
+  const activeExp = expirations[activeExpiry] || expirations[0];
+
+  const optionData = strikes.map(s => ({ strike: s, ...genOptions(s, t.price, 100) }));
+
+  const fmtMoney = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      {/* Breadcrumb */}
+      <div className="oc-header">
+        <a className="oc-breadcrumb" href="HedgeIQ.html">Options analysis & research page</a>
+        <span style={{ color: 'var(--text-subtle)' }}>/</span>
+        <span style={{ fontWeight: 600 }}>Option Chain</span>
+      </div>
+
+      {/* Symbol quote bar */}
+      <div className="oc-quote">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingRight: 14, borderRight: '1px solid var(--border)' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', fontWeight: 700 }}>SYMBOL</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <input value={SYMBOL} readOnly style={{ width: 60, fontSize: 14, fontWeight: 600, border: '1px solid var(--border)', padding: '4px 8px', borderRadius: 4, background: 'var(--surface)' }}/>
+            <span style={{ fontSize: 20 }}>{t.sector === 'Media' ? '🎬' : t.sector === 'Tech' ? '⚡' : '🔴'}</span>
+          </div>
+        </div>
+
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 600 }}>{t.name}</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 2 }}>
+            <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>{t.price.toFixed(2)}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>x4269027</span>
+            <span className="mono" style={{ fontSize: 13, color: t.chg >= 0 ? 'var(--pos)' : 'var(--neg)', fontWeight: 600 }}>
+              {t.chg >= 0 ? '+' : ''}{t.chg.toFixed(2)} ({t.chgPct >= 0 ? '+' : ''}{t.chgPct.toFixed(2)}%)
+            </span>
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginTop: 2 }}>AS OF 04/17/2026 4:00:00 PM ET</div>
+        </div>
+
+        <div className="oc-quote-field">
+          <span className="label">Bid <span style={{ color: 'var(--accent)' }}>EDGX</span></span>
+          <span className="value mono">{t.bid.toFixed(2)} × {t.bidSize}</span>
+        </div>
+        <div className="oc-quote-field">
+          <span className="label">Ask <span style={{ color: 'var(--accent)' }}>ARCX</span></span>
+          <span className="value mono">{t.ask.toFixed(2)} × {t.askSize}</span>
+        </div>
+        <div className="oc-quote-field">
+          <span className="label">Volume</span>
+          <span className="value mono">{t.volume.toLocaleString()}</span>
+        </div>
+
+        <div className="oc-quote-field">
+          <span className="label">Day range</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span className="mono" style={{ fontSize: 11 }}>{t.dayLow.toFixed(3)}</span>
+            <div style={{ width: 80, height: 2, background: 'var(--border)', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: -3, left: '60%', width: 8, height: 8, borderRadius: 999, background: 'var(--accent)' }}/>
+            </div>
+            <span className="mono" style={{ fontSize: 11 }}>{t.dayHigh.toFixed(2)}</span>
+          </div>
+          <span className="label" style={{ marginTop: 6 }}>52-week range</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span className="mono" style={{ fontSize: 11 }}>{t.low52.toFixed(3)}</span>
+            <div style={{ width: 80, height: 2, background: 'var(--border)', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: -3, left: '55%', width: 8, height: 8, borderRadius: 999, background: 'var(--accent)' }}/>
+            </div>
+            <span className="mono" style={{ fontSize: 11 }}>{t.high52.toFixed(2)}</span>
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--text-subtle)' }}>04/21/2025  04/08/2026</div>
+        </div>
+
+        <div className="oc-quote-field">
+          <span className="label"><span style={{ background: 'var(--accent)', color: 'white', padding: '1px 4px', borderRadius: 2, fontSize: 9 }}>D</span> Ex-dividend</span>
+          <span className="value">{t.exDiv}</span>
+          <span className="label" style={{ marginTop: 6 }}><span style={{ background: 'var(--pos)', color: 'white', padding: '1px 4px', borderRadius: 2, fontSize: 9 }}>E</span> Earnings</span>
+          <span className="value" style={{ color: 'var(--pos)' }}>{t.earnings}</span>
+        </div>
+
+        <div className="oc-quote-field">
+          <span className="label">IV30</span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <span className="value mono">{t.iv30.toFixed(2)}</span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--neg)' }}>{t.ivChg.toFixed(2)}</span>
+          </div>
+          <span className="label" style={{ marginTop: 6 }}>HV30</span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <span className="value mono">{t.hv30.toFixed(2)}</span>
+            <span className="mono" style={{ fontSize: 11, color: 'var(--neg)' }}>{t.hvChg.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div className="oc-quote-field">
+          <span className="label">Put/call ratio</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 999, background: 'var(--pos)' }}></span>
+            <span className="value mono">{t.putCall.toFixed(2)}</span>
+            <span style={{ color: 'var(--pos)', fontSize: 11 }}>({t.sentiment})</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Chain / Chart tabs */}
+      <div className="oc-tabs">
+        <div className={'oc-tab' + (tab === 'chain' ? ' active' : '')} onClick={() => setTab('chain')}>Chain</div>
+        <div className={'oc-tab' + (tab === 'chart' ? ' active' : '')} onClick={() => setTab('chart')}>Chart</div>
+      </div>
+
+      {/* Filters row */}
+      <div className="oc-filters">
+        <div className="oc-filter-group">
+          <span className="filter-label">Option strategy</span>
+          <Dropdown value={strategy} options={STRATEGIES} onChange={setStrategy} width={160}/>
+        </div>
+
+        <div className="oc-filter-group">
+          <span className="filter-label">Option classes</span>
+          <div className="oc-seg">
+            <button className={optionClass === 'Calls' ? 'active' : ''} onClick={() => setOptionClass('Calls')}>Calls</button>
+            <button className={optionClass === 'Puts' ? 'active' : ''} onClick={() => setOptionClass('Puts')}>Puts</button>
+            <button className={optionClass === 'Both' ? 'active' : ''} onClick={() => setOptionClass('Both')}>Both</button>
+          </div>
+        </div>
+
+        <div className="oc-filter-group">
+          <span className="filter-label">Strike prices</span>
+          <StrikeDropdown
+            value={strikeCount}
+            onChange={setStrikeCount}
+            range={strikeRange}
+            setRange={setStrikeRange}
+            onApplyRange={(from, to) => { if (!isNaN(from) && !isNaN(to)) setStrikeRange({ from, to }); }}
+          />
+        </div>
+
+        <div className="oc-filter-group" style={{ flexGrow: 1 }}>
+          <span className="filter-label">Expiration dates</span>
+          <div style={{ height: 30, display: 'flex', alignItems: 'center' }}>
+            <button onClick={() => setShowExpirations(s => !s)} style={{ fontSize: 12, color: 'var(--accent)', cursor: 'pointer', background: 'transparent', border: 0, padding: 0, fontWeight: 500 }}>
+              {showExpirations ? 'Collapse expirations ▴' : 'Show expirations ▾'}
+            </button>
+          </div>
+        </div>
+
+        <div className="oc-filter-group">
+          <span className="filter-label">&nbsp;</span>
+          <label className="oc-switch">
+            <span>Show weekly options</span>
+            <span className={'oc-switch-track' + (weeklies ? '' : ' off')} onClick={() => setWeeklies(w => !w)}>
+              <span className="oc-switch-thumb"/>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {/* Expiration date pills */}
+      {showExpirations && (
+        <div className="oc-expiry">
+          <button style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18, padding: '0 4px' }}>‹</button>
+          {expirations.map((e, i) => {
+            const isPast = i < activeExpiry;
+            const future = i > 8;
+            return (
+              <div
+                key={i}
+                className={'exp-pill' + (future ? ' future' : '') + (e.earnings ? ' earnings' : '')}
+                onClick={() => setActiveExpiry(i)}
+                style={{
+                  background: i === activeExpiry ? 'var(--pos)' : (future ? 'transparent' : 'color-mix(in oklch, var(--pos) 70%, var(--surface))'),
+                  opacity: future ? 0.65 : 1,
+                }}
+                title={`${e.month} ${e.day}, ${e.year}`}
+              >
+                {future ? (
+                  <span>{e.month} {e.day}</span>
+                ) : (
+                  <>
+                    <span className="m">{e.month}</span>
+                    <span className="d">{e.day}</span>
+                    {e.weekly && <span className="w">W</span>}
+                  </>
+                )}
+              </div>
+            );
+          })}
+          <button style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18, padding: '0 4px' }}>›</button>
+        </div>
+      )}
+
+      {tab === 'chart' && (
+        <div style={{ padding: 24 }}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>
+                Apr-17-2026 &nbsp; O: {(t.price-0.15).toFixed(2)} &nbsp; H: {t.dayHigh.toFixed(2)} &nbsp; L: {t.dayLow.toFixed(2)} &nbsp; C: {t.price.toFixed(2)} &nbsp; V: {(t.volume/1e6).toFixed(2)}M
+              </div>
+              <div style={{ display: 'inline-flex', border: '1px solid var(--border)' }}>
+                {['1D','5D','1M','3M','6M','YTD','1Y','2Y','5Y','MAX'].map((r,i) => (
+                  <button key={r} style={{ padding: '4px 12px', fontSize: 11, border: 0, borderRight: i < 9 ? '1px solid var(--border)' : 0, background: i === 2 ? 'var(--pos)' : 'transparent', color: i === 2 ? 'white' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', fontWeight: i === 2 ? 700 : 500 }}>{r}</button>
+                ))}
+              </div>
+            </div>
+            <svg viewBox="0 0 1200 460" style={{ width: '100%', height: 460, display: 'block' }}>
+              {[0,0.25,0.5,0.75,1].map(f => {
+                const y = 20 + 320 * f;
+                const v = t.price * (1.15 - 0.3 * f);
+                return (<g key={f}>
+                  <line x1="40" x2="1140" y1={y} y2={y} stroke="var(--border)" strokeDasharray="2 3"/>
+                  <text x="1148" y={y+4} fontSize="10" fill="var(--text-subtle)" fontFamily="JetBrains Mono">{v.toFixed(2)}</text>
+                </g>);
+              })}
+              {Array.from({length: 90}, (_, i) => {
+                const rng = Math.sin(i * 17.3 + SYMBOL.charCodeAt(0)) * 0.5 + 0.5;
+                const rng2 = Math.sin(i * 31.7 + SYMBOL.charCodeAt(0) * 3) * 0.5 + 0.5;
+                const base = t.price * (0.85 + i / 90 * 0.3 + (rng - 0.5) * 0.08);
+                const open = base + (rng - 0.5) * t.price * 0.015;
+                const close = base + (rng2 - 0.5) * t.price * 0.015;
+                const high = Math.max(open, close) + rng * t.price * 0.01;
+                const low = Math.min(open, close) - rng2 * t.price * 0.01;
+                const up = close >= open;
+                const color = up ? 'var(--pos)' : 'var(--neg)';
+                const x = 40 + i * 12;
+                const yFor = v => 20 + 320 * (1 - (v - t.price * 0.78) / (t.price * 0.44));
+                return (<g key={i}>
+                  <line x1={x+5} x2={x+5} y1={yFor(high)} y2={yFor(low)} stroke={color} strokeWidth={1}/>
+                  <rect x={x+1} y={yFor(Math.max(open,close))} width={8} height={Math.max(1, Math.abs(yFor(open)-yFor(close)))} fill={color}/>
+                </g>);
+              })}
+              <text x="600" y="200" fontSize="56" fill="var(--border)" fontFamily="Inter Tight" fontWeight="700" textAnchor="middle" opacity="0.2" letterSpacing="8">{SYMBOL}</text>
+              {/* Volume */}
+              <g transform="translate(0, 360)">
+                {Array.from({length: 90}, (_, i) => {
+                  const rng = Math.sin(i * 17.3 + SYMBOL.charCodeAt(0)) * 0.5 + 0.5;
+                  const rng2 = Math.sin(i * 31.7 + SYMBOL.charCodeAt(0) * 3) * 0.5 + 0.5;
+                  const up = rng2 >= rng;
+                  const h = rng * 60 + 8;
+                  return <rect key={i} x={41 + i*12} y={70 - h} width={8} height={h} fill={up ? 'var(--pos)' : 'var(--neg)'} opacity="0.6"/>;
+                })}
+                <text x="48" y="14" fontSize="10" fill="var(--text-subtle)">volume</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {tab === 'chain' && (
+      <div className="oc-chain">
+        <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span className="strat-badge">{strategy}</span>
+          {strikeRange.from != null && (
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              Custom range: <span className="mono" style={{ fontWeight: 600, color: 'var(--text)' }}>{strikeRange.from} – {strikeRange.to}</span>
+              <button onClick={() => setStrikeRange({ from: null, to: null })} style={{ marginLeft: 8, color: 'var(--accent)', fontSize: 12, background: 'transparent', border: 0, cursor: 'pointer', textDecoration: 'underline' }}>Clear</button>
+            </span>
+          )}
+        </div>
+
+        <table className="chain-table">
+          <thead>
+            <tr>
+              <th colSpan={8} style={{ textAlign: 'left', borderBottom: '2px solid var(--pos)', color: 'var(--pos)', fontSize: 13, fontWeight: 700, paddingLeft: 8 }}>Calls</th>
+              <th style={{ background: 'var(--surface-sunken)' }}></th>
+              <th colSpan={8} style={{ textAlign: 'left', borderBottom: '2px solid var(--neg)', color: 'var(--neg)', fontSize: 13, fontWeight: 700, paddingLeft: 8 }}>Puts</th>
+            </tr>
+            <tr>
+              <th>Last</th>
+              <th>Change</th>
+              <th>Bid</th>
+              <th>Ask</th>
+              <th>Volume</th>
+              <th>Open<br/>interest</th>
+              <th>Implied<br/>volatility</th>
+              <th>Delta</th>
+              <th className="strike-col">Strike</th>
+              <th>Last</th>
+              <th>Change</th>
+              <th>Bid</th>
+              <th>Ask</th>
+              <th>Volume</th>
+              <th>Open<br/>interest</th>
+              <th>Implied<br/>volatility</th>
+              <th>Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="expiry-row">
+              <td colSpan={17}>
+                ▾ {activeExp.month} {activeExp.day}, {activeExp.year} (W) · expires in {Math.floor(Math.random() * 7) + 3} days
+              </td>
+            </tr>
+            {optionData.map((row, i) => (
+              <tr key={row.strike}>
+                <td>{row.call.last}</td>
+                <td>{row.call.change.toFixed(2)}</td>
+                <td><button className="bid-btn">Sell at {row.call.bid}</button></td>
+                <td><button className="ask-btn">Buy at {row.call.ask}</button></td>
+                <td>{row.call.volume}</td>
+                <td>{row.call.openInterest}</td>
+                <td>{row.call.iv}%</td>
+                <td>{row.call.delta}</td>
+                <td className="strike">{row.strike}</td>
+                <td>{row.put.last}</td>
+                <td>{row.put.change.toFixed(2)}</td>
+                <td><button className="bid-btn">Sell at {row.put.bid}</button></td>
+                <td><button className="ask-btn">Buy at {row.put.ask}</button></td>
+                <td>{row.put.volume}</td>
+                <td style={{ background: i === Math.floor(optionData.length / 2) ? 'rgba(255, 220, 80, 0.25)' : '' }}>{row.put.openInterest}</td>
+                <td>{row.put.iv}%</td>
+                <td>{row.put.delta}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      )}
+      {/* close chain tab */}
+      <div className="feedback-fab">Feedback</div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
