@@ -1,39 +1,35 @@
-import { useState, useRef, useEffect } from 'react';
-import PositionsTable from './PositionsTable';
-import OptionsChain from './OptionsChain';
-import EmergencyHedge from './EmergencyHedge';
-import AIChat from './AIChat';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { GridLayout } from 'react-grid-layout';
+import type { Layout } from 'react-grid-layout';
 import { useTheme } from '../lib/ThemeProvider';
 import { I } from '../lib/icons';
 import { THEMES, DENSITIES, type Theme, type Density } from '../lib/theme';
-
-type View = 'positions' | 'options' | 'hedge' | 'chat';
+import {
+  PRESETS, loadLayoutState, saveLayoutState,
+  LayoutContext, type WidgetLayout,
+} from '../lib/layout-store';
+import { WIDGET_REGISTRY } from '../widgets/WidgetRegistry';
+import Widget from '../widgets/Widget';
 
 function PreferencesPopover({ onClose }: { onClose: () => void }) {
   const { theme, setTheme, density, setDensity, colorblind, setColorblind, mode, setMode } = useTheme();
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose(); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
   }, [onClose]);
 
   return (
     <div ref={ref} className="card" style={{
-      position: 'absolute', top: 48, right: 12, width: 300, padding: 14, zIndex: 200,
+      position: 'absolute', bottom: 48, left: 0, width: 300, padding: 14, zIndex: 300,
       boxShadow: 'var(--shadow-md)', background: 'var(--surface)', border: '1px solid var(--border)',
     }} role="dialog" aria-label="Preferences">
-      <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontWeight: 700, fontSize: 'var(--fs-md)', fontFamily: 'var(--font-display)' }}>Preferences</span>
-        <button className="btn btn-sm btn-ghost" onClick={onClose} style={{ width: 22, height: 22, padding: 0 }}>
-          <I.X size={12} />
-        </button>
+        <button className="btn btn-sm btn-ghost" onClick={onClose} style={{ width: 22, height: 22, padding: 0 }}><I.X size={12} /></button>
       </div>
 
-      {/* Theme */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6 }}>Aesthetic</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
@@ -55,20 +51,15 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* Density */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6 }}>Density</div>
         <div className="seg" style={{ width: '100%' }}>
           {DENSITIES.map(d => (
-            <button key={d.key} className={density === d.key ? 'active' : ''} onClick={() => setDensity(d.key as Density)}
-              style={{ flex: 1, textAlign: 'center' }}>
-              {d.name}
-            </button>
+            <button key={d.key} className={density === d.key ? 'active' : ''} onClick={() => setDensity(d.key as Density)} style={{ flex: 1, textAlign: 'center' }}>{d.name}</button>
           ))}
         </div>
       </div>
 
-      {/* Colorblind */}
       <div style={{ marginBottom: 14 }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
           <input type="checkbox" checked={colorblind} onChange={e => setColorblind(e.target.checked)} />
@@ -77,7 +68,6 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
         </label>
       </div>
 
-      {/* Mode */}
       <div>
         <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6 }}>Interface mode</div>
         <div className="seg" style={{ width: '100%' }}>
@@ -89,108 +79,201 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function Dashboard() {
-  const [view, setView] = useState<View>('positions');
-  const [showPrefs, setShowPrefs] = useState(false);
-  const { theme } = useTheme();
+function AddWidgetDropdown({ currentWidgetIds, onAdd, onClose }: {
+  currentWidgetIds: Set<string>;
+  onAdd: (widgetId: string) => void;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose(); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, [onClose]);
 
-  const navItems: { id: View; label: string; Icon: (typeof I)[keyof typeof I] }[] = [
-    { id: 'positions', label: 'Positions',  Icon: I.Briefcase },
-    { id: 'options',   label: 'Options',    Icon: I.Chart },
-    { id: 'hedge',     label: 'Hedge',      Icon: I.Shield },
-    { id: 'chat',      label: 'AI Advisor', Icon: I.Sparkle },
-  ];
+  const available = Object.entries(WIDGET_REGISTRY).filter(([id]) => !currentWidgetIds.has(id));
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'minmax(200px, 240px) 1fr',
-      gridTemplateRows: '1fr',
-      height: '100vh',
-      width: '100%',
-      background: 'var(--bg)',
-      color: 'var(--text)',
-      fontFamily: 'var(--font-sans)',
-      overflow: 'hidden',
+    <div ref={ref} style={{
+      position: 'absolute', top: 40, right: 0, width: 200, zIndex: 300,
+      background: 'var(--surface)', border: '1px solid var(--border)',
+      borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)',
+      padding: 6,
     }}>
-      {/* Sidebar */}
-      <aside style={{
-        background: 'var(--surface)',
-        borderRight: '1px solid var(--border)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}>
-        {/* Logo */}
-        <div style={{ padding: '16px var(--card-p)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
-            display: 'grid', placeItems: 'center',
-            color: 'var(--accent-contrast)', fontWeight: 800,
-            fontFamily: 'var(--font-display)', fontSize: 16,
-          }}>H</div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg)', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>HedgeIQ</div>
-            <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)' }}>v0.2 · {theme}</div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav style={{ padding: '8px 8px', display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-          {navItems.map(item => (
-            <button key={item.id} onClick={() => setView(item.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '8px 12px', borderRadius: 'var(--radius-md)',
-                fontSize: 'var(--fs-md)', fontWeight: view === item.id ? 600 : 400,
-                color: view === item.id ? 'var(--accent)' : 'var(--text-muted)',
-                background: view === item.id ? 'var(--chip)' : 'transparent',
-                border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%',
-                transition: 'background 0.1s, color 0.1s',
-              }}>
-              <item.Icon size={16} />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer */}
-        <div style={{ padding: '8px', borderTop: '1px solid var(--border)', display: 'flex', gap: 6 }}>
-          <button
-            onClick={() => setShowPrefs(v => !v)}
-            title="Preferences"
-            style={{
-              width: 36, height: 36, borderRadius: 'var(--radius-md)',
-              display: 'grid', placeItems: 'center',
-              color: 'var(--text-muted)', background: 'transparent',
-              border: '1px solid transparent',
-              cursor: 'pointer',
-              position: 'relative',
-            }}>
-            <I.Settings size={16} />
-            {showPrefs && <PreferencesPopover onClose={() => setShowPrefs(false)} />}
+      {available.length === 0
+        ? <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', padding: '6px 8px' }}>All widgets are visible</p>
+        : available.map(([id, def]) => (
+          <button key={id} onClick={() => { onAdd(id); onClose(); }}
+            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', fontSize: 'var(--fs-sm)', color: 'var(--text)', background: 'none', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--chip)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
+            {def.title}
           </button>
-          <button
-            onClick={() => { localStorage.removeItem('hedgeiq_token'); window.location.href = '/'; }}
-            style={{
-              flex: 1, padding: '6px 10px', borderRadius: 'var(--radius-md)',
-              fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)',
-              border: '1px solid transparent', background: 'transparent', cursor: 'pointer',
-              textAlign: 'left',
-            }}>
+        ))
+      }
+    </div>
+  );
+}
+
+export default function Dashboard() {
+  const saved = loadLayoutState();
+  const [activePresetId, setActivePresetIdState] = useState(saved.activePresetId);
+  const [customLayouts, setCustomLayouts] = useState(saved.customLayouts);
+  const [editMode, setEditMode] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false);
+  const [showAddWidget, setShowAddWidget] = useState(false);
+  const { theme } = useTheme();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(1200);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      setContainerWidth(entries[0].contentRect.width);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const currentLayout: WidgetLayout[] = customLayouts[activePresetId]
+    ?? PRESETS.find(p => p.id === activePresetId)?.layout
+    ?? PRESETS[0].layout;
+
+  const setActivePreset = useCallback((id: string) => {
+    setActivePresetIdState(id);
+    saveLayoutState({ activePresetId: id, customLayouts });
+  }, [customLayouts]);
+
+  const updateLayout = useCallback((newLayout: WidgetLayout[]) => {
+    const next = { ...customLayouts, [activePresetId]: newLayout };
+    setCustomLayouts(next);
+    saveLayoutState({ activePresetId, customLayouts: next });
+  }, [activePresetId, customLayouts]);
+
+  const toggleEditMode = useCallback(() => setEditMode(v => !v), []);
+
+  const removeWidget = (widgetKey: string) => {
+    updateLayout(currentLayout.filter(w => w.i !== widgetKey));
+  };
+
+  const addWidget = (widgetId: string) => {
+    const def = WIDGET_REGISTRY[widgetId];
+    if (!def) return;
+    const newItem: WidgetLayout = {
+      i: `w-${widgetId}-${Date.now()}`,
+      widgetId,
+      x: 0, y: Infinity,
+      w: def.defaultSize.w,
+      h: def.defaultSize.h,
+    };
+    updateLayout([...currentLayout, newItem]);
+  };
+
+  const onLayoutChange = (newLayout: Layout) => {
+    const merged: WidgetLayout[] = newLayout.map(l => {
+      const orig = currentLayout.find(w => w.i === l.i);
+      return { i: l.i, x: l.x, y: l.y, w: l.w, h: l.h, widgetId: orig?.widgetId ?? '' };
+    });
+    updateLayout(merged);
+  };
+
+  const currentWidgetIds = new Set(currentLayout.map(w => w.widgetId));
+  const ROW_HEIGHT = 40;
+  const COLS = 12;
+
+  return (
+    <LayoutContext.Provider value={{ activePresetId, setActivePreset, currentLayout, updateLayout, editMode, toggleEditMode }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)', overflow: 'hidden' }}>
+
+        {/* Header */}
+        <header style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', height: 44, background: 'var(--surface)', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, var(--accent), var(--accent-2))', display: 'grid', placeItems: 'center', color: 'var(--accent-contrast)', fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 14 }}>H</div>
+            <span style={{ fontWeight: 700, fontSize: 'var(--fs-md)', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>HedgeIQ</span>
+          </div>
+
+          {/* Layout presets */}
+          <div style={{ display: 'flex', gap: 4 }}>
+            {PRESETS.map(p => (
+              <button key={p.id} onClick={() => setActivePreset(p.id)}
+                className={activePresetId === p.id ? 'chip' : 'chip chip-outline'}
+                style={{ cursor: 'pointer', ...(activePresetId === p.id ? { background: 'var(--accent-bg)', color: 'var(--accent)', borderColor: 'var(--accent)' } : {}) }}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ flex: 1 }} />
+
+          {/* Edit mode toggle */}
+          <button onClick={toggleEditMode}
+            className={editMode ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-ghost'}
+            style={{ fontSize: 'var(--fs-xs)' }}>
+            <I.Grid size={12} />
+            {editMode ? 'Done' : 'Edit Layout'}
+          </button>
+
+          {/* Add widget (only in edit mode) */}
+          {editMode && (
+            <div style={{ position: 'relative' }}>
+              <button onClick={() => setShowAddWidget(v => !v)} className="btn btn-sm"
+                style={{ fontSize: 'var(--fs-xs)' }}>
+                <I.Plus size={12} /> Add Widget
+              </button>
+              {showAddWidget && (
+                <AddWidgetDropdown
+                  currentWidgetIds={currentWidgetIds}
+                  onAdd={addWidget}
+                  onClose={() => setShowAddWidget(false)}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Preferences */}
+          <div style={{ position: 'relative' }}>
+            <button onClick={() => setShowPrefs(v => !v)} className="btn btn-sm btn-ghost" title="Preferences">
+              <I.Settings size={14} />
+            </button>
+            {showPrefs && <PreferencesPopover onClose={() => setShowPrefs(false)} />}
+          </div>
+
+          {/* Theme chip */}
+          <span className="chip" style={{ fontSize: 10 }}>{theme}</span>
+
+          {/* Sign out */}
+          <button onClick={() => { localStorage.removeItem('hedgeiq_token'); window.location.href = '/'; }}
+            className="btn btn-sm btn-ghost" style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)' }}>
             Sign out
           </button>
-        </div>
-      </aside>
+        </header>
 
-      {/* Main content */}
-      <main style={{ overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-        {view === 'positions' && <PositionsTable />}
-        {view === 'options'   && <OptionsChain />}
-        {view === 'hedge'     && <EmergencyHedge />}
-        {view === 'chat'      && <AIChat />}
-      </main>
-    </div>
+        {/* Grid area */}
+        <div ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
+          <GridLayout
+            layout={currentLayout}
+            width={containerWidth - 16}
+            onLayoutChange={onLayoutChange}
+            gridConfig={{ cols: COLS, rowHeight: ROW_HEIGHT, margin: [8, 8] as const, containerPadding: [0, 0] as const }}
+            dragConfig={{ enabled: editMode, handle: '.widget-drag-handle' }}
+            resizeConfig={{ enabled: editMode }}
+          >
+            {currentLayout.map(item => {
+              const def = WIDGET_REGISTRY[item.widgetId];
+              if (!def) return null;
+              const Comp = def.component;
+              return (
+                <div key={item.i}>
+                  <Widget title={def.title} widgetKey={item.i} onRemove={() => removeWidget(item.i)}>
+                    <Comp />
+                  </Widget>
+                </div>
+              );
+            })}
+          </GridLayout>
+        </div>
+      </div>
+    </LayoutContext.Provider>
   );
 }

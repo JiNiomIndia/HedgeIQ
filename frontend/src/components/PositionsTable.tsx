@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { API } from '../lib/api';
 import Sparkline from './Sparkline';
+import { bus, EVENTS } from '../lib/event-bus';
 
 interface Position {
   broker: string; accountName: string; symbol: string;
@@ -137,7 +138,8 @@ export default function PositionsTable() {
                   const dayPct = dc?.day_change_pct || 0;
                   const pctPort = totalValue ? (p.marketValue / totalValue) * 100 : 0;
                   return (
-                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
+                      onClick={() => bus.emit(EVENTS.SYMBOL_SELECTED, p.symbol)}>
                       <td style={{ padding: '6px 6px 6px 16px', fontWeight: 700, color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>{p.symbol}</td>
                       <td style={{ textAlign: 'right', padding: '6px', fontVariantNumeric: 'tabular-nums', color: 'var(--text)' }}>{fmt(p.currentPrice)}</td>
                       <td style={{ textAlign: 'right', padding: '6px', fontVariantNumeric: 'tabular-nums', color: dayChg >= 0 ? 'var(--pos)' : 'var(--neg)' }}>
