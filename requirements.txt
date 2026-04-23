@@ -10,6 +10,7 @@ alembic==1.14.1
 fastapi-users[sqlalchemy]==15.0.5
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==3.2.2
 
 # HTTP client
 httpx==0.28.1

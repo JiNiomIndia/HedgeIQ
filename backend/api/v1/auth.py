@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from jose.exceptions import ExpiredSignatureError
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 from sqlalchemy.orm import Session
 
 from backend.api.v1.schemas import (
@@ -24,7 +24,14 @@ from backend.db.session import get_db, init_db
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
 ALGORITHM = "HS256"
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def _hash_pw(plain: str) -> str:
+    return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
+
+
+def _verify_pw(plain: str, hashed: str) -> bool:
+    return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 def create_token(user_id: str) -> str:
@@ -84,7 +91,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     user = User(
         id=user_id,
         email=email,
-        hashed_password=pwd_context.hash(request.password),
+        hashed_password=_hash_pw(request.password),
         is_pro=False,
         is_admin=False,
         daily_ai_calls_used=0,
@@ -102,7 +109,7 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     # Check DB users first
     db_user = db.query(User).filter(User.email == email).first()
-    if db_user and pwd_context.verify(request.password, db_user.hashed_password):
+    if db_user and _verify_pw(request.password, db_user.hashed_password):
         return TokenResponse(access_token=create_token(db_user.id))
 
     # Admin credential fallback
