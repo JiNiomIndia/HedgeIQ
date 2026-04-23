@@ -1,10 +1,21 @@
 """HedgeIQ FastAPI application entry point."""
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.v1 import positions, options, hedge, ai, auth, quotes
+from backend.db.session import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="HedgeIQ API",
     version="0.1.0",
     description=(

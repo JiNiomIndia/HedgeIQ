@@ -1,30 +1,29 @@
-/**
- * LoginPage — email/password login form.
- * POSTs to /api/v1/auth/login, stores JWT, redirects to dashboard.
- * @component
- */
 import { useState } from 'react';
-
 import { API } from '../lib/api';
 
+type Mode = 'login' | 'register';
+
 export default function LoginPage() {
+  const [mode, setMode]         = useState<Mode>('login');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
 
-  const login = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    const endpoint = mode === 'login' ? 'login' : 'register';
     try {
-      const res = await fetch(`${API}/api/v1/auth/login`, {
+      const res = await fetch(`${API}/api/v1/auth/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        setError('Invalid email or password.');
+        const d = await res.json().catch(() => ({}));
+        setError(d.detail || (mode === 'login' ? 'Invalid email or password.' : 'Registration failed.'));
         setLoading(false);
         return;
       }
@@ -45,8 +44,10 @@ export default function LoginPage() {
           <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-muted)' }}>Hedge your portfolio in 60 seconds</p>
         </div>
 
-        <form onSubmit={login} className="card card-p" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <h2 style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>Sign in</h2>
+        <form onSubmit={submit} className="card card-p" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <h2 style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
+            {mode === 'login' ? 'Sign in' : 'Create account'}
+          </h2>
 
           <div>
             <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
@@ -56,7 +57,7 @@ export default function LoginPage() {
 
           <div>
             <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Password</label>
-            <input type="password" value={password} required onChange={e => setPassword(e.target.value)}
+            <input type="password" value={password} required minLength={8} onChange={e => setPassword(e.target.value)}
               placeholder="••••••••" className="input" />
           </div>
 
@@ -65,8 +66,16 @@ export default function LoginPage() {
           )}
 
           <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.5 : 1 }}>
-            {loading ? 'Signing in…' : 'Sign in →'}
+            {loading ? (mode === 'login' ? 'Signing in…' : 'Creating account…') : (mode === 'login' ? 'Sign in →' : 'Create account →')}
           </button>
+
+          <p style={{ textAlign: 'center', fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', margin: 0 }}>
+            {mode === 'login' ? (
+              <>No account? <button type="button" onClick={() => { setMode('register'); setError(''); }} style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', padding: 0 }}>Create one</button></>
+            ) : (
+              <>Already have an account? <button type="button" onClick={() => { setMode('login'); setError(''); }} style={{ color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 'inherit', padding: 0 }}>Sign in</button></>
+            )}
+          </p>
         </form>
 
         <p style={{ textAlign: 'center', fontSize: 'var(--fs-xs)', marginTop: 16 }}>
