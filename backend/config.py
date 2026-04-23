@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     snaptrade_personal_user_id: str = ""
     snaptrade_user_secret: str = ""
     secret_key: str = "dev-secret-change-in-production"
-    database_url: str = "sqlite:///./hedgeiq.db"
+    database_url: str = "sqlite:////app/data/hedgeiq.db"
     chromadb_path: str = "./data/chroma_cache"
     environment: str = "development"
     admin_email: str = ""

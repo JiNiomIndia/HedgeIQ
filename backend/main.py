@@ -1,16 +1,25 @@
 """HedgeIQ FastAPI application entry point."""
 from contextlib import asynccontextmanager
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.v1 import positions, options, hedge, ai, auth, quotes
-from backend.db.session import init_db
+from backend.db.session import init_db, check_db
+
+logger = logging.getLogger("hedgeiq")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    try:
+        init_db()
+        status = check_db()
+        logger.info("DB init OK: %s", status)
+    except Exception as exc:
+        logger.error("DB init FAILED: %s", exc)
+        raise
     yield
 
 

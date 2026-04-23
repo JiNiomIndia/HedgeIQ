@@ -21,7 +21,7 @@ from backend.api.v1.schemas import (
 )
 from backend.config import settings
 from backend.db.models import User
-from backend.db.session import get_db, init_db
+from backend.db.session import get_db, init_db, check_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
@@ -138,6 +138,14 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
 async def join_waitlist(request: WaitlistRequest):
     """Add email to pre-launch waitlist."""
     return WaitlistResponse(message="You're on the list! We'll notify you at launch.", position=47)
+
+
+@router.get("/db-status", summary="DB connectivity check (admin only)")
+async def db_status(current_user=Depends(get_current_user)):
+    """Returns DB health info. Admin-only diagnostic endpoint."""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
+    return check_db()
 
 
 @router.get("/connect-broker", summary="Get SnapTrade broker connection URL")

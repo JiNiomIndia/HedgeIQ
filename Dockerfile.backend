@@ -30,11 +30,11 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY backend/ ./backend/
 COPY alembic.ini ./alembic.ini
 
-# Create data directory for ChromaDB cache and SQLite
+# Create data directory for ChromaDB cache and SQLite DB (must be writable by runtime user)
 RUN mkdir -p /app/data/chroma_cache
 
-# Non-root user for security
-RUN useradd -m -u 1001 hedgeiq && chown -R hedgeiq /app
+# Non-root user for security — chown AFTER mkdir so data dir is writable
+RUN useradd -m -u 1001 hedgeiq && chown -R hedgeiq:hedgeiq /app/data && chown hedgeiq:hedgeiq /app
 USER hedgeiq
 
 EXPOSE 8000
