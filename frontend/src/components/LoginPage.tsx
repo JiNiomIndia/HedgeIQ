@@ -38,58 +38,39 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center"
-      style={{ backgroundColor: '#0A0E1A', fontFamily: 'monospace' }}>
-      <div className="w-full max-w-sm px-6">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-1" style={{ color: '#00D4FF' }}>HedgeIQ</h1>
-          <p className="text-sm" style={{ color: '#9CA3AF' }}>Hedge your portfolio in 60 seconds</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ width: '100%', maxWidth: 360, padding: '0 24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <h1 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', marginBottom: 4 }}>HedgeIQ</h1>
+          <p style={{ fontSize: 'var(--fs-sm)', color: 'var(--text-muted)' }}>Hedge your portfolio in 60 seconds</p>
         </div>
 
-        {/* Card */}
-        <form onSubmit={login} className="rounded-lg p-6 space-y-4"
-          style={{ backgroundColor: '#131929' }}>
-          <h2 className="text-lg font-bold mb-2" style={{ color: '#E8EAF0' }}>Sign in</h2>
+        <form onSubmit={login} className="card card-p" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <h2 style={{ fontSize: 'var(--fs-lg)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>Sign in</h2>
 
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#9CA3AF' }}>EMAIL</label>
-            <input
-              type="email" value={email} required autoFocus
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full rounded px-3 py-2 text-sm border border-gray-700 outline-none"
-              style={{ backgroundColor: '#0A0E1A', color: '#E8EAF0' }}
-            />
+            <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
+            <input type="email" value={email} required autoFocus onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com" className="input" />
           </div>
 
           <div>
-            <label className="text-xs block mb-1" style={{ color: '#9CA3AF' }}>PASSWORD</label>
-            <input
-              type="password" value={password} required
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded px-3 py-2 text-sm border border-gray-700 outline-none"
-              style={{ backgroundColor: '#0A0E1A', color: '#E8EAF0' }}
-            />
+            <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Password</label>
+            <input type="password" value={password} required onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••" className="input" />
           </div>
 
           {error && (
-            <p className="text-xs rounded px-3 py-2"
-              style={{ color: '#FF4466', backgroundColor: 'rgba(255,68,102,0.1)' }}>
-              {error}
-            </p>
+            <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--neg)', background: 'var(--neg-bg)', borderRadius: 'var(--radius-sm)', padding: '8px 12px' }}>{error}</p>
           )}
 
-          <button type="submit" disabled={loading}
-            className="w-full py-3 rounded font-bold text-sm disabled:opacity-50"
-            style={{ backgroundColor: '#00D4FF', color: '#0A0E1A' }}>
-            {loading ? 'Signing in...' : 'Sign in →'}
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.5 : 1 }}>
+            {loading ? 'Signing in…' : 'Sign in →'}
           </button>
         </form>
 
-        <p className="text-center text-xs mt-4" style={{ color: '#9CA3AF' }}>
-          <a href="/" style={{ color: '#00D4FF' }}>← Back to home</a>
+        <p style={{ textAlign: 'center', fontSize: 'var(--fs-xs)', marginTop: 16 }}>
+          <a href="/" style={{ color: 'var(--accent)' }}>← Back to home</a>
         </p>
       </div>
     </div>

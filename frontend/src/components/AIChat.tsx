@@ -121,50 +121,45 @@ export default function AIChat() {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ backgroundColor: '#0A0E1A' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)' }}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-800" style={{ backgroundColor: '#131929' }}>
-        <h2 className="font-bold text-lg" style={{ color: '#E8EAF0' }}>🤖 AI Trading Advisor</h2>
-        <p className="text-xs text-gray-500">Powered by Claude · knows your portfolio · not investment advice</p>
+      <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+        <h2 style={{ fontWeight: 700, fontSize: 'var(--fs-lg)', color: 'var(--text)', margin: 0 }}>AI Trading Advisor</h2>
+        <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', margin: 0 }}>Powered by Claude · knows your portfolio · not investment advice</p>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className="max-w-2xl rounded-2xl px-4 py-3 text-sm"
-              style={
-                m.role === 'user'
-                  ? { backgroundColor: '#00D4FF', color: '#0A0E1A' }
-                  : { backgroundColor: '#131929', color: '#E8EAF0', border: '1px solid #1F2937' }
-              }
-            >
+          <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '80%', borderRadius: 'var(--radius-lg)', padding: '10px 14px',
+              fontSize: 'var(--fs-md)',
+              background: m.role === 'user' ? 'var(--accent)' : 'var(--surface)',
+              color: m.role === 'user' ? 'var(--accent-contrast)' : 'var(--text)',
+              border: m.role === 'assistant' ? '1px solid var(--border)' : 'none',
+            }}>
               {m.role === 'assistant' ? <Markdown text={m.content} /> : m.content}
             </div>
           </div>
         ))}
 
         {loading && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl px-4 py-3 text-sm" style={{ backgroundColor: '#131929', border: '1px solid #1F2937' }}>
-              <span className="text-gray-400">Claude is thinking</span>
-              <span className="animate-pulse text-gray-400"> ···</span>
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '10px 14px', fontSize: 'var(--fs-md)', color: 'var(--text-muted)' }}>
+              Claude is thinking <span style={{ animation: 'pulse 1s infinite' }}>···</span>
             </div>
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Starter prompts — only show at start */}
+      {/* Starter prompts */}
       {messages.length === 1 && (
-        <div className="px-6 pb-3 flex flex-wrap gap-2">
+        <div style={{ padding: '0 24px 12px', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {STARTERS.map(s => (
-            <button
-              key={s}
-              onClick={() => send(s)}
-              className="text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
-            >
+            <button key={s} onClick={() => send(s)} className="chip chip-outline"
+              style={{ cursor: 'pointer', fontSize: 'var(--fs-xs)' }}>
               {s}
             </button>
           ))}
@@ -172,27 +167,23 @@ export default function AIChat() {
       )}
 
       {/* Input */}
-      <div className="px-6 pb-6 pt-2 border-t border-gray-800">
-        <div className="flex gap-3 items-end">
+      <div style={{ padding: '12px 24px 24px', borderTop: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Ask anything about your portfolio or options…"
             rows={2}
-            className="flex-1 rounded-xl px-4 py-3 text-sm border border-gray-700 resize-none outline-none"
-            style={{ backgroundColor: '#131929', color: '#E8EAF0' }}
+            className="input"
+            style={{ flex: 1, resize: 'none' }}
           />
-          <button
-            onClick={() => send()}
-            disabled={loading || !input.trim()}
-            className="px-5 py-3 rounded-xl font-bold text-sm disabled:opacity-40"
-            style={{ backgroundColor: '#00D4FF', color: '#0A0E1A' }}
-          >
+          <button onClick={() => send()} disabled={loading || !input.trim()} className="btn btn-primary"
+            style={{ opacity: loading || !input.trim() ? 0.4 : 1 }}>
             Send
           </button>
         </div>
-        <p className="text-xs text-gray-700 mt-2">Press Enter to send · Shift+Enter for new line</p>
+        <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', marginTop: 6 }}>Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   );
