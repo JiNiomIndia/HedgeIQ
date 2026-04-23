@@ -159,6 +159,52 @@ Rules: under 25 words per sentence. Plain English. No headings, no bullets, no p
         )
         return response.content[0].text
 
+    def stream_chat(
+        self,
+        message: str,
+        history: list,
+        portfolio_context: dict | None = None,
+        symbol_context: str | None = None,
+    ):
+        """Stream a chat response via Server-Sent Events.
+
+        Yields SSE-formatted text chunks for use with FastAPI StreamingResponse.
+        Each chunk is: ``data: <text>\n\n``
+        End of stream is signalled by: ``data: [DONE]\n\n``
+        """
+        import json as _json
+        system = (
+            "You are HedgeIQ's AI trading advisor — expert in options, hedging, and "
+            "portfolio risk for retail investors.\n\n"
+            "STRICT STYLE RULES:\n"
+            "- Keep responses SHORT: 3-6 sentences total, unless the user asks for detail.\n"
+            "- Lead with the answer. No preambles like 'Great question' or 'Let me analyze'.\n"
+            "- Cite specific numbers from the portfolio when relevant.\n"
+            "- Use ONE bold number/callout per response, max 1 heading.\n"
+            "- Never use more than 3 bullets.\n"
+            "- Plain English. Define jargon briefly.\n"
+            "- End with ONE concrete next step the user can take.\n"
+            "- This is education/analysis, not personalised advice."
+        )
+        if portfolio_context:
+            system += f"\n\nUser's current portfolio:\n{_json.dumps(portfolio_context, indent=2)}"
+        if symbol_context:
+            system += f"\n\nUser is currently viewing: {symbol_context}"
+
+        messages = [{"role": m["role"], "content": m["content"]} for m in history]
+        messages.append({"role": "user", "content": message})
+
+        with self._client.messages.stream(
+            model=HAIKU_MODEL,
+            max_tokens=600,
+            system=system,
+            messages=messages,
+        ) as stream:
+            for text in stream.text_stream:
+                chunk = _json.dumps(text)
+                yield f"data: {chunk}\n\n"
+        yield "data: [DONE]\n\n"
+
     async def explain_hedge_recommendation(
         self,
         position_data: dict,

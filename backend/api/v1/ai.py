@@ -1,5 +1,6 @@
 """AI explanation and chat endpoints."""
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 
 from backend.api.v1.schemas import (
     ExplainRequest, ExplainResponse,
@@ -91,6 +92,48 @@ async def chat_with_advisor(
         )
     except Exception as exc:
         log.exception("AI chat failed")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Claude API error: {type(exc).__name__}: {exc}",
+        )
+
+
+class StreamChatRequest(ChatRequest):
+    symbol_context: str | None = None
+
+
+@router.post(
+    "/chat/stream",
+    summary="Streaming AI advisor — SSE",
+    description="Same as /chat but streams Claude's response token by token via Server-Sent Events.",
+)
+async def stream_chat(
+    request: StreamChatRequest,
+    current_user=Depends(get_current_user),
+):
+    """Stream a chat response via SSE."""
+    from backend.infrastructure.claude.facade import ClaudeFacade
+    from backend.infrastructure.cache.chroma_cache import ChromaCache
+    from backend.config import settings
+
+    import logging
+    log = logging.getLogger(__name__)
+    try:
+        cache = ChromaCache(path=settings.chromadb_path)
+        facade = ClaudeFacade(api_key=settings.anthropic_api_key, cache=cache)
+        generator = facade.stream_chat(
+            message=request.message,
+            history=[m.model_dump() for m in request.history],
+            portfolio_context=request.portfolio_context,
+            symbol_context=request.symbol_context,
+        )
+        return StreamingResponse(
+            generator,
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        )
+    except Exception as exc:
+        log.exception("AI stream chat failed")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Claude API error: {type(exc).__name__}: {exc}",
