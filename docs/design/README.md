@@ -23,6 +23,30 @@ variant as the default for Phase 2.
 Theme switching: set `data-theme="meridian" \| "lumen" \| "terminal"` on
 the `<html>` or `<body>` element.
 
+### Classic ↔ Futuristic relationship (authoritative)
+
+| File | Basic | Adnl | Futuristic | Notes |
+|---|---|---|---|---|
+| `app.jsx` | 362 | 380 | 406 | Theme switcher + futuristic-mode toggle |
+| `dashboard.jsx` | 442 | 442 | 442 | Identical across — no Futuristic redesign |
+| `positions.jsx` | 321 | 321 | 413 | Density modes + colorblind added |
+| `charts.jsx` | — | 203 | 203 | Identical in Adnl/Futuristic |
+| `shell.jsx` | — | 244 | 244 | Identical |
+| `screens.jsx` | — | 548 | 548 | Identical — classic Options/Research/Activity |
+| `trade.jsx` | 302 | 302 | 896 | Classic form + AI-native form co-exist |
+| `futuristic.jsx` | — | — | **955** (new) | AI-native Buy/Sell UI |
+| `futuristic-mode.jsx` | — | — | **1033** (new) | AI-native Options chain |
+
+**Implication for Phase 2**: Porting `docs/design/src/*.jsx` verbatim
+captures every Classic feature AND every Futuristic addition
+simultaneously — Futuristic is a strict superset. Flows that have a
+Futuristic redesign (Trade, Options) ship with both versions; the
+user's futuristic-mode toggle in TweaksPanel chooses which UI
+renders. Classic-only flows (Dashboard, Positions, Research, Activity,
+Balances, Watchlists, Transfer, Onboarding) are styled via the shared
+3-theme CSS variable system; they'll get Futuristic variants when the
+user adds more designs later.
+
 ## Folder layout
 
 | Path | Contents |
