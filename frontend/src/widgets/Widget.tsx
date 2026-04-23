@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { I } from '../lib/icons';
 import { useLayout } from '../lib/layout-store';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 interface WidgetProps {
   title: string;
@@ -29,6 +30,7 @@ export default function Widget({ title, widgetKey, onRemove, children }: WidgetP
           cursor: editMode ? 'grab' : 'default',
           userSelect: 'none',
         }}
+        aria-label={title}
       >
         {editMode && (
           <I.Grid size={12} stroke={2} style={{ color: 'var(--text-subtle)', flexShrink: 0 }} />
@@ -41,17 +43,20 @@ export default function Widget({ title, widgetKey, onRemove, children }: WidgetP
             onClick={e => { e.stopPropagation(); onRemove(); }}
             style={{ padding: 2, color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
             title={`Remove ${title}`}
+            aria-label={`Remove ${title} widget`}
           >
             <I.X size={12} stroke={2} />
           </button>
         )}
       </div>
-      {/* Body */}
+      {/* Body — wrapped in error boundary per widget */}
       <div
         data-widget-id={widgetKey}
         style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}
       >
-        {children}
+        <ErrorBoundary label={title}>
+          {children}
+        </ErrorBoundary>
       </div>
     </div>
   );

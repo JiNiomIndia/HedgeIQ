@@ -184,6 +184,17 @@ export default function Dashboard() {
 
   return (
     <LayoutContext.Provider value={{ activePresetId, setActivePreset, currentLayout, updateLayout, editMode, toggleEditMode }}>
+      {/* Skip navigation for keyboard users */}
+      <a href="#grid-main" style={{
+        position: 'absolute', top: -40, left: 8, zIndex: 9999, padding: '6px 12px',
+        background: 'var(--accent)', color: 'var(--accent-contrast)', borderRadius: 'var(--radius-sm)',
+        fontSize: 'var(--fs-xs)', fontWeight: 700, textDecoration: 'none',
+        transition: 'top 0.1s',
+      }}
+        onFocus={e => (e.currentTarget.style.top = '8px')}
+        onBlur={e => (e.currentTarget.style.top = '-40px')}>
+        Skip to dashboard
+      </a>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)', overflow: 'hidden' }}>
 
         {/* Header */}
@@ -251,7 +262,7 @@ export default function Dashboard() {
         </header>
 
         {/* Grid area */}
-        <div ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
+        <div id="grid-main" ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
           <GridLayout
             layout={currentLayout}
             width={containerWidth - 16}

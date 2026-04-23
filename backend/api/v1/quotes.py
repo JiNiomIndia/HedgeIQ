@@ -1,5 +1,5 @@
 """Stock quote and price history endpoints."""
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response
 
 from backend.api.v1.auth import get_current_user
 
@@ -15,6 +15,7 @@ async def get_chart(
     symbol: str = Path(...),
     days: int = Query(90, ge=5, le=365),
     current_user=Depends(get_current_user),
+    response: Response = None,
 ):
     """Fetch daily price bars."""
     from backend.infrastructure.polygon.facade import PolygonFacade
@@ -23,6 +24,8 @@ async def get_chart(
 
     cache = ChromaCache(path=settings.chromadb_path)
     facade = PolygonFacade(settings.polygon_api_key, cache)
+    cache_key = f"polygon:bars:{symbol.upper()}:{days}"
+    was_cached = cache.get(cache_key) is not None
     bars = await facade.get_daily_bars(symbol.upper(), days=days)
     latest = bars[-1] if bars else None
     change = 0.0
@@ -30,6 +33,9 @@ async def get_chart(
     if len(bars) >= 2:
         change = bars[-1]["close"] - bars[-2]["close"]
         change_pct = (change / bars[-2]["close"]) * 100 if bars[-2]["close"] else 0
+    if response is not None:
+        response.headers["X-Cache-Status"] = "HIT" if was_cached else "MISS"
+        response.headers["Cache-Control"] = "public, max-age=7200"
     return {
         "symbol": symbol.upper(),
         "bars": bars,
