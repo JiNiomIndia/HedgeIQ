@@ -103,7 +103,7 @@ export default function OptionsChain() {
           {/* Price chart */}
           {showChart && (
             <div style={{ ...surface, borderRadius: 'var(--radius-md)', padding: 12, marginBottom: 12 }}>
-              <PriceChart symbol={loaded} days={90} height={240} />
+              <div style={{ height: 240 }}><PriceChart symbol={loaded} /></div>
             </div>
           )}
 

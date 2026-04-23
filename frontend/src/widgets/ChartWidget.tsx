@@ -8,8 +8,8 @@ export default function ChartWidget() {
   useEffect(() => bus.on<string>(EVENTS.SYMBOL_SELECTED, s => setSymbol(s)), []);
 
   return (
-    <div style={{ padding: 12, height: '100%', overflow: 'auto' }}>
-      <PriceChart symbol={symbol} days={90} />
+    <div style={{ height: '100%', overflow: 'hidden' }}>
+      <PriceChart symbol={symbol} />
     </div>
   );
 }
