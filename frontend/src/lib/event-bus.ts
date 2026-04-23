@@ -15,4 +15,5 @@ export const bus = {
 
 export const EVENTS = {
   SYMBOL_SELECTED: 'symbol:selected',
+  POSITION_SELECTED: 'position:selected',
 } as const;

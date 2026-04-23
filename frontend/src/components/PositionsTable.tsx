@@ -139,7 +139,7 @@ export default function PositionsTable() {
                   const pctPort = totalValue ? (p.marketValue / totalValue) * 100 : 0;
                   return (
                     <tr key={i} style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                      onClick={() => bus.emit(EVENTS.SYMBOL_SELECTED, p.symbol)}>
+                      onClick={() => { bus.emit(EVENTS.SYMBOL_SELECTED, p.symbol); bus.emit(EVENTS.POSITION_SELECTED, p); }}>
                       <td style={{ padding: '6px 6px 6px 16px', fontWeight: 700, color: 'var(--accent)', fontVariantNumeric: 'tabular-nums' }}>{p.symbol}</td>
                       <td style={{ textAlign: 'right', padding: '6px', fontVariantNumeric: 'tabular-nums', color: 'var(--text)' }}>{fmt(p.currentPrice)}</td>
                       <td style={{ textAlign: 'right', padding: '6px', fontVariantNumeric: 'tabular-nums', color: dayChg >= 0 ? 'var(--pos)' : 'var(--neg)' }}>

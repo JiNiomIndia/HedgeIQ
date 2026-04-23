@@ -175,6 +175,36 @@ class PolygonFacade:
             price = new_price
         return bars
 
+    async def get_ticker_news(self, symbol: str, limit: int = 8) -> list:
+        """Fetch recent news for a ticker from Polygon. Falls back to empty list."""
+        cache_key = f"polygon:news:{symbol}:{limit}"
+        cached = self._cache.get(cache_key)
+        if cached:
+            return json.loads(cached) if isinstance(cached, str) else cached
+
+        if self._client is None:
+            return []
+
+        try:
+            await self._limiter.acquire()
+            items = []
+            for article in self._client.list_ticker_news(symbol.upper(), limit=limit):
+                items.append({
+                    "title": getattr(article, "title", ""),
+                    "published_utc": getattr(article, "published_utc", ""),
+                    "article_url": getattr(article, "article_url", ""),
+                    "publisher": getattr(getattr(article, "publisher", None), "name", ""),
+                    "description": getattr(article, "description", "") or "",
+                    "image_url": getattr(article, "image_url", "") or "",
+                })
+                if len(items) >= limit:
+                    break
+            if items:
+                self._cache.set(cache_key, json.dumps(items), ttl_hours=1)
+            return items
+        except Exception:
+            return []
+
     async def get_options_chain(
         self,
         symbol: str,

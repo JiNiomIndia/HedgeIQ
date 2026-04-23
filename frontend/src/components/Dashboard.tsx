@@ -10,6 +10,7 @@ import {
 } from '../lib/layout-store';
 import { WIDGET_REGISTRY } from '../widgets/WidgetRegistry';
 import Widget from '../widgets/Widget';
+import PositionDrawer from './PositionDrawer';
 
 function PreferencesPopover({ onClose }: { onClose: () => void }) {
   const { theme, setTheme, density, setDensity, colorblind, setColorblind, mode, setMode } = useTheme();
@@ -274,6 +275,7 @@ export default function Dashboard() {
           </GridLayout>
         </div>
       </div>
+      <PositionDrawer />
     </LayoutContext.Provider>
   );
 }

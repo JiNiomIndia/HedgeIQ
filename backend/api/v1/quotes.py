@@ -37,3 +37,23 @@ async def get_chart(
         "day_change": round(change, 2),
         "day_change_pct": round(change_pct, 2),
     }
+
+
+@router.get(
+    "/{symbol}/news",
+    summary="Recent news articles for a symbol",
+)
+async def get_news(
+    symbol: str = Path(...),
+    limit: int = Query(8, ge=1, le=20),
+    current_user=Depends(get_current_user),
+):
+    """Fetch recent ticker news from Polygon."""
+    from backend.infrastructure.polygon.facade import PolygonFacade
+    from backend.infrastructure.cache.chroma_cache import ChromaCache
+    from backend.config import settings
+
+    cache = ChromaCache(path=settings.chromadb_path)
+    facade = PolygonFacade(settings.polygon_api_key, cache)
+    articles = await facade.get_ticker_news(symbol.upper(), limit=limit)
+    return {"symbol": symbol.upper(), "articles": articles}
