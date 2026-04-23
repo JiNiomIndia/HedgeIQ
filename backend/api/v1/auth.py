@@ -83,23 +83,28 @@ async def get_current_user(
 @router.post("/register", response_model=TokenResponse, summary="Register a new account")
 async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     """Create a new user account and return a JWT token."""
-    init_db()  # Ensure tables exist
-    email = request.email.strip().lower()
-    if db.query(User).filter(User.email == email).first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-    user_id = str(uuid.uuid4())
-    user = User(
-        id=user_id,
-        email=email,
-        hashed_password=_hash_pw(request.password),
-        is_pro=False,
-        is_admin=False,
-        daily_ai_calls_used=0,
-        snaptrade_user_id=user_id,
-    )
-    db.add(user)
-    db.commit()
-    return TokenResponse(access_token=create_token(user_id))
+    try:
+        init_db()  # Ensure tables exist
+        email = request.email.strip().lower()
+        if db.query(User).filter(User.email == email).first():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+        user_id = str(uuid.uuid4())
+        user = User(
+            id=user_id,
+            email=email,
+            hashed_password=_hash_pw(request.password),
+            is_pro=False,
+            is_admin=False,
+            daily_ai_calls_used=0,
+            snaptrade_user_id=user_id,
+        )
+        db.add(user)
+        db.commit()
+        return TokenResponse(access_token=create_token(user_id))
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Registration error: {type(exc).__name__}: {exc}")
 
 
 @router.post("/login", response_model=TokenResponse, summary="Login and get JWT token")
