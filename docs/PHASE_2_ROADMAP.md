@@ -122,8 +122,14 @@ session and it will have all the context it needs to execute. Sessions are
 ordered by dependency; earlier sessions must complete before later ones (noted
 where applicable).
 
-**Total estimated sessions: 10.** Each session aims for a shippable, deployable
-state by end-of-session so you can demo progress between them.
+**Total sessions: 18** (10 original + 8 added after the Futuristic audit).
+Each session aims for a shippable, deployable state by end-of-session so you
+can demo progress between them. Sessions 1–10 cover foundations, widgets,
+chart, chain, position detail, AI rail, cache, orders, realtime, polish;
+Sessions 11–18 add the market-tape/nav shell, futuristic-mode home + agents,
+Level II + trade narrative, AI-native Trade Commander, AI-native Options
+Intent Studio, the 8-tab Research page, the Activity/Balances/Watchlists/
+Transfer utility screens, and the 4-step Onboarding flow.
 
 ---
 
@@ -810,8 +816,805 @@ Acceptance criteria:
 
 When done: commit "feat(polish): code splitting + a11y + shortcuts +
 error boundaries". Final Lighthouse screenshot.
+```
 
-PHASE 2 COMPLETE.
+---
+
+### Session 11 — Market Tape + Navigation Shell
+
+**Dependencies:** Session 1 (themes), Session 2 (widget shell registered).
+
+**First-principles rationale:** A pro trading app is recognizable in 2 seconds
+by two things — a scrolling ticker tape across the top, and a dense icon
+sidebar with a breadcrumb/search/avatar top bar. Without these, HedgeIQ still
+"looks like a dashboard," not a trading platform. The Futuristic prototype's
+`shell.jsx` defines both and every downstream screen assumes they exist.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/shell.jsx (244 lines — authoritative source)
+- docs/design/src/app.jsx lines 1-100 (Sidebar composition)
+- docs/design/COMPONENT_MAP.md sections 1, 12
+- docs/design/styles/theme.css (for tape colors per theme)
+
+Goal: ship the permanent chrome that every other screen lives inside —
+MarketTape (scrolling ticker), TopBar (breadcrumb/search/bell/avatar), and
+the full 9-icon Sidebar. After this session, every screen MUST render inside
+this shell (Dashboard, Positions, Trade, Options, Research, Activity,
+Balances, Watchlists, Transfer).
+
+Scope:
+1. Create frontend/src/shell/MarketTape.tsx. Renders a horizontally scrolling
+   strip, pinned below TopBar (height 32px). Items: S&P 500, Nasdaq, Dow, VIX,
+   10Y Yield, Crude, Gold, BTC, DXY, EUR/USD. Each item = label + price +
+   colored ±change%. Animation: CSS @keyframes translateX with duration
+   proportional to content width (60s for one full loop); pause on hover.
+   Duplicate the list in-DOM so the loop is seamless.
+   Data source: GET /api/v1/market/tape (new endpoint — Session 7 cache tier
+   METADATA, 30s TTL). Backend falls back to `genSeries`-style deterministic
+   mock when Polygon index endpoints unavailable.
+2. Create frontend/src/shell/TopBar.tsx (56px tall):
+   - Left: logo + breadcrumb (e.g. "Dashboard / Positions / AAL")
+   - Center: global SymbolSearch (autocomplete; uses /api/v1/symbols/search
+     with 200ms debounce; keyboard nav with ↑↓ Enter)
+   - Right: NotificationsBell (with badge count), PreferencesPopover trigger,
+     user avatar dropdown (Profile / Accounts / Sign out), Classic↔Futuristic
+     mode toggle pill (stores in localStorage `hedgeiq_mode`).
+3. Create frontend/src/shell/Sidebar.tsx. 72px collapsed / 240px expanded.
+   9 nav icons with labels: Dashboard, Positions, Trade, Options, Research,
+   Activity, Balances, Watchlists, Transfer. Each item is a react-router
+   NavLink — active state uses --accent foreground + subtle --bg-elevated
+   background. Port the exact SVG icons from docs/design/src/util.jsx
+   (`H`, `Wallet`, `Chart`, `Bolt`, `Book`, `Clock`, `Shield`, `Eye`,
+   `ArrowUpRight` — whichever the prototype uses for each).
+4. Create frontend/src/shell/AppShell.tsx composing MarketTape on top, TopBar
+   below it, Sidebar on the left, <Outlet/> in the main area. Use CSS grid:
+   grid-template-rows: 32px 56px 1fr;
+   grid-template-columns: auto 1fr;
+   Sidebar spans rows 2-3.
+5. Rewire frontend/src/App.tsx to use react-router-dom v6 with routes:
+   /dashboard, /positions, /trade, /options, /research/:symbol?, /activity,
+   /balances, /watchlists, /transfer — ALL children of AppShell.
+6. Breadcrumb derives from route params (useLocation + useParams) so
+   "/research/AAL" renders "Research / AAL".
+7. NotificationsBell: badge from GET /api/v1/notifications/unread (returns
+   count + preview). Click opens a popover list of last 20. Mark-read on
+   click. Backend: simple Postgres/SQLite table `notifications` with (id,
+   user_id, kind, title, body, symbol, created_at, read_at).
+
+Acceptance criteria (verify in real browser on Vercel):
+- Market tape scrolls smoothly across the top on every screen; theme-aware.
+- Clicking any sidebar icon navigates without a full page reload.
+- Symbol search autocompletes as you type "aa" → AAPL, AAL, AA; Enter routes
+  to /research/AAL.
+- Breadcrumb updates when you click AAL in positions.
+- Notifications bell shows a badge; clicking opens last N items.
+- Classic↔Futuristic pill toggles `data-mode="classic|futuristic"` on <html>
+  (Session 12 consumes this).
+- Works at 1280px and 4K.
+
+When done: commit "feat(shell): market tape + topbar + 9-icon sidebar +
+routing". Screenshots at 1440px showing shell on Positions and Research pages.
+```
+
+---
+
+### Session 12 — Futuristic Mode Home + Agents
+
+**Dependencies:** Session 11 (mode toggle emits `data-mode`), Session 6
+(Copilot rail wiring), Session 7 (cache tiers for briefs).
+
+**First-principles rationale:** Classic mode is "dense trading surface."
+Futuristic mode is "AI-first, conversational, calm." They share data but
+diverge visually and in information hierarchy. The Futuristic Home is the
+entry point — a greeting + 3 AI briefs + 4 mini-tiles + narrative summary —
+and it must feel like a different product, not a re-skin. The 9-workspace
+left rail with an "Agents" section (Tax-loss, Rebalance, Earnings) establishes
+agent affordances for later autonomous flows.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/futuristic-mode.jsx (1033 lines — AUTHORITATIVE)
+  Focus areas: FMRail, FMTopBar, WS_Home, BriefCard, MiniCard, NarrativeBox
+- docs/design/COMPONENT_MAP.md section 11
+- docs/design/src/app.jsx futuristic-mode toggle state plumbing
+
+Prerequisite context: Session 11 set `data-mode="futuristic"` on <html>
+when the pill toggle is on. Session 6 built the Copilot rail. This session
+replaces the classic AppShell layout with a futuristic one when the mode is
+active.
+
+Goal: ship the Futuristic-mode shell and its Home workspace so toggling the
+pill feels like switching to a different product — still HedgeIQ, still the
+same data, but AI-forward and serif-heavy.
+
+Scope:
+1. Create frontend/src/shell/futuristic/FMShell.tsx. Render this instead of
+   AppShell when `document.documentElement.dataset.mode === 'futuristic'`.
+   Layout: left rail 240px (FMRail), main <Outlet/>. No MarketTape, no
+   classic TopBar — futuristic mode is quieter.
+2. FMRail.tsx: dark panel with two sections.
+   - Top: 9 workspace buttons (Home / Trade / Options / Positions / Research
+     / Activity / Balances / Watchlists / Transfers). Each is a react-router
+     NavLink with icon + label. Active = serif label + accent bar on left.
+   - Bottom: "Agents" header + 3 status rows:
+       • Tax-loss (dot: green = idle / amber = running / red = flagged)
+       • Rebalance
+       • Earnings
+     Each row opens an AgentDetailSheet (right-side slide-in) showing last
+     run, next scheduled run, findings count, Run now button.
+   - Footer: "v3 · Futuristic" badge + Classic toggle pill.
+3. FMTopBar.tsx (thinner than classic, 48px): greeting "Good morning,
+   {firstName}." left; Buying power chip + Classic/Futuristic pill right.
+4. WS_Home.tsx (new page at /futuristic/home OR /home when mode=futuristic):
+   a. H1 (Fraunces serif, 40px, weight 500): "Good morning, Jordan. 3 things
+      for you today."
+   b. CentralCommander prompt bar — same component spec used in Session 14
+      but here it's home-screen-sized (max-width 680px, centered). 4 chip
+      suggestions below: "Explain my P&L", "Rebalance 70/30", "Tax-loss scan",
+      "Morning news". Click chip → routes to Trade Commander with prefilled
+      prompt.
+   c. 3 BriefCards in a row (min 320px each, wraps on narrow). Each card:
+        - tone: 'warn' | 'positive-featured' | 'ai'
+        - icon (tone-appropriate), small tag label, title (serif), body (sans)
+        - action buttons (e.g. "Open options studio", "Review", "Dismiss")
+        - subtle dismiss X top-right (fades card on click, doesn't remove
+          until next fetch)
+      Data from GET /api/v1/ai/briefs (new endpoint, AI_RESPONSE cache tier,
+      7d dev TTL). Backend prompts Claude with portfolio context asking for
+      exactly 3 briefs in JSON: [{tone, tag, title, body, actions[]}, ...].
+   d. 4 MiniCards row: Buying power / Today P&L / Open orders / Watchlist
+      alerts. Each: label + big number + sparkline or delta chip. Data from
+      existing positions + orders endpoints.
+   e. NarrativeBox: gradient bg, sparkle badge top-left, "Synced {relative
+      time}" top-right, serif paragraph body (180-240 words), 3 contextual
+      action buttons at the bottom ("Show positions", "Open options ideas",
+      "Explain in chat"). Generated via Claude with portfolio snapshot.
+      Cache 7d dev / 1h prod.
+5. Mode switching must preserve route mapping: /dashboard (classic) ↔ /home
+   (futuristic) are siblings rendering equivalent content; /positions,
+   /trade, /options paths are shared (the page components detect mode and
+   render the appropriate variant).
+6. Route all 9 workspaces. For workspaces that don't yet have futuristic
+   variants (Positions, Activity, Balances, Watchlists, Transfer), render
+   the classic component inside FMShell — it still works, just sits in the
+   darker shell. Trade and Options get their own futuristic variants in
+   Sessions 14 and 15.
+7. Agents backend: create backend/domain/agents/ with Agent base class and
+   three agents (TaxLossAgent, RebalanceAgent, EarningsAgent). Each has
+   run() returning AgentFindings. Scheduled via existing APScheduler (or add
+   one) — default daily 08:30 local. Expose:
+   GET  /api/v1/agents              → list with status + lastRun
+   POST /api/v1/agents/{id}/run     → trigger now
+   GET  /api/v1/agents/{id}/findings?limit=20
+
+Acceptance criteria:
+- Toggling pill in TopBar instantly swaps shell (no page reload); URL
+  remains readable.
+- WS_Home renders greeting with correct first name, 3 briefs, 4 minis,
+  narrative.
+- Clicking a brief's action routes appropriately (e.g. "Open options studio"
+  → /options in futuristic mode, routing to Session 15 page when done).
+- Rail Agents dots reflect real status; clicking one opens the sheet.
+- Briefs visibly re-fetch on manual refresh, NOT on every navigation
+  (respect cache).
+- Typography uses Fraunces for H1/titles, Inter Tight for body.
+
+When done: commit "feat(fm): futuristic-mode shell + home + agents". Screenshot
+of Home in both dark themes (Meridian, Terminal).
+```
+
+---
+
+### Session 13 — Trade Enhancements (Level II, Copilot Risk Narrative, Activity Log)
+
+**Dependencies:** Session 8 (trade tickets & preview), Session 6 (AI), Session
+7 (cache).
+
+**First-principles rationale:** The classic TradeScreen from `trade.jsx` is
+896 lines because it's not just a form — it's a decision support surface. The
+three pieces that elevate it from "broker form" to "pro platform" are: (a)
+Level II order book so you can see depth before placing, (b) an AI risk
+narrative ("this order uses 17% of your account and raises your tech exposure
+to 64%…"), and (c) a live recent-activity tape so the screen feels like a
+trading desk. Session 8 built the bones; this session adds the intelligence.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/trade.jsx (896 lines — authoritative, especially the
+  LevelIIPanel, CopilotCheck, and ActivityLog regions)
+- docs/design/COMPONENT_MAP.md section 5
+
+Prerequisite: Session 8 shipped OrderPreviewModal + broker deep-links. This
+session adds the three intelligence modules around it.
+
+Goal: bring TradeScreen to parity with the Futuristic prototype's right-hand
+column — Level II order book, Copilot risk narrative badge, recent activity
+feed.
+
+Scope:
+1. Level II order book (LevelIIPanel.tsx):
+   - Backend: GET /api/v1/quotes/{symbol}/book → 10 bid levels + 10 ask
+     levels. Use Polygon snapshot endpoint; fall back to generated book from
+     last quote ± jitter in 10 × $0.01 steps (dev-mode synthesis so UI works
+     without paid tier).
+   - Frontend: two-column table. Left = bids descending, right = asks
+     ascending. Columns: MPID | Size | Price. Row background: horizontal
+     bar whose width is % of max size in pane (bids green-tinted, asks red),
+     aligned to inside edge (so the visual center is the spread).
+   - Update frequency: SSE every 1s when focused, 5s when background.
+   - Spread indicator row in the middle: "$0.02 / 0.08%".
+2. Copilot risk narrative (CopilotCheck.tsx):
+   - Small card above the Preview button on TradeScreen.
+   - On every ticket field change, debounce 400ms, then POST
+     /api/v1/ai/trade-narrative with { account, symbol, side, qty, orderType,
+     price, currentPosition, portfolioSnapshot }. Backend constructs a short
+     Claude prompt: "In 2 sentences, flag risks and concentration impact for
+     this order." Cache key includes a stable hash of the request; AI_RESPONSE
+     tier.
+   - Renders: sparkle badge + "Copilot check" label + narrative body + up to
+     3 colored chips ("Uses 17% of account", "Tech exposure → 64%",
+     "Above avg daily volume").
+3. Recent Activity log (ActivityFeed.tsx):
+   - SSE from backend: GET /api/v1/sse/trades?symbol=XXX — streams the last
+     50 prints (time, side, size, price). Real trades in prod; mocked jitter
+     in dev.
+   - Renders a virtualized list (react-window) with monospace prices, colored
+     side badge, relative time ("2s ago"), auto-scroll to top on new print
+     unless user has scrolled down.
+4. Layout update: TradeScreen becomes a 3-column grid at ≥1440px:
+   grid-template-columns: 420px 1fr 360px;
+   Left = ticket form. Center = symbol chart + copilot check stack. Right =
+   LevelII on top, ActivityFeed below. At <1280px, collapse to stacked tabs.
+5. Persist "Show Level II" and "Show Copilot check" toggles in
+   localStorage per user.
+
+Acceptance criteria:
+- LevelIIPanel updates visibly every second, bids descending, asks ascending,
+  spread displayed, bars sized correctly.
+- Changing quantity in ticket → CopilotCheck updates within ~1s with new
+  narrative; chips reflect new %.
+- ActivityFeed streams prints; pausing (scrolling down) stops auto-scroll
+  and shows "3 new" button.
+- All three panels remain legible in all 3 themes and in colorblind mode.
+
+When done: commit "feat(trade): level II + copilot narrative + activity
+feed". Screenshot showing all 3 modules active on AAPL ticket.
+```
+
+---
+
+### Session 14 — AI-Native Trade Commander
+
+**Dependencies:** Session 11 (routing), Session 12 (futuristic shell),
+Session 8 (preview endpoint), Session 6 (Claude facade).
+
+**First-principles rationale:** Form-based order entry assumes the user has
+already decided. The Trade Commander inverts that: type or speak your intent
+in natural language, watch Claude parse it into structured orders, tweak the
+parse chips if wrong, see a multi-order linked preview, confirm all with ⏎.
+This is the single most differentiated feature of the app — without it,
+HedgeIQ is a better Fidelity; with it, HedgeIQ is a new category.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/futuristic.jsx lines 1-500 (CommanderPage — AUTHORITATIVE)
+- docs/design/COMPONENT_MAP.md section 6
+
+Prerequisite: Session 12 added FMShell and the CentralCommander component.
+This session turns the full-page Commander into a real feature.
+
+Goal: a page at /trade (when mode=futuristic) where a user types or speaks
+an intent, Claude parses it into one-or-many structured orders, and the user
+reviews+confirms. This replaces the classic ticket form for futuristic-mode
+users (classic form still available via Classic toggle).
+
+Scope:
+1. Page TradeCommander.tsx:
+   - H1 serif: "Tell me what you want to trade"
+   - Status line: market status pill + account pill + guardrails pill +
+     "Powered by claude-sonnet-4" badge — all live (market status from
+     market hours; account from active; guardrails from user prefs).
+   - CommanderPromptBar: big textarea (min 3 rows, autoresize), left sparkle
+     icon, right mic icon + send button. Placeholder cycles through 5 example
+     prompts every 4s when empty.
+   - 5 suggestion cards below: Rebalance 60/40, Buy 10 AAPL at market, Sell
+     half NVDA if it hits 950, Ladder $3k into VOO over 4 weeks, Cover TSLA
+     short at 220. Click fills the prompt bar.
+2. Voice dictation:
+   - Use Web Speech API (navigator.mediaDevices + SpeechRecognition). Fall
+     back to MediaRecorder → POST /api/v1/ai/transcribe (Whisper via
+     Anthropic tool-use proxy or OpenAI Whisper if configured) for browsers
+     without Web Speech.
+   - While recording: waveform animation (bars driven by AudioContext
+     getByteFrequencyData), live transcription text above the prompt bar,
+     big red STOP button. Tap mic again or press ⇧⌘ to start/stop.
+3. Parse step:
+   - On submit (⌘⏎ or send), POST /api/v1/ai/commander/parse with { prompt,
+     portfolio, accounts }. Backend calls Claude with tool-use schema:
+     ```
+     tool: propose_orders(orders: [{
+       side, symbol, qty?, notional?, orderType,
+       limit?, stop?, trigger?, duration, optionLeg?
+     }])
+     ```
+   - Stream the response so the user sees progress.
+   - Render ParseChips row: each extracted field as a colored chip with
+     label ("Side: Sell", "Notional: $3,000", "Symbol: VOO", "Trigger:
+     Weekly over 4 weeks", "Duration: GTC") + small ✓ when confident, ✎
+     when editable. Clicking ✎ opens an inline editor.
+4. Multi-order linked preview:
+   - Below parse chips, render 1..N OrderCards in a vertical stack with a
+     connecting vertical line on the left (linked visual). Card fields:
+     number badge, side chip (Buy green / Sell red / Stop amber), big serif
+     symbol, qty-or-notional, detail rows (order type, limit, TIF, account),
+     optional warning row (yellow bg: "Above avg daily volume", "Outside
+     regular hours").
+   - STOP-order variant: wider card, different accent color.
+5. Confirm bar (sticky bottom):
+   - "Ready to place {N} orders." + primary button "⏎ Confirm all" + secondary
+     "Place one at a time" + tertiary "Save as recipe".
+   - On Confirm: for each order, call /api/v1/orders/preview (Session 8);
+     if all pass, render a success state with confirmation numbers; any
+     failures stay on the card with inline error.
+6. Saved recipes:
+   - Backend: POST /api/v1/recipes (title, prompt, parsed_orders) stored in
+     Postgres/SQLite.
+   - Frontend: recipes list opens from a "Recipes" dropdown in TopBar area.
+     Click → fills the prompt and re-parses.
+7. Keyboard shortcuts footer (fixed bottom):
+   - ⌘K — focus prompt
+   - ⇧⌘ (hold) — start/stop dictation
+   - Esc — cancel parse / close preview
+   - ⏎ (in confirm bar) — confirm all
+   Shortcut pills rendered in a thin bottom strip.
+
+Backend additions:
+- backend/api/v1/commander.py: POST /parse (streaming), POST /confirm-all
+- backend/domain/commander/parser.py: Claude tool-use wrapper
+- backend/domain/commander/recipes.py: CRUD
+
+Acceptance criteria:
+- Type "Buy 10 AAPL at market" → 1 order card appears with all fields parsed.
+- Type "Ladder $3k into VOO over 4 weeks" → 4 linked order cards appear.
+- Mic button requests permission, shows waveform, transcription fills prompt
+  bar, stop releases mic.
+- Parse chips editable; changing "Notional: $3,000" to "$5,000" re-renders
+  order cards.
+- Confirm all → fires preview for each, navigates to deep-links sequentially
+  OR (future) submits via broker API.
+- Save as recipe → appears in recipes list; reloading page + opening recipe
+  restores exact state.
+- Page is fully keyboard-operable.
+
+When done: commit "feat(commander): AI-native multi-order trade commander".
+Screencap GIF: prompt → parse → linked preview → confirm.
+```
+
+---
+
+### Session 15 — AI-Native Options Intent Studio
+
+**Dependencies:** Sessions 4, 11, 12, 14 (commander patterns). Session 7
+(cache) for Monte Carlo results.
+
+**First-principles rationale:** Retail options UIs expose mechanics (strikes,
+greeks) and hope the user has a thesis. Intent Studio inverts: the user
+states a thesis, the app ranks strategies by how well they express it, then
+lets the user tweak and simulate via Monte Carlo. This is the second flagship
+feature — and it must co-exist with the classic chain from Session 4 (classic
+users keep their chain; futuristic users land here first).
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/futuristic.jsx lines 500-955 (OptionsStudio — AUTHORITATIVE)
+- docs/design/src/futuristic-mode.jsx WS_Options section
+- docs/design/COMPONENT_MAP.md section 8
+
+Prerequisite: Session 4 shipped the classic options chain; Session 14 shipped
+the commander parse patterns (reuse parse-chip component). This session is
+the options equivalent of Trade Commander.
+
+Goal: page at /options (when mode=futuristic) where user states a thesis,
+gets ranked strategies, tweaks on a full payoff simulator, reviews and
+places.
+
+Scope:
+1. Landing state — IntentInput.tsx:
+   - Big thesis textarea (serif): preformatted placeholder "e.g. NVDA up
+     10% by May earnings, defined risk, $2k budget".
+   - Action row: Voice (same component as Session 14) / Attach thesis file
+     (accepts .pdf/.txt → send to Claude for summarization → fills textarea)
+     / primary "Find strategies" button.
+   - Below: "Manual intent knobs" collapsible panel with:
+       • Direction: Up | Flat | Down (pill toggle)
+       • Conviction: Low | Medium | High
+       • Horizon: 1w | 2w | 1mo | 3mo | 6mo
+       • Risk: Defined | Undefined (pill)
+       • Budget: $500 | $1k | $2k | $5k | $10k | custom
+     The textarea and knobs stay in sync — editing knobs updates a structured
+     intent object that posts alongside thesis text.
+   - Suggested thesis chips (5): "Bullish NVDA earnings", "Pin TSLA through
+     April", "Short vol META", "Hedge AAPL downside", "Cheap lottery AMD".
+     Click fills thesis + appropriate knobs.
+
+2. Ranked strategies — StrategyRanking.tsx:
+   - Backend: POST /api/v1/options/intent/rank {thesis, intent} → Claude
+     generates candidate strategies using tool-use with schema:
+     ```
+     tool: rank_strategies(strategies: [{
+       name, direction, legs: [{action, right, strike, expiry}],
+       max_gain, max_loss, net_debit_credit, breakevens,
+       ev_usd, probability_profit, capital_required,
+       best_risk_adjusted: bool, lowest_capital: bool,
+       warnings: [str], score: float
+     }])
+     ```
+   - Top 3-5 strategies as ranked StrategyCards:
+       • Rank badge (1, 2, 3…)
+       • Name (Bull call spread, Call calendar, Long call, etc.)
+       • Small chips: "Best risk-adj" / "Lowest capital"
+       • Payoff sparkline (reuse from Session 3)
+       • Legs table (action · right · strike · expiry)
+       • 2×3 metrics grid (Max gain, Max loss, Net debit, P(win), EV, Capital)
+       • Warning row where applicable (⚠ "Theta decay aggressive past Apr 30")
+       • Actions: "Tweak" (→ simulator) · "Place" (→ preview modal)
+   - Sort tabs at top: EV | P(win) | Max gain | Capital
+   - Featured strategy: top card gets gradient bg + accent border
+   - Comparison strip below: multi-line payoff overlay of all ranked strategies
+     on one chart, color-coded.
+
+3. Tweak & Simulate — StrategySimulator.tsx:
+   - Opens when user clicks Tweak on a card (new page /options/simulate with
+     strategy in URL state, or modal full-screen).
+   - Left column (70% width): big payoff chart
+       • Y-axis = P/L; X-axis = underlying price.
+       • Strike markers (vertical dashed lines with label).
+       • Zero line; current-price box; breakeven markers (labeled).
+       • Loss zone filled red-tinted; gain zone green-tinted.
+       • Monte Carlo scatter: 120 dots plotted at terminal price × P/L from
+         5000-path simulation. Density visible via semi-opacity.
+       • P(Profit) annotation box floating top-right: accent bg, "42% based
+         on 5,000 paths".
+       • "Payoff at" tabs above chart: Today | {expiry-14d} | {expiry-7d} |
+         {expiry} — each recomputes payoff with time decay at that date.
+   - Right column (30%): slider panel
+       • Long strike slider (step = strike increment)
+       • Short strike slider (if multi-leg)
+       • Expiry picker (dropdown of real expiries)
+       • Contracts slider (1..user's max based on budget)
+       • What-if scenarios rows (read-only computed): Flat / Target / +10% /
+         -15% — each shows $ outcome.
+       • Suggested questions chips: "Why is EV positive?", "Show me if TSLA
+         drops 20%", "Compare to long call" → fills Copilot rail.
+       • Summary box at bottom: Net debit, Buying power impact, Max gain,
+         Max loss, primary "Review & place" button.
+   - Monte Carlo backend: POST /api/v1/options/simulate
+     { legs, underlying_current, iv, expiry_date, paths=5000 }
+     Returns { payoff_curve: [{price, pl}], terminal_prices: [...],
+     probability_profit, expected_value }. Uses Black-Scholes GBM paths with
+     IV from chain. Cache 1h dev (intent-specific), 5m prod.
+
+4. Place flow: "Review & place" opens the standard OrderPreviewModal
+   (Session 8) with all legs pre-filled. User deep-links to broker.
+
+5. Route gating: if mode=classic, /options still renders Session-4 chain.
+   If mode=futuristic, /options renders Intent Studio landing; with a small
+   "Show raw chain" link that opens a modal rendering the classic chain.
+
+Acceptance criteria:
+- Enter thesis "NVDA up 10% by May earnings, $2k budget, defined risk" →
+  Find strategies → 3+ ranked cards appear within 8s.
+- Knob changes re-rank strategies live (debounced 500ms).
+- Clicking Tweak opens simulator with correct strategy; strike sliders move
+  the strike markers AND recompute payoff + Monte Carlo scatter within 1s.
+- P(Profit) box updates as sliders move.
+- Review & place → standard preview modal with multi-leg summary.
+- Classic-mode users opening /options still see Session-4 chain.
+
+When done: commit "feat(options-studio): AI-native thesis → ranked strategies
+→ Monte Carlo simulator". Screenshot of simulator with Monte Carlo scatter.
+```
+
+---
+
+### Session 16 — Research Page (8 Tabs)
+
+**Dependencies:** Session 3 (chart), Session 5 (news), Session 7 (cache),
+Session 11 (routing).
+
+**First-principles rationale:** Traders need one place to answer "should I
+own this?" The Research page is that place — quote + company profile + chart
++ fundamentals + analyst consensus + sentiment + news + AI bull/bear brief,
+all tabbed so they can skim. Without Research, every symbol lookup dead-ends
+in the chain or chart. With it, HedgeIQ becomes a decision tool.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/screens.jsx ResearchScreen sections (authoritative)
+- docs/design/COMPONENT_MAP.md section 9
+- Claude Designs/HedgeIQ_Futuristic/Research.html (full composition)
+
+Goal: ship a Research page at /research/:symbol with 8 tabs of content,
+combining real data (Polygon reference + bars + news) with AI-generated
+briefs.
+
+Scope:
+1. Page shell ResearchPage.tsx:
+   - Top: SymbolBar = large symbol + company name + current price + day
+     change + sector + market cap — all in 3×1 grid on wide screens.
+   - Action row: Buy / Sell / Watch buttons + Notification/Filter/Link icons.
+   - Tab bar with 8 tabs:
+       Overview | Chart+ | Dividends & Earnings | Sentiment |
+       Analyst Ratings | Comparisons | Statistics | View All
+2. Tab: Overview (composition of cards in responsive grid):
+   - DetailedQuote card: Open, Prev close, ESG rating, P/E, Options (Y/N),
+     Dividend %, Distribution rate, Sector, Market cap.
+   - News card with pagination (5 items; 1-5 / Next).
+   - YourPositions card: Today G/L, Total G/L, Current value, % of acct,
+     Qty, Cost basis. Renders from positions if user owns the symbol; shows
+     "You don't own {SYMBOL}" otherwise with a Watch button.
+   - Chart card (spans 2 cols): embedded ProChart with range buttons
+     1D / 2D / 5D / 1M / 3M / 6M / YTD / 1Y / 2Y / 5Y / 10Y / MAX.
+   - Price Performance card: bars 5d/10d/1m/3m/6m/YTD/1y, each colored by
+     sign, labels showing % change.
+   - Company Profile card: description with faded gradient fade-out at
+     bottom + "Read more" expand; website link; HQ city; employees count.
+     Data: Polygon ticker details endpoint.
+   - Upcoming Events card: list of dated items (earnings call, ex-dividend,
+     record date, pay date, announcement) with calendar-pill date badges.
+3. Tab: Chart+ — full-width ProChart with additional technical indicator
+   toggles (MACD, Bollinger Bands, Fibonacci retracement). Use
+   lightweight-charts plugins or implement MACD/BB client-side.
+4. Tab: Dividends & Earnings
+   - Dividend history table (ex-date, pay-date, amount, yield).
+   - Earnings history table (date, estimate, actual, surprise%).
+   - Next earnings countdown card.
+5. Tab: Sentiment
+   - Gauge: Bearish → Neutral → Bullish with needle.
+   - Sources breakdown (News sentiment / Social sentiment / Options flow /
+     Analyst revisions).
+   - 7-day sentiment trend mini-chart.
+   Backend: POST /api/v1/ai/sentiment {symbol} → Claude aggregates recent
+   news + analyst notes into a sentiment score 0-100. Cache 24h dev.
+6. Tab: Analyst Ratings
+   - Consensus badge: "1.3 / 5 (Strong Buy)".
+   - Breakdown bars: Strong buy / Buy / Hold / Sell / Strong sell with counts.
+   - 12-month price target: low / average / high with current price marker.
+   - Firms table (firm name, analyst, action, target, date).
+   Data: Polygon/Benzinga if available; else AI-synthesized from news as
+   fallback with an explicit "Synthesized from news" caveat.
+7. Tab: Comparisons
+   - Peer table (5 peers auto-selected by sector): symbol, price, P/E, market
+     cap, 1Y return, short ratio.
+   - Multi-line chart overlaying 1Y returns normalized to 100.
+8. Tab: Statistics
+   - Grid: market cap, enterprise value, trailing P/E, forward P/E, PEG,
+     price/sales, price/book, ROE, ROA, profit margin, operating margin,
+     revenue, gross profit, EBITDA, diluted EPS, total cash, total debt,
+     book value, 52w high/low, 50d avg, 200d avg, beta, avg vol, short
+     ratio, shares outstanding, float, insiders%, institutions%.
+9. Tab: View All — renders every card above on one long scrollable page
+   (for users who prefer a single surface).
+10. AI Research Brief card (appears on Overview tab and Sentiment tab):
+    - Bull case (bulleted, 3 points)
+    - Bear case (bulleted, 3 points)
+    - Verdict (1 sentence)
+    - "Confidence: X%" badge
+    - Backend: POST /api/v1/ai/research-brief {symbol, context}. Cache 7d dev.
+11. Symbol search in TopBar routes here: /research/AAL.
+
+Acceptance criteria:
+- /research/AAL renders Overview with real Polygon data.
+- All 8 tabs render without error on a known symbol (AAPL).
+- AI brief appears within 6s of page load with Bull/Bear/Verdict.
+- Range buttons on chart fetch different timeframes.
+- Analyst consensus renders, even if mocked — with the caveat pill when
+  Polygon analyst endpoint unauthorized.
+
+When done: commit "feat(research): 8-tab research page with AI bull/bear
+brief". Screenshot Overview tab + Sentiment tab.
+```
+
+---
+
+### Session 17 — Activity / Balances / Watchlists / Transfer
+
+**Dependencies:** Session 11 (routing), Session 2 (widget primitives),
+Session 8 (transfer ≈ order flow).
+
+**First-principles rationale:** These four screens are the "portfolio
+plumbing" — unglamorous but required for a brokerage-grade app. A user who
+can't see their pending orders (Activity), check buying power (Balances),
+track symbols they don't own (Watchlists), or move money between accounts
+(Transfer) will leave. This session ports all four verbatim from the
+prototype.
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. Read:
+- docs/design/src/screens.jsx (ActivityScreen, BalancesScreen,
+  WatchlistsScreen, TransferScreen)
+- docs/design/COMPONENT_MAP.md section 10
+
+Goal: ship all four utility screens in one session. Each one ports the
+prototype closely; shared components (filter bar, expandable rows) live in
+a `frontend/src/components/shared/` folder.
+
+Scope:
+
+1. Activity (/activity):
+   - Period dropdown: 30d | 90d | YTD | All (persisted in URL query param).
+   - Filter tabs: Orders | History | Transfers.
+   - Action buttons: More filters (opens FilterPopover), Print (window.print
+     with print.css), Download (CSV).
+   - Pending orders table: Date | Account | Description | Status chip
+     (Pending/Working/Partial) | Amount. Row click → preview modal.
+   - Filled orders table: Date | Account | Description | Status (Filled —
+     green chip) | Amount (monospace, signed).
+   - Backend: GET /api/v1/activity?period=...&tab=... — aggregates orders
+     from broker(s) via SnapTrade; falls back to stored orders table.
+
+2. Balances (/balances):
+   - Top KPI strip: Total value / Cash / Margin used / Buying power
+     (updates live via SSE).
+   - Account table: one row per connected account, expandable.
+   - Expanded row detail: Intraday BP / Overnight BP / Available to withdraw
+     / Cash / Margin equity / Long market value / Short market value / Day
+     P/L / Total P/L — 3×3 grid.
+   - Per-account actions: Transfer / Trade / Statements / Link more.
+
+3. Watchlists (/watchlists):
+   - 2-column layout: left sidebar 240px with watchlist list + [+ New
+     watchlist] button; right main panel with selected watchlist content.
+   - Watchlist item row: Symbol · Last · Chg $ · Chg % · 30d sparkline ·
+     Volume · Market cap · 52w range bar.
+   - Row actions: Add to watchlist / Remove / Open research / Buy / Sell.
+   - Top-right main-panel buttons: [+ Add symbol], [⋯ More options] (Rename,
+     Duplicate, Delete, Export, Sort by, Add columns).
+   - Backend: CRUD on backend/domain/watchlists/ — Postgres/SQLite table
+     watchlists (id, user_id, name, symbols jsonb, sort_by, created_at).
+   - Seed default watchlists: "Tech 7", "Dividend aristocrats", "AI basket".
+
+4. Transfer (/transfer):
+   - Modal-style card 560px wide, centered.
+   - From account dropdown (user's connected accounts + external bank).
+   - To account dropdown (filtered to valid destinations based on From).
+   - Large amount input (48px font, tabular-nums). Quick amounts: $500 /
+     $1k / $5k / Max.
+   - Frequency radio: One-time | Weekly | Monthly.
+   - Info callout: "Transfers typically settle in 2-3 business days."
+   - Review button → Review screen with summary + Confirm button.
+   - Confirm → backend POST /api/v1/transfers with full audit trail row
+     saved. For now: no actual money movement; just log + show confirmation
+     number (this is the same "simulated execution" pattern Session 8 used
+     for trades).
+
+5. Shared components (frontend/src/components/shared/):
+   - FilterPopover.tsx (already scoped in Session 2 — reuse here).
+   - StatusChip.tsx — tone prop: success | warn | danger | neutral.
+   - ExpandableRow.tsx — consistent expand/collapse behavior.
+   - KPIStrip.tsx — the top horizontal KPI card row used on Balances.
+
+Acceptance criteria:
+- /activity renders a list of pending + filled orders for the active
+  account; period dropdown filters correctly.
+- /balances expands a row to show the 3×3 detail grid; KPI strip updates
+  via SSE (tie to Session 9 SSE infra).
+- /watchlists — create a new watchlist, add AAPL and TSLA to it, refresh
+  page, data persists.
+- /transfer — fill form, click Review, see summary, click Confirm, see
+  confirmation screen with number. Activity tab shows the transfer entry
+  within 5s.
+- All four screens render correctly in Classic and Futuristic shells.
+
+When done: commit "feat(screens): activity + balances + watchlists +
+transfer". Screenshots of all four.
+```
+
+---
+
+### Session 18 — Onboarding
+
+**Dependencies:** Session 11 (shell), Session 17 (Transfer for the Funding
+step reuse).
+
+**First-principles rationale:** First-run experience is the single biggest
+lever on retention. A 4-step onboarding (Account type → Personal info →
+Funding → Review) that feels like Robinhood/Fidelity is table stakes for
+investor demos. This is explicitly scoped as the last session because it
+depends on all earlier infrastructure (routing, shell, transfer form,
+account linking).
+
+**Prompt:**
+
+```
+You are continuing HedgeIQ Phase 2. FINAL SESSION. Read:
+- docs/design/src/screens.jsx OnboardingScreen
+- docs/design/COMPONENT_MAP.md section 10 (Onboarding subsection)
+
+Goal: ship a 4-step first-run onboarding flow at /onboarding that new users
+see immediately after signup, before they reach the dashboard.
+
+Scope:
+1. Route gating: in AppShell, if user.onboarding_completed is false, redirect
+   any non-/onboarding route to /onboarding. Skip for users with legacy
+   accounts (completed=true by default via migration).
+2. OnboardingShell.tsx — centered card, max-width 720px, padding 48px.
+   Sticky step indicator at top: 4 circles with labels (Account type /
+   Personal info / Funding / Review). Completed = green filled circle with
+   checkmark; current = accent outline; future = grey outline.
+3. Step 1 — Account type:
+   - 2×3 card grid of account types: Individual Taxable, Roth IRA,
+     Traditional IRA, 529 (Education), Joint Tenant, Custodial.
+   - Each card: large icon (port from util.jsx — Briefcase/Shield/Target/
+     Book/Wallet/Users), title (serif), 1-line description, info-tooltip
+     icon (hover tooltip with tax treatment summary).
+   - Click selects; selected state = accent border + subtle fill.
+   - Back (disabled on step 1) + Continue buttons at bottom-right.
+4. Step 2 — Personal info:
+   - Grouped fields: Legal name (first/middle/last), DOB, SSN (masked, with
+     "Why we need this" tooltip), Address (street/city/state/zip), Phone,
+     Email (read-only from signup), Employment (Employed / Self-employed /
+     Retired / Student / Unemployed), Employer (conditional), Occupation,
+     Source of funds (Income / Savings / Inheritance / Sale of asset /
+     Other), Investment experience (None / Some / Extensive), Risk tolerance
+     (Conservative / Moderate / Aggressive).
+   - Real-time validation with inline error messages.
+   - Save draft on blur so the user can resume later.
+5. Step 3 — Funding:
+   - Reuse TransferScreen-style form in "initial deposit" mode.
+   - Options: Link bank (Plaid-like flow; for now, mock with routing+account
+     numbers), Wire transfer (show instructions), Transfer from another
+     broker (ACATS form), Deposit check (photo upload; mock for now),
+     Skip for now (default $0, grey option).
+   - If user chose anything other than Skip: show expected funding ETA.
+6. Step 4 — Review:
+   - Summary of all answers in grouped cards.
+   - Small-print disclaimers (aggregated into an expandable "Legal" section).
+   - Two required checkboxes: "I agree to the Customer Agreement" + "I
+     confirm the information above is accurate".
+   - Primary button: Complete & open account. Secondary: Back.
+7. On completion:
+   - POST /api/v1/onboarding/complete with all form data.
+   - Backend stores in onboarding_applications table + flips user.
+     onboarding_completed = true + fires notification "Welcome! Your account
+     is being reviewed."
+   - Frontend navigates to /dashboard (classic) or /home (futuristic) with
+     a confetti animation (CSS keyframes, 2s duration) + welcome banner.
+8. Analytics: emit events to /api/v1/telemetry/event at step-enter,
+   step-complete, and final-complete. Used later for funnel analysis.
+9. Style: heavy use of Fraunces serif for step titles, Inter Tight for
+   body, JetBrains Mono for SSN and numbers.
+
+Acceptance criteria:
+- Fresh signup → auto-redirected to /onboarding Step 1.
+- Selecting Roth IRA + Continue → Step 2; Back returns with selection
+  preserved.
+- Submitting with a validation error scrolls to + highlights the field.
+- Completing all 4 steps lands user on /dashboard, confetti plays,
+  notification bell shows welcome message.
+- Refreshing mid-flow resumes at the step they were on.
+- "Skip for now" on funding still completes onboarding with $0 balance.
+- All forms keyboard-navigable (Tab through fields, Enter to continue).
+
+When done: commit "feat(onboarding): 4-step account opening flow". Screenshots
+of all 4 steps.
+
+PHASE 2 COMPLETE. 🎉
 ```
 
 ---
