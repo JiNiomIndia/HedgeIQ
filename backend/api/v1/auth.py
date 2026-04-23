@@ -7,7 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from jose.exceptions import ExpiredSignatureError
-import bcrypt as _bcrypt
+import hashlib
+import hmac
+import os
 from sqlalchemy.orm import Session
 
 from backend.api.v1.schemas import (
@@ -27,11 +29,18 @@ ALGORITHM = "HS256"
 
 
 def _hash_pw(plain: str) -> str:
-    return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
+    salt = os.urandom(16).hex()
+    dk = hashlib.pbkdf2_hmac('sha256', plain.encode(), bytes.fromhex(salt), 100_000)
+    return f"{salt}:{dk.hex()}"
 
 
 def _verify_pw(plain: str, hashed: str) -> bool:
-    return _bcrypt.checkpw(plain.encode(), hashed.encode())
+    try:
+        salt_hex, dk_hex = hashed.split(':', 1)
+        dk = hashlib.pbkdf2_hmac('sha256', plain.encode(), bytes.fromhex(salt_hex), 100_000)
+        return hmac.compare_digest(dk.hex(), dk_hex)
+    except Exception:
+        return False
 
 
 def create_token(user_id: str) -> str:
