@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=1280"/>
+<title>Research — HedgeIQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles/theme.css"/>
+<style>
+  body { overflow: auto; }
+  .rs-topbar { padding: 10px 24px; border-bottom: 1px solid var(--border); background: var(--surface); font-size: 11px; color: var(--text-muted); display: flex; gap: 18px; align-items: center; }
+  .rs-topbar .ticker { color: var(--text); font-weight: 600; }
+  .rs-topbar .chg-neg { color: var(--neg); font-family: var(--font-mono); }
+  .rs-topbar .chg-pos { color: var(--pos); font-family: var(--font-mono); }
+  .rs-nav { padding: 8px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 32px; }
+  .rs-nav .rs-logo { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
+  .rs-nav .nav-item { font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer; padding: 4px 0; }
+  .rs-nav .nav-item:hover { color: var(--accent); }
+  .rs-nav .rs-search { flex: 1; max-width: 320px; position: relative; }
+  .rs-nav .rs-search input { width: 100%; padding: 7px 12px 7px 32px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; background: var(--surface-2); }
+  .rs-nav .rs-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+  .rs-shell { max-width: 1260px; margin: 0 auto; padding: 20px 24px 48px; }
+  .rs-page-title { font-family: var(--font-serif); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 14px; }
+  .rs-quote-search { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .rs-quote-search .ticker-input { width: 260px; padding: 8px 36px 8px 12px; border: 1px solid var(--border); font-size: 15px; background: var(--surface); font-weight: 600; letter-spacing: 0.04em; }
+  .rs-quote-search .links a { color: var(--accent); font-size: 12px; margin-left: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .rs-hero-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 24px; padding: 14px 0; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .rs-sym-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .rs-sym-icon { width: 22px; height: 22px; border-radius: 999px; background: var(--chip); display: grid; place-items: center; font-size: 11px; color: var(--accent); font-weight: 700; }
+  .rs-sym-name { font-size: 17px; font-weight: 500; }
+  .rs-price-row { display: flex; align-items: baseline; gap: 10px; margin-top: 2px; }
+  .rs-price { font-family: var(--font-mono); font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+  .rs-price-sub { font-size: 9px; color: var(--text-subtle); letter-spacing: 0.04em; }
+  .rs-price-chg { font-family: var(--font-mono); font-size: 15px; font-weight: 600; }
+  .rs-price-chg.pos { color: var(--pos); }
+  .rs-price-chg.neg { color: var(--neg); }
+  .rs-as-of { font-size: 10px; color: var(--text-subtle); margin-top: 6px; letter-spacing: 0.04em; }
+  .rs-quick-actions { display: flex; gap: 6px; margin-top: 12px; align-items: center; }
+  .rs-quick-actions .btn { padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .rs-quick-actions .btn-buy { background: var(--pos); color: white; border-color: var(--pos); }
+  .rs-quick-actions .btn-sell { background: var(--neg); color: white; border-color: var(--neg); }
+  .rs-quick-actions .icon-btn { width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: grid; place-items: center; color: var(--accent); font-size: 14px; }
+  .quote-panel { border: 1px solid var(--border); padding: 12px 18px; background: var(--surface); display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 4px 16px; font-size: 12px; }
+  .quote-panel .k { color: var(--text-muted); }
+  .quote-panel .v { color: var(--text); font-family: var(--font-mono); text-align: right; }
+  .rs-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin: 8px 0 20px; }
+  .rs-tabs .tab { padding: 10px 12px; font-size: 13px; color: var(--text); font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; margin-right: 12px; }
+  .rs-tabs .tab.active { color: var(--pos); border-bottom-color: var(--pos); font-weight: 700; }
+  .rs-tabs .tab:hover:not(.active) { color: var(--accent); }
+  .card { background: var(--surface); border: 1px solid var(--border); padding: 16px; }
+  .card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+  .card .more-link { color: var(--accent); font-size: 12px; font-weight: 500; cursor: pointer; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .stat-row:last-child { border-bottom: 0; }
+  .stat-row .k { color: var(--text-muted); }
+  .stat-row .v { font-family: var(--font-mono); font-weight: 600; }
+  .ess-box { display: inline-block; padding: 4px 12px; background: var(--neg); color: white; font-weight: 700; font-size: 16px; border-radius: 2px; font-family: var(--font-mono); }
+  .ess-box.bull { background: var(--pos); }
+  .ess-box.neutral { background: #7a8aa0; }
+  .pp-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .pp-row .k { color: var(--text-muted); }
+  .pp-row .v { color: var(--pos); font-family: var(--font-mono); font-weight: 600; }
+  .pp-row .v.neg { color: var(--neg); }
+  .news-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .news-item a { color: var(--accent); font-size: 13px; cursor: pointer; line-height: 1.35; display: block; }
+  .news-item .meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-subtle); margin-top: 3px; }
+  .page-chip { display: inline-block; margin: 0 3px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 3px; font-size: 11px; cursor: pointer; color: var(--accent); }
+  .page-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .events-row { padding: 6px 0; font-size: 12px; }
+  .events-date { display: inline-block; padding: 2px 6px; background: var(--accent); color: white; font-size: 10px; font-weight: 700; border-radius: 2px; margin-right: 8px; text-align: center; line-height: 1.1; min-width: 28px; }
+  .events-date .m { display: block; font-size: 8px; }
+  .range-tabs { display: inline-flex; gap: 0; border: 1px solid var(--border); overflow: hidden; }
+  .range-tabs button { padding: 4px 10px; font-size: 11px; background: transparent; border: 0; cursor: pointer; color: var(--text-muted); font-weight: 500; border-right: 1px solid var(--border); font-family: var(--font-mono); }
+  .range-tabs button:last-child { border-right: 0; }
+  .range-tabs button.active { background: var(--pos); color: white; font-weight: 700; }
+  .company-profile { font-size: 12px; line-height: 1.55; color: var(--text); max-height: 180px; overflow: hidden; position: relative; }
+  .company-profile::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 36px; background: linear-gradient(transparent, var(--surface)); }
+  .profile-row { display: flex; padding: 4px 0; font-size: 12px; }
+  .profile-row .k { width: 130px; color: var(--text-muted); }
+  .profile-row .v { flex: 1; }
+  .cmp-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+  .cmp-table th { text-align: left; padding: 8px 10px; background: var(--surface-sunken); font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); }
+  .cmp-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .cmp-table td:first-child { color: var(--accent); font-weight: 500; width: 190px; }
+  .cmp-table tr:nth-child(2n) td { background: var(--surface-2); }
+  .sentiment-bar { height: 28px; display: flex; border-radius: 3px; overflow: hidden; background: var(--surface-sunken); margin: 8px 0; }
+  .sentiment-seg { display: grid; place-items: center; font-size: 11px; color: var(--text); font-weight: 500; position: relative; }
+  .sentiment-seg.active { background: var(--pos); color: white; font-weight: 700; box-shadow: 0 0 0 2px var(--pos); }
+  .sentiment-seg.active.neutral { background: #c89a3e; box-shadow: 0 0 0 2px #c89a3e; }
+  .bar-h { height: 10px; background: var(--surface-sunken); border-radius: 999px; overflow: hidden; }
+  .bar-h > div { height: 100%; background: var(--accent-2); }
+  .esg-chip { padding: 3px 10px; background: #d4a93a; color: white; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 2px; display: inline-block; }
+  .esg-chip.green { background: var(--pos); }
+  .ana-stack { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; }
+  .ana-row { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  .ana-row .month { width: 40px; color: var(--text-subtle); }
+  .ana-row .bars { flex: 1; height: 14px; background: var(--surface-sunken); display: flex; position: relative; border-radius: 2px; overflow: hidden; }
+  .ana-row .bars .sb { height: 100%; }
+  .feedback-fab { position: fixed; right: 0; top: 40%; writing-mode: vertical-rl; background: var(--accent); color: white; padding: 8px 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .score-pill { display: inline-flex; align-items: baseline; gap: 4px; padding: 10px 18px; font-family: var(--font-serif); }
+  .score-pill .big { font-size: 40px; font-weight: 700; line-height: 1; }
+  .score-pill .out { font-size: 14px; color: var(--text-muted); }
+  .score-pill.neg { background: color-mix(in oklch, var(--neg) 12%, var(--surface)); color: var(--neg); border-left: 4px solid var(--neg); }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-theme="meridian">
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+try {
+  const s = JSON.parse(localStorage.getItem('hedgeiq.tweaks') || '{}');
+  if (s.theme) document.body.dataset.theme = s.theme;
+} catch {}
+
+const qs = new URLSearchParams(location.search);
+const SYMBOL = (qs.get('symbol') || 'PSKY').toUpperCase();
+
+const TICKERS = {
+  PSKY: { name: "Paramount Skydance Class B", sector: "Communication Services", industry: "Media", price: 11.74, chg: 0.01, chgPct: 0.09, mktCap: 13.05e9, pe: 0, eps: -0.56, beta: 0.52, dayLow: 11.61, dayHigh: 11.97, low52: 8.62, high52: 20.86, bid: 11.71, bidSize: 1000, ask: 11.80, askSize: 200, vol: 7187774, vol90: 14e6, vol10: 12e6, exDiv: "Jun-15-2026", earnings: "May 04, 2026", divAmt: 0.05, divYield: 1.705, ess: 2.7, essDir: 'neg', shortInt: 7.42, sharesShort: 76.83e6, ownership: { inst: 19.1, instFund: 8.7, fund: 0.1, insider: 0.2, other: 71.9 }, balance: { ta: 43342, tl: 30455, dta: 70.3 }, income: { ns: 8148, gp: 2381, pm: 29.22 }, cf: { op: 649, ncf: -857 } },
+  NVDA: { name: "NVIDIA Corp", sector: "Information Technology", industry: "Semiconductors", price: 892.40, chg: 14.22, chgPct: 1.62, mktCap: 2.2e12, pe: 68.4, eps: 12.56, beta: 1.68, dayLow: 882.10, dayHigh: 895.20, low52: 394.50, high52: 974.00, bid: 892.34, bidSize: 200, ask: 892.46, askSize: 100, vol: 41.2e6, vol90: 40e6, vol10: 38e6, exDiv: "Jun-14-2026", earnings: "May 22, 2026", divAmt: 0.04, divYield: 0.018, ess: 8.9, essDir: 'pos', shortInt: 1.12, sharesShort: 18e6, ownership: { inst: 65.4, instFund: 18.2, fund: 1.1, insider: 4.5, other: 10.8 }, balance: { ta: 65728, tl: 22750, dta: 34.6 }, income: { ns: 60920, gp: 44301, pm: 72.71 }, cf: { op: 28090, ncf: 5100 } },
+  SNOW: { name: "Snowflake Inc", sector: "Information Technology", industry: "Software", price: 143.98, chg: 0.43, chgPct: 0.30, mktCap: 48.1e9, pe: null, eps: -2.12, beta: 1.08, dayLow: 142.10, dayHigh: 145.20, low52: 133.75, high52: 237.72, bid: 143.94, bidSize: 200, ask: 144.02, askSize: 300, vol: 4.3e6, vol90: 5.1e6, vol10: 4.2e6, exDiv: "—", earnings: "May 28, 2026", divAmt: 0, divYield: 0, ess: 5.2, essDir: 'neutral', shortInt: 4.3, sharesShort: 12e6, ownership: { inst: 68.1, instFund: 12.2, fund: 0.4, insider: 2.1, other: 17.2 }, balance: { ta: 8520, tl: 4280, dta: 50.2 }, income: { ns: 3625, gp: 2290, pm: 63.2 }, cf: { op: 880, ncf: -45 } },
+  FSLY: { name: "Fastly Class A", sector: "Information Technology", industry: "Internet Services", price: 24.56, chg: -0.32, chgPct: -1.29, mktCap: 3.1e9, pe: null, eps: -0.85, beta: 1.42, dayLow: 23.96, dayHigh: 26.29, low52: 5.125, high52: 34.82, bid: 24.38, bidSize: 300, ask: 24.56, askSize: 1000, vol: 12.7e6, vol90: 8.4e6, vol10: 9.1e6, exDiv: "—", earnings: "May 06, 2026", divAmt: 0, divYield: 0, ess: 4.1, essDir: 'neutral', shortInt: 15.8, sharesShort: 22e6, ownership: { inst: 54.3, instFund: 8.1, fund: 0.2, insider: 5.4, other: 32.0 }, balance: { ta: 960, tl: 410, dta: 42.7 }, income: { ns: 580, gp: 290, pm: 50.0 }, cf: { op: 40, ncf: 12 } },
+  TWLO: { name: "Twilio Inc Cl A", sector: "Communication Services", industry: "IT Services", price: 140.11, chg: 3.15, chgPct: 2.29, mktCap: 22.5e9, pe: 48.2, eps: 2.91, beta: 1.18, dayLow: 137.20, dayHigh: 141.80, low52: 80.00, high52: 145.00, bid: 140.05, bidSize: 100, ask: 140.15, askSize: 200, vol: 2.5e6, vol90: 3.2e6, vol10: 2.8e6, exDiv: "—", earnings: "Apr 30, 2026", divAmt: 0, divYield: 0, ess: 6.8, essDir: 'pos', shortInt: 3.1, sharesShort: 8e6, ownership: { inst: 82.1, instFund: 15.5, fund: 0.6, insider: 1.8, other: 0.0 }, balance: { ta: 7210, tl: 2180, dta: 30.2 }, income: { ns: 4280, gp: 2150, pm: 50.2 }, cf: { op: 520, ncf: 110 } },
+  META: { name: "Meta Platforms", sector: "Communication Services", industry: "Interactive Media", price: 514.20, chg: 8.87, chgPct: 1.75, mktCap: 1.3e12, pe: 27.9, eps: 18.43, beta: 1.22, dayLow: 508.10, dayHigh: 518.50, low52: 274.38, high52: 542.81, bid: 514.18, bidSize: 100, ask: 514.22, askSize: 200, vol: 14.2e6, vol90: 13.1e6, vol10: 12.4e6, exDiv: "Jun-14-2026", earnings: "May 02, 2026", divAmt: 0.50, divYield: 0.39, ess: 7.4, essDir: 'pos', shortInt: 1.3, sharesShort: 22e6, ownership: { inst: 78.1, instFund: 19.2, fund: 0.5, insider: 13.4, other: 7.8 }, balance: { ta: 229620, tl: 77248, dta: 33.6 }, income: { ns: 156220, gp: 125200, pm: 34.6 }, cf: { op: 71110, ncf: 12480 } },
+};
+
+const COMPS = { PSKY: ['NFLX', 'DIS'], NVDA: ['AMD', 'INTC'], SNOW: ['DDOG', 'MDB'], FSLY: ['NET', 'AKAM'], TWLO: ['ZEN', 'RNG'], META: ['GOOGL', 'SNAP'] };
+const COMPDATA = {
+  PSKY: { price: 11.74, chg: 0.01, chgPct: 0.09, vol: 7.2, vol90: 11.9, pe: 15.84, beta: 0.52, ess: 2.7, essLabel: 'Bearish', essFirms: 4, shares: 1.19e9, mktCap: 13.05e9, eps: -0.56, rev: 28.89e9, emp: 21200, ind: 'Media' },
+  NFLX: { price: 97.31, chg: -10.48, chgPct: -9.72, vol: 126, vol90: 46.7, pe: 48.2, beta: 1.15, ess: 6.4, essLabel: 'Neutral', essFirms: 7, shares: 4.28e9, mktCap: 409.7e9, eps: 3.18, rev: 46.89e9, emp: 16000, ind: 'Entertainment' },
+  DIS: { price: 106.29, chg: 2.39, chgPct: 2.30, vol: 10.5, vol90: 11.2, pe: null, beta: 1.22, ess: 2.1, essLabel: 'Bearish', essFirms: 7, shares: 1.88e9, mktCap: 188.29e9, eps: 6.80, rev: 95.72e9, emp: 231000, ind: 'Entertainment' },
+  AMD: { price: 158.20, chg: 2.18, chgPct: 1.40, vol: 32.1, vol90: 38.4, pe: 42.5, beta: 1.72, ess: 7.2, essLabel: 'Bullish', essFirms: 38, shares: 1.62e9, mktCap: 256e9, eps: 3.72, rev: 24.3e9, emp: 26000, ind: 'Semiconductors' },
+  INTC: { price: 42.80, chg: -0.62, chgPct: -1.43, vol: 58.4, vol90: 61.2, pe: 18.9, beta: 0.88, ess: 4.5, essLabel: 'Neutral', essFirms: 41, shares: 4.31e9, mktCap: 184e9, eps: 2.26, rev: 54.2e9, emp: 125000, ind: 'Semiconductors' },
+};
+
+const t = TICKERS[SYMBOL] || TICKERS.PSKY;
+
+const fmtMoney = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+const fmtCompact = (n) => {
+  if (n == null) return '—';
+  if (n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  return n.toLocaleString();
+};
+const fmtNum = (n) => n?.toLocaleString() || '—';
+
+// Seeded candle generator
+function seedRand(seed) {
+  let s = seed;
+  return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+}
+function genCandles(n, base, rng) {
+  const out = [];
+  let p = base;
+  for (let i = 0; i < n; i++) {
+    const open = p;
+    const vol = base * 0.035;
+    const close = p + (rng() - 0.5) * vol * 2;
+    const high = Math.max(open, close) + rng() * vol * 0.7;
+    const low = Math.min(open, close) - rng() * vol * 0.7;
+    const volume = Math.floor(rng() * 80e6 + 20e6);
+    out.push({ open, close, high, low, volume });
+    p = close;
+  }
+  return out;
+}
+
+const CandleChart = ({ candles, width = 860, height = 320, showVolume = true, showEvents = false }) => {
+  const price = candles.map(c => [c.low, c.high]).flat();
+  const minP = Math.min(...price);
+  const maxP = Math.max(...price);
+  const range = maxP - minP;
+  const pad = 10;
+  const volH = showVolume ? height * 0.22 : 0;
+  const priceH = height - volH - 30;
+  const W = width - 60;
+  const cw = W / candles.length;
+  const yFor = v => pad + priceH - ((v - minP) / range) * (priceH - pad * 2);
+  const maxV = Math.max(...candles.map(c => c.volume));
+  const last = candles[candles.length - 1];
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height, display: 'block' }}>
+      {[0, 0.25, 0.5, 0.75, 1].map(f => {
+        const y = pad + priceH * f;
+        const v = maxP - range * f;
+        return (
+          <g key={f}>
+            <line x1={10} x2={W + 40} y1={y} y2={y} stroke="var(--border)" strokeDasharray="2 3"/>
+            <text x={W + 44} y={y + 4} fontSize="10" fill="var(--text-subtle)" fontFamily="JetBrains Mono">{v.toFixed(2)}</text>
+          </g>
+        );
+      })}
+      <text x={W + 44} y={yFor(last.close)} fontSize="10" fill="white" fontFamily="JetBrains Mono" dominantBaseline="middle" textAnchor="start">
+        <tspan style={{ fill: last.close >= last.open ? 'var(--pos)' : 'var(--neg)' }}>{last.close.toFixed(2)}</tspan>
+      </text>
+      <rect x={W + 40} y={yFor(last.close) - 7} width={48} height={14} fill={last.close >= last.open ? 'var(--pos)' : 'var(--neg)'} opacity="1"/>
+      <text x={W + 44} y={yFor(last.close) + 4} fontSize="10" fill="white" fontFamily="JetBrains Mono">{last.close.toFixed(2)}</text>
+      {candles.map((c, i) => {
+        const x = 10 + i * cw + cw / 2;
+        const up = c.close >= c.open;
+        const color = up ? 'var(--pos)' : 'var(--neg)';
+        return (
+          <g key={i}>
+            <line x1={x} x2={x} y1={yFor(c.high)} y2={yFor(c.low)} stroke={color} strokeWidth={1}/>
+            <rect x={x - cw * 0.35} y={yFor(Math.max(c.open, c.close))} width={cw * 0.7} height={Math.max(1, Math.abs(yFor(c.open) - yFor(c.close)))} fill={color}/>
+          </g>
+        );
+      })}
+      {/* Watermark */}
+      <text x={width / 2} y={priceH / 2 + 20} fontSize="40" fill="var(--border)" fontFamily="Inter Tight" fontWeight="700" textAnchor="middle" opacity="0.25" letterSpacing="6">{SYMBOL}</text>
+      <text x={width / 2} y={priceH / 2 + 50} fontSize="10" fill="var(--border)" fontFamily="Inter Tight" textAnchor="middle" opacity="0.35">{t.name.toUpperCase()}</text>
+
+      {showVolume && (
+        <g transform={`translate(0, ${priceH + 10})`}>
+          <text x={12} y={12} fontSize="10" fill="var(--text-subtle)" fontFamily="Inter Tight">volume {fmtCompact(last.volume).replace('$', '')}</text>
+          {candles.map((c, i) => {
+            const x = 10 + i * cw + cw / 2;
+            const h = (c.volume / maxV) * (volH - 20);
+            const up = c.close >= c.open;
+            return <rect key={i} x={x - cw * 0.35} y={volH - h} width={cw * 0.7} height={h} fill={up ? 'var(--pos)' : 'var(--neg)'} opacity="0.7"/>;
+          })}
+        </g>
+      )}
+    </svg>
+  );
+};
+
+// Area chart for price performance history
+const MicroChart = ({ data, height = 40, width = 110, up }) => {
+  const min = Math.min(...data), max = Math.max(...data);
+  const r = max - min || 1;
+  const pts = data.map((v, i) => `${(i/(data.length-1))*width},${height - ((v-min)/r)*height}`).join(' L');
+  const color = up ? 'var(--pos)' : 'var(--neg)';
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height}>
+      <path d={'M' + pts} fill="none" stroke={color} strokeWidth="1.5"/>
+    </svg>
+  );
+};
+
+const NEWS = [
+  { t: "Form 4 Paramount Skydance Corp For: Apr 15 Filed by: Cinelli Dennis", src: "SEC filings - 10K Wizard", date: "Apr-15-2026 5:08 PM ET" },
+  { t: "BRIEF-Paramount Skydance Corp — Declares QTRLY Cash Dividend Of $0.05 Per Share Payable July 1, 2026", src: "Reuters", date: "Apr-17-2026 4:36 PM ET" },
+  { t: "Paramount Declares Quarterly Cash Dividend", src: "PR Newswire", date: "Apr-17-2026 4:05 PM ET" },
+  { t: "Cinemas see summer sizzle in 'Spider-Man' and 'Star Wars'", src: "Reuters", date: "Apr-17-2026 4:03 PM ET" },
+  { t: "Keybanc Maintains Overweight on Snowflake, Lowers Price Target to $200", src: "BENZINGA", date: "Apr-15-2026 9:05 AM ET" },
+];
+
+const App = () => {
+  const [tab, setTab] = React.useState('overview');
+  const [range, setRange] = React.useState('3M');
+  const [cmpTab, setCmpTab] = React.useState('Key statistics');
+
+  const rng = seedRand(SYMBOL.charCodeAt(0) * 101 + SYMBOL.charCodeAt(1) * 7);
+  const candles = genCandles(60, t.price * 0.85, rng);
+  const bigCandles = genCandles(150, t.price * 0.9, rng);
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      {/* Top ticker bar */}
+      <div className="rs-topbar">
+        <span>Bitcoin <span className="mono" style={{ color: 'var(--text)' }}>74,718.00</span> <span className="chg-neg">-828.49 (-1.10%)</span></span>
+        <span>US 10 Year <span className="mono" style={{ color: 'var(--text)' }}>111.72</span> <span style={{ color: 'var(--text-muted)' }} className="mono">0.00%</span></span>
+        <span>Crude Oil <span className="mono" style={{ color: 'var(--text)' }}>82.59</span> <span style={{ color: 'var(--text-muted)' }} className="mono">0.00%</span></span>
+        <span>Gold <span className="mono" style={{ color: 'var(--text)' }}>4,879.60</span> <span style={{ color: 'var(--text-muted)' }} className="mono">0.00%</span></span>
+        <span style={{ marginLeft: 'auto', color: 'var(--text-subtle)' }}>*Delayed 10 minutes</span>
+      </div>
+
+      {/* Nav */}
+      <div className="rs-nav">
+        <a href="HedgeIQ.html" className="rs-logo">HedgeIQ</a>
+        <span className="nav-item">Accounts & Trade</span>
+        <span className="nav-item">Planning & Advice</span>
+        <span className="nav-item">News & Research</span>
+        <span className="nav-item">Products</span>
+        <div className="grow"/>
+        <div className="rs-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input placeholder="How can we help?"/>
+        </div>
+      </div>
+
+      <div className="rs-shell">
+        <h1 className="rs-page-title">Research & Quotes</h1>
+
+        <div className="rs-quote-search">
+          <div style={{ position: 'relative' }}>
+            <input className="ticker-input" defaultValue={SYMBOL}/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" style={{ position: 'absolute', right: 10, top: 10 }}><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <a style={{ fontSize: 11, color: 'var(--accent)', display: 'block', marginTop: 4, textDecoration: 'underline', textUnderlineOffset: 3 }}>Search from your owned positions</a>
+          </div>
+          <div className="links">
+            <a>Glossary</a>
+            <a>Market insights</a>
+            <a>Give feedback</a>
+          </div>
+        </div>
+
+        <div className="rs-hero-grid">
+          <div>
+            <div className="rs-sym-row">
+              <div className="rs-sym-icon">{SYMBOL[0]}</div>
+              <span className="rs-sym-name">{t.name}</span>
+            </div>
+            <div className="rs-price-row">
+              <span className="rs-price">{t.price.toFixed(2)}</span>
+              <span className="rs-price-sub">XNMS</span>
+              <span className={'rs-price-chg ' + (t.chg >= 0 ? 'pos' : 'neg')}>
+                {t.chg >= 0 ? '+' : ''}{t.chg.toFixed(2)} ({t.chg >= 0 ? '+' : ''}{t.chgPct.toFixed(2)}%)
+              </span>
+              <span style={{ color: 'var(--text-subtle)', fontSize: 14, cursor: 'pointer' }}>↻</span>
+            </div>
+            <div className="rs-as-of">AS OF APR-17-2026 4:00:00 PM ET</div>
+
+            <div className="rs-quick-actions">
+              <button className="btn btn-buy" onClick={() => window.opener?.openTrade?.(SYMBOL, 'buy')}>Buy</button>
+              <button className="btn btn-sell" onClick={() => window.opener?.openTrade?.(SYMBOL, 'sell')}>Sell</button>
+              <button className="icon-btn" title="Add">+</button>
+              <button className="icon-btn" title="Alert">🔔</button>
+              <button className="icon-btn" title="Filter">⚡</button>
+              <button className="icon-btn" title="Link">🔗</button>
+            </div>
+          </div>
+          <div className="quote-panel">
+            <span className="k">Bid × size (ARCX)</span>
+            <span className="v">{t.bid.toFixed(2)} × {t.bidSize.toLocaleString()}</span>
+            <span className="k">Volume</span>
+            <span className="v">{t.vol.toLocaleString()}</span>
+
+            <span className="k">Ask × size (ARCX)</span>
+            <span className="v">{t.ask.toFixed(2)} × {t.askSize}</span>
+            <span className="k">10/90-day avg. volume</span>
+            <span className="v">{(t.vol10/1e6).toFixed(0)}M / {(t.vol90/1e6).toFixed(0)}M</span>
+
+            <span className="k">Day range</span>
+            <span className="v" style={{ position: 'relative', paddingTop: 2 }}>
+              {t.dayLow.toFixed(2)}&nbsp;&nbsp;♦&nbsp;&nbsp;{t.dayHigh.toFixed(2)}
+            </span>
+            <span className="k">52-week range</span>
+            <span className="v" style={{ position: 'relative' }}>
+              <span style={{ textDecoration: 'underline' }}>{t.low52.toFixed(2)}</span>&nbsp;&nbsp;♦&nbsp;&nbsp;{t.high52.toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="rs-tabs">
+          {[
+            {k:'overview', l:'Overview'},
+            {k:'chart', l:'Chart +'},
+            {k:'divearn', l:'Dividends & Earnings'},
+            {k:'sentiment', l:'Sentiment'},
+            {k:'analyst', l:'Analyst Ratings'},
+            {k:'compare', l:'Comparisons'},
+            {k:'stats', l:'Statistics'},
+            {k:'viewall', l:'View All'},
+          ].map(x => (
+            <div key={x.k} className={'tab' + (tab === x.k ? ' active' : '')} onClick={() => setTab(x.k)}>
+              {x.l}
+            </div>
+          ))}
+        </div>
+
+        {/* OVERVIEW */}
+        {tab === 'overview' && (
+          <div>
+            <div className="grid-3">
+              {/* Detailed quote */}
+              <div className="card">
+                <h3>Detailed quote</h3>
+                <div className="stat-row"><span className="k">Open</span><span className="v">{(t.price - t.chg*0.5).toFixed(2)}</span></div>
+                <div className="stat-row"><span className="k">Previous close <span style={{ color: 'var(--text-subtle)', fontSize: 10 }}>As of Apr-17-2026</span></span><span className="v">{(t.price - t.chg).toFixed(2)}</span></div>
+                <div className="stat-row"><span className="k" style={{ display: 'flex', flexDirection: 'column' }}><span>Equity Summary Score</span><span style={{ color: 'var(--accent)', fontSize: 11 }}>Provided by LSEG StarMine ↗</span></span>
+                  <span><span className={'ess-box ' + (t.essDir === 'pos' ? 'bull' : t.essDir === 'neutral' ? 'neutral' : '')}>{t.ess.toFixed(1)}</span></span>
+                </div>
+                <div className="stat-row"><span className="k">P/E ratio</span><span className="v">{t.pe ? t.pe.toFixed(2) : '0.00'}</span></div>
+                <div className="stat-row"><span className="k">Options</span><span style={{ color: 'var(--accent)', fontSize: 13, cursor: 'pointer' }} onClick={() => window.open(`OptionChain.html?symbol=${SYMBOL}`, '_blank')}>View options chain ↗</span></div>
+                <div className="stat-row"><span className="k">Current dividend/ex-date</span><span className="v">${t.divAmt.toFixed(2)} / {t.exDiv}</span></div>
+                <div className="stat-row"><span className="k" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Estimated distribution rate/yield</span><span className="v">${(t.divAmt*4).toFixed(2)} / {t.divYield.toFixed(3)}%</span></div>
+                <div className="stat-row"><span className="k">Sector</span><span style={{ color: 'var(--accent)', fontSize: 13, textDecoration: 'underline' }}>{t.sector}</span></div>
+                <div className="stat-row"><span className="k">Market cap</span><span className="v">{t.mktCap > 200e9 ? 'Large' : t.mktCap > 10e9 ? 'Medium' : 'Small'} Cap ({fmtCompact(t.mktCap).replace('$', '$')})</span></div>
+              </div>
+
+              {/* News */}
+              <div className="card">
+                <h3>News</h3>
+                {NEWS.slice(0, 4).map((n, i) => (
+                  <div key={i} className="news-item">
+                    <a>{n.t}</a>
+                    <div className="meta"><span>{n.src}</span><span>{n.date}</span></div>
+                  </div>
+                ))}
+                <div style={{ textAlign: 'center', marginTop: 10 }}>
+                  {[1,2,3,4,5].map(p => <span key={p} className={'page-chip' + (p === 1 ? ' active' : '')}>{p}</span>)}
+                  <span className="page-chip">Next</span>
+                </div>
+              </div>
+
+              {/* Your positions */}
+              <div className="card">
+                <h3>Your positions with {SYMBOL}</h3>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>In your tradable accounts as of Apr-19-2026.</div>
+                <div style={{ padding: 8, background: 'var(--surface-sunken)', marginBottom: 10, fontSize: 12, color: 'var(--accent)' }}>
+                  ℹ Set up a <u>recurring investment</u> or <u>learn more</u>.
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Sankar TRADITIONAL IRA 221984600</div>
+                <div className="stat-row"><span className="k">Today's gain/loss</span><span className="v" style={{ color: t.chg >= 0 ? 'var(--pos)' : 'var(--neg)' }}>{t.chg >= 0 ? '+' : ''}${(t.chg * 250).toFixed(2)} ({t.chg >= 0 ? '+' : ''}{t.chgPct.toFixed(2)}%)</span></div>
+                <div className="stat-row"><span className="k">Total gain/loss</span><span className="v" style={{ color: 'var(--pos)' }}>+$482.50 (+19.67%)</span></div>
+                <div className="stat-row"><span className="k">Current value</span><span className="v">${(250 * t.price).toFixed(2)}</span></div>
+                <div className="stat-row"><span className="k">% of account</span><span className="v">4.50%</span></div>
+                <div className="stat-row"><span className="k">Quantity</span><span className="v">250</span></div>
+                <div className="stat-row"><span className="k">Cost basis</span><span className="v">$9.81/share / $2,452.50</span></div>
+                <div style={{ marginTop: 10 }}><a style={{ color: 'var(--accent)', fontSize: 12, textDecoration: 'underline' }}>View all your positions with {SYMBOL}</a></div>
+              </div>
+            </div>
+
+            <div className="grid-3" style={{ marginTop: 14 }}>
+              {/* Chart */}
+              <div className="card" style={{ gridColumn: '1 / 3' }}>
+                <h3>
+                  <span>Chart</span>
+                  <span className="range-tabs">
+                    {['1D','2D','5D','1M','3M','6M','YTD','1Y','2Y','5Y','10Y','MAX'].map(r => (
+                      <button key={r} className={r === range ? 'active' : ''} onClick={() => setRange(r)}>{r}</button>
+                    ))}
+                  </span>
+                </h3>
+                <CandleChart candles={candles} width={820} height={280}/>
+              </div>
+
+              {/* Price performance */}
+              <div className="card">
+                <h3>Price performance</h3>
+                {[
+                  ['5-day', 10.55],
+                  ['10-day', 23.32],
+                  ['1-month', 23.58],
+                  ['3-month', -0.51],
+                  ['6-month', -30.53],
+                  ['YTD', -12.39],
+                  ['1-year', null],
+                  ['2-year', null],
+                  ['3-year', null],
+                  ['5-year', null],
+                  ['10-year', null],
+                ].map(([k, v]) => (
+                  <div key={k} className="pp-row">
+                    <span className="k">{k}</span>
+                    <span className={'v' + (v != null && v < 0 ? ' neg' : '')}>{v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid-3" style={{ marginTop: 14 }}>
+              {/* Company profile */}
+              <div className="card">
+                <h3>Company profile</h3>
+                <div className="profile-row"><span className="k">Sector</span><span className="v" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>{t.sector} ↗</span></div>
+                <div className="profile-row"><span className="k">Company location</span><span className="v">New York, NY</span></div>
+                <div className="company-profile" style={{ marginTop: 8 }}>
+                  {SYMBOL === 'PSKY' && (
+                    <>Paramount Skydance Corporation operates as a media and entertainment company worldwide. It operates in three segments: Studios, Direct-to-Consumer, and TV Media. The company operates CBS Television Network, a domestic broadcast television network; CBS Stations, a television station; international free-to-air networks comprising Network 10, Channel 5, Telefé, and Chilevision; and domestic premium and basic cable networks, such as Nickelodeon, MTV, CMT, Comedy Central, BET, Paramount+ with SHOWTIME, The Smithsonian Channel, BET Media Group, CBS Sports Network, and international extensions of these brands. It also provides domestic and international television studio operations, including CBS Studios, Paramount Television Studios, and Showtime. CBS Media Ventures.</>
+                  )}
+                  {SYMBOL !== 'PSKY' && (
+                    <>{t.name} operates in the {t.industry} industry of the {t.sector} sector. It designs, develops and markets products and services across global markets. Revenue is primarily derived from recurring and transactional streams, with meaningful exposure to enterprise and consumer channels. The company has expanded through internal R&D and strategic acquisitions.</>
+                  )}
+                </div>
+                <a style={{ color: 'var(--accent)', fontSize: 12, display: 'inline-block', marginTop: 6 }}>www.{SYMBOL.toLowerCase()}.com ↗</a>
+              </div>
+
+              {/* Events */}
+              <div className="card">
+                <h3>Events</h3>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Upcoming events</div>
+                <div className="events-row" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <span className="events-date"><span className="m">MAY</span>04</span>
+                  <span>{SYMBOL} to announce Q1 earnings (confirmed)</span>
+                </div>
+                <div className="events-row" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <span className="events-date"><span className="m">APR</span>15</span>
+                  <div>
+                    <div>{SYMBOL} announces a stock dividend of $0.05</div>
+                    <div style={{ color: 'var(--text-subtle)', fontSize: 11, marginTop: 2 }}>
+                      Announce date <span className="mono" style={{ float: 'right' }}>04/17/2026</span><br/>
+                      Record date <span className="mono" style={{ float: 'right' }}>06/15/2026</span><br/>
+                      Pay date <span className="mono" style={{ float: 'right' }}>07/01/2026</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="events-row" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <span className="events-date" style={{ background: 'var(--text-subtle)' }}><span className="m">AUG</span>04</span>
+                  <span>{SYMBOL} to announce Q2 earnings (unconfirmed)</span>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginTop: 14, marginBottom: 6 }}>Past events</div>
+                <div className="events-row" style={{ display: 'flex', alignItems: 'flex-start' }}>
+                  <span className="events-date" style={{ background: 'var(--text-subtle)' }}><span className="m">MAR</span>16</span>
+                  <div>
+                    <div>{SYMBOL} stock ex-dividend for $0.05 on 03/16/2026</div>
+                    <div style={{ color: 'var(--text-subtle)', fontSize: 11, marginTop: 2 }}>
+                      Announce date <span className="mono" style={{ float: 'right' }}>01/29/2026</span><br/>
+                      Record date <span className="mono" style={{ float: 'right' }}>03/16/2026</span><br/>
+                      Pay date <span className="mono" style={{ float: 'right' }}>04/01/2026</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Short interest */}
+              <div className="card">
+                <h3>Short interest</h3>
+                <div className="stat-row"><span className="k">Short % <span style={{ color: 'var(--text-subtle)', fontSize: 10 }}>As of Mar-31-2026</span></span><span className="v">{t.shortInt.toFixed(2)}%</span></div>
+                <div className="stat-row"><span className="k">Shares short</span><span className="v">{(t.sharesShort/1e6).toFixed(2)}M +0.28 (M)</span></div>
+                <div className="stat-row"><span className="k">Days to cover</span><span className="v">5.80 → 5.55 (M)</span></div>
+                <div className="stat-row"><span className="k" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Prior shares short <span style={{ color: 'var(--text-subtle)', fontSize: 10 }}>As of Mar-13-2026</span></span><span className="v">{(t.sharesShort * 0.998 / 1e6).toFixed(2)} (M)</span></div>
+                <div className="stat-row"><span className="k">Prior days to cover</span><span className="v">4.31</span></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CHART+ */}
+        {tab === 'chart' && (
+          <div className="card">
+            <h3>
+              <span>Chart <span style={{ fontSize: 11, color: 'var(--text-subtle)', fontWeight: 400 }}>ⓘ</span></span>
+              <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--text-muted)' }}>
+                <span>📋 Table</span>
+                <span>✏️ Draw</span>
+                <span>⚖ Compare</span>
+                <span>📊 Indicators</span>
+                <span>🎨 Styles</span>
+                <span>⓯ Events</span>
+                <span>🔍 Analysis</span>
+              </div>
+            </h3>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: 6 }}>
+              Mar-12-2026&nbsp;&nbsp;O: 9.95&nbsp;&nbsp;H: 10.05&nbsp;&nbsp;L: 9.79&nbsp;&nbsp;C: 9.80&nbsp;&nbsp;V: 10.74 M
+            </div>
+            <CandleChart candles={bigCandles} width={1180} height={460}/>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, alignItems: 'center' }}>
+              <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)' }}>
+                <span style={{ border: '1px solid var(--border)', padding: '3px 8px' }}>Oct-17-2025</span>
+                <span style={{ margin: '0 6px' }}>to</span>
+                <span style={{ border: '1px solid var(--border)', padding: '3px 8px' }}>Apr-17-2026</span>
+              </div>
+              <div className="range-tabs">
+                {['1D','2D','5D','1M','3M','6M','YTD','1Y','3Y','5Y','10Y','MAX','Daily','Log','Ext'].map(r => (
+                  <button key={r} className={r === range ? 'active' : ''} onClick={() => setRange(r)}>{r}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DIVIDENDS & EARNINGS */}
+        {tab === 'divearn' && (
+          <div className="grid-2">
+            <div className="card">
+              <h3>Dividends <span className="more-link">More ↗</span></h3>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>Company payment frequency: Quarterly</div>
+              <div className="grid-3">
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>Strength</div>
+                  <div style={{ fontSize: 10, color: 'var(--accent)', textDecoration: 'underline', marginBottom: 4 }}>Dividend yield ↗</div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 3 }}>
+                    <div className="bar-h" style={{ flex: 1 }}><div style={{ width: '35%' }}/></div>
+                    <span className="mono" style={{ fontSize: 11, fontWeight: 600 }}>1.7%</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{SYMBOL}</div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4 }}>
+                    <div className="bar-h" style={{ flex: 1 }}><div style={{ width: '55%' }}/></div>
+                    <span className="mono" style={{ fontSize: 11, fontWeight: 600 }}>2.67%</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Market Median</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>Sustainability</div>
+                  <div style={{ fontSize: 10, color: 'var(--accent)', textDecoration: 'underline', marginBottom: 8 }}>Dividend payout ratio ↗</div>
+                  <svg viewBox="0 0 80 80" width={70} height={70}>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface-sunken)" strokeWidth="10"/>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--accent-2)" strokeWidth="10" strokeDasharray={`${2*Math.PI*30*0.02} ${2*Math.PI*30}`} transform="rotate(-90 40 40)"/>
+                    <text x="40" y="44" fontSize="14" fontWeight="700" textAnchor="middle">2%</text>
+                  </svg>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Previous trailing<br/>(Company)</div>
+                  <svg viewBox="0 0 80 80" width={70} height={70} style={{ marginTop: 6 }}>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface-sunken)" strokeWidth="10"/>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--neg)" strokeWidth="10" strokeDasharray={`${2*Math.PI*30*0.36} ${2*Math.PI*30}`} transform="rotate(-90 40 40)"/>
+                    <text x="40" y="44" fontSize="14" fontWeight="700" textAnchor="middle" fill="var(--neg)">-36%</text>
+                  </svg>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Current trailing<br/>(Company)</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6 }}>Growth</div>
+                  <div style={{ fontSize: 10, color: 'var(--accent)', textDecoration: 'underline', marginBottom: 4 }}>Annualized last (YoY % change) ↗</div>
+                  <svg viewBox="0 0 180 90" width="100%" height={90}>
+                    <line x1="0" y1="45" x2="180" y2="45" stroke="var(--border)" strokeDasharray="2 3"/>
+                    <polyline points="10,60 50,55 90,48 130,40 170,28" fill="none" stroke="var(--accent-2)" strokeWidth="2"/>
+                    <text x="10" y="75" fontSize="9" fill="var(--text-subtle)">2022</text>
+                    <text x="50" y="75" fontSize="9" fill="var(--text-subtle)">2023</text>
+                    <text x="90" y="75" fontSize="9" fill="var(--text-subtle)">2024</text>
+                    <text x="130" y="75" fontSize="9" fill="var(--text-subtle)">2025</text>
+                    <text x="170" y="75" fontSize="9" fill="var(--text-subtle)" textAnchor="end">2026</text>
+                  </svg>
+                  <div style={{ fontSize: 10, color: 'var(--text-subtle)' }}>(Annualized as of Apr-17-2026)</div>
+                </div>
+              </div>
+              <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 10 }}>
+                <div className="stat-row"><span className="k">Dividend amount</span><span className="v">${t.divAmt.toFixed(2)}</span></div>
+                <div className="stat-row"><span className="k">Announcement date</span><span className="v">Apr-17-2026</span></div>
+                <div className="stat-row"><span className="k">Ex-dividend date</span><span className="v">{t.exDiv}</span></div>
+                <div className="stat-row"><span className="k">Record date</span><span className="v">{t.exDiv}</span></div>
+                <div className="stat-row"><span className="k">Pay date</span><span className="v">Jul-01-2026</span></div>
+                <div className="stat-row"><span className="k">Dividend type</span><span className="v">Regular</span></div>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>Earnings <span className="more-link">More ↗</span></h3>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>Earnings per share (I/B/E/S consensus estimates or adjusted actuals)</div>
+              <svg viewBox="0 0 400 200" width="100%" height={200}>
+                {['$0.80','$0.60','$0.40','$0.20','$0.00','-$0.20','-$0.40'].map((label, i) => (
+                  <g key={i}>
+                    <line x1="40" x2="400" y1={20 + i*25} y2={20 + i*25} stroke="var(--border)" strokeDasharray="2 3"/>
+                    <text x="35" y={23 + i*25} fontSize="9" textAnchor="end" fill="var(--text-subtle)">{label}</text>
+                  </g>
+                ))}
+                {[
+                  { x: 50, v: 0.26, label: 'Q2 2025' },
+                  { x: 120, v: -0.39, label: 'Q3 2025' },
+                  { x: 190, v: 0.29, label: 'Q4 2025' },
+                  { x: 260, v: -0.12, label: 'Q1 2026' },
+                ].map((q, i) => {
+                  const zero = 20 + 4*25;
+                  const h = q.v * 125;
+                  return (
+                    <g key={i}>
+                      <rect x={q.x} y={h > 0 ? zero - h : zero} width={40} height={Math.abs(h)} fill={q.v >= 0 ? 'var(--accent-2)' : 'var(--neg)'}/>
+                      <text x={q.x + 20} y={185} fontSize="9" textAnchor="middle" fill="var(--text-subtle)">{q.label}</text>
+                      <text x={q.x + 20} y={h > 0 ? zero - h - 4 : zero + Math.abs(h) + 12} fontSize="9" textAnchor="middle" fill="var(--text)" fontWeight="600">${q.v.toFixed(2)}</text>
+                    </g>
+                  );
+                })}
+                <rect x={330} y={20 + 4*25 - 0.08*125} width={40} height={0.08*125} fill="none" stroke="var(--accent-2)" strokeDasharray="3 2"/>
+                <text x={350} y={185} fontSize="9" textAnchor="middle" fill="var(--text-subtle)">Q2 2026</text>
+                <text x={350} y={20 + 4*25 - 0.08*125 - 4} fontSize="9" textAnchor="middle" fill="var(--text-muted)">$0.08</text>
+              </svg>
+              <div style={{ fontSize: 10, color: 'var(--text-subtle)', textAlign: 'right' }}>Expected report date: MAY 04, 2026</div>
+              <div style={{ display: 'flex', gap: 12, fontSize: 11, marginTop: 6 }}>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--surface-sunken)', verticalAlign: 'middle' }}/> Consensus</span>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--accent-2)', verticalAlign: 'middle' }}/> Actual</span>
+              </div>
+
+              <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Earnings metrics (GAAP vs. Industry Median)</div>
+                <table style={{ width: '100%', fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <th style={{ textAlign: 'left', padding: '4px 0' }}></th>
+                      <th style={{ textAlign: 'right', padding: '4px 0' }}>{SYMBOL}</th>
+                      <th style={{ textAlign: 'right', padding: '4px 0' }}>Industry Average</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>EPS (TTM)</td><td className="mono" style={{ textAlign: 'right' }}>${t.eps.toFixed(2)}</td><td className="mono" style={{ textAlign: 'right' }}>$5.95</td></tr>
+                    <tr><td>P/E (TTM)</td><td className="mono" style={{ textAlign: 'right' }}>{t.pe ? t.pe.toFixed(2) : '—'}</td><td className="mono" style={{ textAlign: 'right' }}>31.81</td></tr>
+                    <tr><td>EPS growth (TTM vs. prior TTM)</td><td className="mono" style={{ textAlign: 'right', color: 'var(--pos)' }}>+95.18%</td><td className="mono" style={{ textAlign: 'right', color: 'var(--neg)' }}>-1,892.93%</td></tr>
+                    <tr><td>EPS growth (last 5 years, avg per year vs. prior year)</td><td className="mono" style={{ textAlign: 'right', color: 'var(--neg)' }}>-67.60%</td><td className="mono" style={{ textAlign: 'right', color: 'var(--neg)' }}>-20.83%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SENTIMENT */}
+        {tab === 'sentiment' && (
+          <div>
+            <div className="grid-3">
+              <div className="card">
+                <h3>Fundamental analysis <span className="more-link">More ↗</span></h3>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Provided by S&P Global Market Intelligence ↗ | As of Apr-19-2026</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>Analysis is driven by underlying factors specific to the {t.sector} sector</div>
+                {[
+                  ['Valuation', 'Overvalued', 'Undervalued', 'overvalued', 30],
+                  ['Quality', 'Low', 'High', 'low', 22],
+                  ['Growth Stability', 'Low', 'High', 'low', 18],
+                  ['Financial Health', 'Less Healthy', 'Healthy', 'healthy', 82],
+                ].map(([label, lo, hi, state, pct]) => (
+                  <div key={label} style={{ marginBottom: 14 }}>
+                    <div style={{ color: 'var(--accent)', fontSize: 12, textDecoration: 'underline' }}>{label}</div>
+                    <div style={{ position: 'relative', height: 24, marginTop: 6 }}>
+                      <div style={{ position: 'absolute', top: 8, left: 0, right: 0, height: 6, background: 'var(--surface-sunken)', borderRadius: 3 }}>
+                        <div style={{ width: '50%', height: '100%', background: 'var(--accent-2)', borderRadius: '3px 0 0 3px' }}/>
+                      </div>
+                      <div style={{ position: 'absolute', top: 0, left: `${pct}%`, width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '7px solid var(--text)' }}/>
+                      <span style={{ position: 'absolute', top: -2, left: `${pct}%`, transform: 'translateX(-50%)', fontSize: 9, fontWeight: 700 }}>{pct}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-subtle)', marginTop: 4 }}>
+                      <span>{lo}</span><span>{hi}</span>
+                    </div>
+                  </div>
+                ))}
+                <a style={{ fontSize: 11, color: 'var(--accent)' }}>How to interpret this data ↗</a>
+              </div>
+
+              <div className="card">
+                <h3>Technical sentiment</h3>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Provided by Trading Central ↗ | As of Apr-18-2026</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Short-term sentiment 2 weeks to 6 weeks</div>
+                <div className="sentiment-bar">
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Weak</div>
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Neutral</div>
+                  <div className="sentiment-seg active" style={{ width: '34%' }}>Strong</div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginTop: 14, marginBottom: 4 }}>Mid term sentiment 6 weeks to 9 months</div>
+                <div className="sentiment-bar">
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Weak</div>
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Neutral</div>
+                  <div className="sentiment-seg active" style={{ width: '34%' }}>Strong</div>
+                </div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginTop: 14, marginBottom: 4 }}>Long-term sentiment 9 months to 2 years</div>
+                <div className="sentiment-bar">
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Weak</div>
+                  <div className="sentiment-seg active neutral" style={{ width: '34%' }}>Neutral</div>
+                  <div className="sentiment-seg" style={{ width: '33%' }}>Strong</div>
+                </div>
+                <a style={{ fontSize: 11, color: 'var(--accent)', marginTop: 14, display: 'inline-block' }}>How to interpret this data ↗</a>
+              </div>
+
+              <div className="card">
+                <h3>Environmental, social, & governance</h3>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Provided by MSCI ↗ | As of Apr-09-2026 | Methodology ↗</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px 12px', alignItems: 'center', fontSize: 12 }}>
+                  <span style={{ color: 'var(--accent)', textDecoration: 'underline' }}>ESG Score</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>vs Industry<br/>Media ↗</span>
+                  <span></span>
+
+                  <span style={{ color: 'var(--accent)' }}>Overall</span>
+                  <span className="esg-chip">AVERAGE</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>Quintile 2 of 4</span>
+
+                  <span style={{ color: 'var(--accent)' }}>Environment</span>
+                  <span className="esg-chip green">LEADER</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>Quintile 4 of 4</span>
+
+                  <span style={{ color: 'var(--accent)' }}>Social</span>
+                  <span className="esg-chip">AVERAGE</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>Quintile 2 of 4</span>
+
+                  <span style={{ color: 'var(--accent)' }}>Governance</span>
+                  <span className="esg-chip">AVERAGE</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-subtle)' }}>Quintile 1 of 4</span>
+                </div>
+                <a style={{ fontSize: 11, color: 'var(--accent)', marginTop: 14, display: 'inline-block' }}>View full report ↗</a>
+              </div>
+            </div>
+
+            <div className="card" style={{ marginTop: 14, maxWidth: 420 }}>
+              <h3>Today's social sentiment</h3>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-subtle)', fontSize: 12 }}>
+                ⓘ<br/><br/>We're sorry, this information is currently unavailable. Please try again later.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ANALYST RATINGS */}
+        {tab === 'analyst' && (
+          <div className="grid-2">
+            <div className="card">
+              <h3>Analyst ratings</h3>
+              <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Based on <span style={{ color: 'var(--accent)', textDecoration: 'underline' }}>Equity Summary Score methodology ↗</span> · Provided by LSEG StarMine ↗ | As of Apr-19-2026</div>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+                <div className={'score-pill ' + (t.essDir === 'pos' ? '' : 'neg')} style={{ flexDirection: 'column', padding: '18px 22px' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: t.essDir === 'pos' ? 'var(--pos)' : 'var(--neg)', marginBottom: 4 }}>{t.essDir === 'pos' ? 'Bullish' : 'Bearish'}</div>
+                  <div className="big">{t.ess.toFixed(1)}</div>
+                  <div className="out">out of 10</div>
+                </div>
+                <div style={{ flex: 1, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  With as many opinions out there, choosing the right stocks for your portfolio can feel overwhelming. This rating does some of the hard work for you by consolidating up to 7 independent firm opinions into a single rating.
+                </div>
+              </div>
+
+              <div style={{ marginTop: 20, fontWeight: 700, fontSize: 13, marginBottom: 8 }}>1-year history</div>
+              <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 8 }}>Based on standardized opinions ↗ | Provided by Investars ↗</div>
+              <div style={{ position: 'relative' }}>
+                {['Very Bullish','Bullish','Neutral','Bearish','Very Bearish'].map((label, row) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', fontSize: 10, height: 16 }}>
+                    <span style={{ width: 74, color: 'var(--text-muted)' }}>{label}</span>
+                    <div style={{ flex: 1, height: 16, position: 'relative', borderBottom: '1px dashed var(--border)' }}>
+                      {row === 1 && <div style={{ position: 'absolute', left: '30%', top: 3, width: '18%', height: 10, background: 'var(--accent-2)' }}/>}
+                      {row === 2 && <div style={{ position: 'absolute', left: '0%', top: 3, width: '20%', height: 10, background: 'var(--text-subtle)' }}/>}
+                      {row === 2 && <div style={{ position: 'absolute', left: '50%', top: 3, width: '25%', height: 10, background: 'var(--text-subtle)' }}/>}
+                      {row === 3 && <div style={{ position: 'absolute', left: '25%', top: 3, width: '15%', height: 10, background: 'var(--neg)' }}/>}
+                      {row === 3 && <div style={{ position: 'absolute', left: '70%', top: 3, width: '20%', height: 10, background: 'var(--neg)' }}/>}
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', fontSize: 10, color: 'var(--text-subtle)', marginTop: 4, paddingLeft: 74 }}>
+                  {['Apr \'25','Jun \'25','Sep \'25','Nov \'25','Jan \'26','Apr \'26'].map(l => (
+                    <span key={l} style={{ flex: 1 }}>{l}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>Latest research reports</h3>
+              <div style={{ display: 'flex', gap: 20, fontSize: 12, borderBottom: '1px solid var(--border)', paddingBottom: 8, marginBottom: 8 }}>
+                <span style={{ color: 'var(--pos)', fontWeight: 700, borderBottom: '2px solid var(--pos)', paddingBottom: 6 }}>Opinions & reports</span>
+                <span style={{ color: 'var(--text-muted)' }}>Other opinions</span>
+              </div>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                    <th style={{ textAlign: 'left', padding: 6 }}>Independent firm<br/>(Click for report)</th>
+                    <th style={{ textAlign: 'right', padding: 6, color: 'var(--pos)' }}>LSEG StarMine Relative Accuracy ↓</th>
+                    <th style={{ textAlign: 'right', padding: 6 }}>Standardized opinion</th>
+                    <th style={{ textAlign: 'right', padding: 6 }}>Opinion date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Zacks Investment Research, Inc. ↗', 42, 'Neutral', 'Apr-19-2026', 'var(--text-muted)'],
+                    ['ISS-EVA ↗', 39, 'Outperform ●', 'Apr-17-2026', 'var(--pos)'],
+                    ['Trading Central ↗', 12, 'Sell ●', 'Aug-05-2021', 'var(--neg)'],
+                    ['Argus Research Ad/Quantitative ↗', 10, 'Neutral ●', 'Apr-15-2026', 'var(--text-muted)'],
+                    ['Argus Analyst', 'N/A', 'Neutral', 'Mar-04-2026', 'var(--text-muted)'],
+                    ['I/B/E/S Estimates from Refinitiv ↗', 'N/A', '—', '—', 'var(--text-muted)'],
+                  ].map(([firm, acc, op, date, col], i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: 8, color: 'var(--accent)' }}>{firm}</td>
+                      <td style={{ padding: 8, textAlign: 'right' }} className="mono">{acc}</td>
+                      <td style={{ padding: 8, textAlign: 'right', color: col }}>{op}</td>
+                      <td style={{ padding: 8, textAlign: 'right' }} className="mono">{date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ marginTop: 14, fontSize: 11 }}>
+                <a style={{ color: 'var(--accent)' }}>Explore all research firms ↗</a><br/>
+                <a style={{ color: 'var(--accent)' }}>View more about LSEG StarMine Relative Accuracy ↗</a><br/>
+                <span style={{ color: 'var(--text-muted)' }}>Standardized opinion rating may not match report rating.</span><br/>
+                <a style={{ color: 'var(--accent)' }}>View more about standardized opinions by Investars ↗</a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* COMPARISONS */}
+        {tab === 'compare' && (() => {
+          const comps = [SYMBOL, ...(COMPS[SYMBOL] || ['NFLX','DIS'])];
+          return (
+            <div className="card" style={{ padding: 0 }}>
+              <div style={{ padding: 16, borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ margin: 0 }}>Compare</h3>
+                  <div style={{ fontSize: 11, color: 'var(--text-subtle)', marginTop: 4 }}>Quotes delayed at least 15 minutes, as of Apr-17-2026 6:14 PM ET</div>
+                </div>
+                <select style={{ padding: '6px 12px', border: '1px solid var(--border)', fontSize: 12, background: 'var(--surface)' }}>
+                  <option>{cmpTab}</option>
+                </select>
+              </div>
+              <div style={{ padding: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '200px repeat(3, 1fr) 200px', gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <button className="btn" style={{ display: 'block', width: '100%', padding: '6px 12px', border: '1px solid var(--border)', borderRadius: 3, background: 'var(--surface)', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Trade</button>
+                    <button className="btn" style={{ display: 'block', width: '100%', padding: '6px 12px', border: '1px solid var(--border)', borderRadius: 3, background: 'var(--surface)', fontSize: 12, fontWeight: 600 }}>Add to WatchList</button>
+                  </div>
+                  {comps.map(s => (
+                    <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <input type="checkbox"/>
+                      <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{s}</span>
+                      <span style={{ marginLeft: 'auto', color: 'var(--accent)', fontSize: 12, cursor: 'pointer' }}>✏️</span>
+                      <span style={{ color: 'var(--neg)', fontSize: 12, cursor: 'pointer' }}>🗑</span>
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <input placeholder="Add Symbol" style={{ flex: 1, padding: '6px 8px', border: '1px solid var(--border)', fontSize: 12 }}/>
+                    <button className="btn-buy" style={{ padding: '6px 16px', background: 'var(--pos)', color: 'white', border: 0, fontSize: 12, fontWeight: 600 }}>Add</button>
+                  </div>
+                </div>
+
+                <table className="cmp-table">
+                  <tbody>
+                    {[
+                      ['Name', comps.map(s => COMPDATA[s]?.ind === 'Media' ? 'PARAMOUNT SKYDANCE' : (s === 'NFLX' ? 'NETFLIX' : s === 'DIS' ? 'WALT DISNEY' : TICKERS[s]?.name || s))],
+                      ['Issue type', comps.map(() => 'Common Stock')],
+                      ['Last trade', comps.map(s => '$' + (COMPDATA[s]?.price?.toFixed(2) || '—') + '\nApr-17-2026')],
+                      ['Change', comps.map(s => { const d = COMPDATA[s]; return d ? `${d.chg >= 0 ? '+' : ''}${d.chg} (${d.chgPct >= 0 ? '+' : ''}${d.chgPct}%)\nApr-17-2026` : '—'; })],
+                      ['Price (52 weeks)', comps.map((s, i) => { const rng2 = seedRand(s.charCodeAt(0) * 37 + 5); const data = Array.from({length: 30}, () => (rng2() - 0.5) * 5 + 10); return <MicroChart key={s} data={data} up={i % 2 === 0}/>; })],
+                      ['Price performance (52 weeks)', comps.map(s => (s === 'NFLX' ? '+0.01%' : s === 'DIS' ? '+25.33%' : '+7.31%') + '\nApr-17-2026')],
+                      ['Volume', comps.map(s => (COMPDATA[s]?.vol || 0).toFixed(1) + 'M\nApr-17-2026')],
+                      ['90 day avg. volume', comps.map(s => (COMPDATA[s]?.vol90 || 0).toFixed(1) + 'M\nApr-17-2026')],
+                      ['Options', comps.map(() => <span style={{ color: 'var(--accent)' }}>Yes (Option chain)</span>)],
+                      ['Equity Summary Score (methodology)', comps.map(s => { const d = COMPDATA[s]; return d ? `${d.essLabel} (${d.ess}) (${d.essFirms} Firms)` : '—'; })],
+                      ['Equity Summary Score (1 year)', comps.map((s, i) => { const rng2 = seedRand(s.charCodeAt(0) * 13 + 2); const data = Array.from({length: 20}, () => rng2() * 2 + (i === 1 ? 6 : 3)); return <MicroChart key={s} data={data} up={i === 1}/>; })],
+                      ['Sector', comps.map(s => COMPDATA[s]?.ind === 'Media' ? 'Communication Services' : 'Communication Services')],
+                      ['Industry', comps.map(s => COMPDATA[s]?.ind || 'Media')],
+                      ['Market capitalization', comps.map(s => COMPDATA[s] ? fmtCompact(COMPDATA[s].mktCap) : '—')],
+                      ['Institutional ownership', comps.map(s => s === 'PSKY' ? '27.78%' : s === 'NFLX' ? '79.41%' : '74.87%')],
+                      ['Ann. dividend yield', comps.map(s => s === 'PSKY' ? '1.70%\nApr-17-2026' : s === 'NFLX' ? '—' : '1.41%\nApr-17-2026')],
+                      ['Earnings per share (TTM)', comps.map(s => { const d = COMPDATA[s]; return d ? '$' + d.eps.toFixed(2) + '\nDec 31, 2025' : '—'; })],
+                      ['Revenue (TTM)', comps.map(s => { const d = COMPDATA[s]; return d ? fmtCompact(d.rev) + '\nDec 31, 2025' : '—'; })],
+                      ['Employees (full time)', comps.map(s => (COMPDATA[s]?.emp || 0).toLocaleString())],
+                      ['Shares outstanding', comps.map(s => (COMPDATA[s]?.shares/1e9 || 0).toFixed(2) + 'B')],
+                    ].map(([label, values], i) => (
+                      <tr key={i}>
+                        <td>{label}</td>
+                        {values.map((v, j) => (
+                          <td key={j} style={{ whiteSpace: 'pre-line' }}>{typeof v === 'string' ? v.split('\n').map((line, k) => <div key={k} style={{ color: k > 0 ? 'var(--text-subtle)' : 'var(--text)', fontSize: k > 0 ? 10 : 12 }}>{line}</div>) : v}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* STATISTICS */}
+        {tab === 'stats' && (
+          <div className="grid-3">
+            <div className="card">
+              <h3>Key statistics <span className="more-link">More ↗</span></h3>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ color: 'var(--text-muted)' }}><th style={{ textAlign: 'left', padding: 6 }}>Valuation</th><th style={{ textAlign: 'right', padding: 6 }}>{SYMBOL}</th><th style={{ textAlign: 'right', padding: 6 }}>Industry average</th><th style={{ textAlign: 'right', padding: 6 }}>Industry percentile</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td style={{ padding: 4 }}>Market cap</td><td className="mono" style={{ textAlign: 'right' }}>${(t.mktCap/1e9).toFixed(2)}B</td><td className="mono" style={{ textAlign: 'right' }}>$3.31B</td><td style={{ textAlign: 'right', fontSize: 10 }}>━━━● 95th</td></tr>
+                  <tr><td style={{ padding: 4 }}>P/E (TTM)</td><td className="mono" style={{ textAlign: 'right' }}>—</td><td className="mono" style={{ textAlign: 'right' }}>—</td><td></td></tr>
+                </tbody>
+              </table>
+              <div style={{ fontWeight: 700, fontSize: 12, marginTop: 12, color: 'var(--text-muted)' }}>Growth</div>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <tbody>
+                  <tr><td style={{ padding: 4 }}>EPS growth (TTM vs. prior TTM)</td><td className="mono" style={{ textAlign: 'right' }}>+95.18%</td><td className="mono" style={{ textAlign: 'right' }}>-1,892.93%</td><td style={{ textAlign: 'right', fontSize: 10 }}>━━━● 90th</td></tr>
+                  <tr><td style={{ padding: 4 }}>EPS growth (last 5 years)</td><td></td><td className="mono" style={{ textAlign: 'right' }}>+45.13%</td><td></td></tr>
+                </tbody>
+              </table>
+              <div style={{ fontWeight: 700, fontSize: 12, marginTop: 12, color: 'var(--text-muted)' }}>Profit margins</div>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <tbody>
+                  <tr><td style={{ padding: 4 }}>Gross margin (TTM)</td><td className="mono" style={{ textAlign: 'right' }}>31.83%</td><td className="mono" style={{ textAlign: 'right' }}>40.87%</td><td style={{ textAlign: 'right', fontSize: 10 }}>━●━━ 34th</td></tr>
+                  <tr><td style={{ padding: 4 }}>EBITD margin (TTM)</td><td className="mono" style={{ textAlign: 'right' }}>10.65%</td><td className="mono" style={{ textAlign: 'right' }}>20.03%</td><td style={{ textAlign: 'right', fontSize: 10 }}>━━●━ 50th</td></tr>
+                </tbody>
+              </table>
+              <div style={{ fontWeight: 700, fontSize: 12, marginTop: 12, color: 'var(--text-muted)' }}>Returns</div>
+            </div>
+
+            <div className="card">
+              <h3>Ownership & insiders <span className="more-link">More ↗</span></h3>
+              <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Provided by Vickers, a subsidiary of Argus ↗</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10, lineHeight: 1.4 }}>The ownership summary indicates the percentage breakdown of a company's equity ownership by investor type, and is derived from multiple sources.</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <svg viewBox="0 0 120 120" width={120} height={120}>
+                  {(() => {
+                    const segs = [
+                      { v: t.ownership.inst, c: 'var(--accent-2)', label: 'Institutional' },
+                      { v: t.ownership.instFund, c: 'var(--accent)', label: 'Inst. fund' },
+                      { v: t.ownership.fund, c: '#d4a93a', label: 'Fund' },
+                      { v: t.ownership.insider, c: 'var(--pos)', label: 'Insider' },
+                      { v: t.ownership.other, c: 'var(--text-subtle)', label: 'Other' },
+                    ];
+                    const total = segs.reduce((s, x) => s + x.v, 0);
+                    let cum = 0;
+                    return segs.map((s, i) => {
+                      const start = (cum / total) * 2 * Math.PI - Math.PI / 2;
+                      cum += s.v;
+                      const end = (cum / total) * 2 * Math.PI - Math.PI / 2;
+                      const x1 = 60 + 50 * Math.cos(start);
+                      const y1 = 60 + 50 * Math.sin(start);
+                      const x2 = 60 + 50 * Math.cos(end);
+                      const y2 = 60 + 50 * Math.sin(end);
+                      const la = (end - start) > Math.PI ? 1 : 0;
+                      return <path key={i} d={`M60,60 L${x1},${y1} A50,50 0 ${la} 1 ${x2},${y2} Z`} fill={s.c}/>;
+                    });
+                  })()}
+                  <circle cx="60" cy="60" r="22" fill="var(--surface)"/>
+                </svg>
+                <div style={{ fontSize: 11, flex: 1 }}>
+                  {[
+                    ['Institutional ownership', t.ownership.inst, 'var(--accent-2)'],
+                    ['Institutional fund ownership', t.ownership.instFund, 'var(--accent)'],
+                    ['Fund ownership', t.ownership.fund, '#d4a93a'],
+                    ['Insider ownership', t.ownership.insider, 'var(--pos)'],
+                    ['Other', t.ownership.other, 'var(--text-subtle)'],
+                  ].map(([l, v, c]) => (
+                    <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
+                      <span style={{ display: 'inline-block', width: 10, height: 10, background: c }}/>
+                      <span style={{ flex: 1 }}>{l}</span>
+                      <span className="mono" style={{ fontWeight: 600 }}>{v}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: 11, marginTop: 10, color: 'var(--text-muted)' }}>Total outstanding shares: <span className="mono">1,080,241,022</span></div>
+            </div>
+
+            <div className="card">
+              <h3>SEC filings <span className="more-link">More ↗</span></h3>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                <select style={{ flex: 1, padding: '5px 8px', fontSize: 11, border: '1px solid var(--border)' }}><option>All Forms</option></select>
+                <select style={{ flex: 1, padding: '5px 8px', fontSize: 11, border: '1px solid var(--border)' }}><option>Filing Year</option></select>
+              </div>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ background: 'var(--surface-sunken)' }}>
+                    <th style={{ textAlign: 'left', padding: 6, color: 'var(--accent)' }}>Type</th>
+                    <th style={{ textAlign: 'left', padding: 6, color: 'var(--accent)' }}>Date Received</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style={{ padding: 6, color: 'var(--accent)' }}>Form 8-K*</td><td>Current Report*</td><td style={{ padding: 6 }} className="mono">Apr-09-2026</td></tr>
+                  <tr><td style={{ padding: 6, color: 'var(--accent)' }}>Form-4</td><td>Insider Transaction</td><td style={{ padding: 6 }} className="mono">Apr-08-2026</td></tr>
+                  <tr><td style={{ padding: 6, color: 'var(--accent)' }}>Form 8-K*</td><td>Current Report*</td><td style={{ padding: 6 }} className="mono">Apr-07-2026</td></tr>
+                  <tr><td style={{ padding: 6, color: 'var(--accent)' }}>Form 8-K*</td><td>Current Report*</td><td style={{ padding: 6 }} className="mono">Apr-07-2026</td></tr>
+                  <tr><td style={{ padding: 6, color: 'var(--accent)' }}>Form-4</td><td>Insider Transaction</td><td style={{ padding: 6 }} className="mono">Mar-04-2026</td></tr>
+                </tbody>
+              </table>
+              <div style={{ fontSize: 11, color: 'var(--text-subtle)', marginTop: 10 }}>&lt; 1-5 &nbsp; 6-10 &nbsp; 11-15 &nbsp; 16-20 &nbsp; ... &gt; *Financial Report</div>
+            </div>
+
+            <div className="card">
+              <h3>Financial statements <span className="more-link">More ↗</span></h3>
+              <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginBottom: 10 }}>Provided by S&P Capital IQ · Q4 reporting (Dec-31-2025)</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '6px 10px', fontSize: 11, marginBottom: 14 }}>
+                <div style={{ fontWeight: 700, gridColumn: '1 / 3' }}>Balance sheet <span style={{ color: 'var(--text-subtle)', float: 'right' }}>(USD MM)</span></div>
+                <div>Total assets</div><div className="mono" style={{ textAlign: 'right' }}>{t.balance.ta.toLocaleString()}</div>
+                <div>Total liabilities</div><div className="mono" style={{ textAlign: 'right' }}>{t.balance.tl.toLocaleString()}</div>
+                <div>Debt to assets</div><div className="mono" style={{ textAlign: 'right' }}>{t.balance.dta.toFixed(1)}%</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '6px 10px', fontSize: 11, marginBottom: 14 }}>
+                <div style={{ fontWeight: 700, gridColumn: '1 / 3' }}>Income statement <span style={{ color: 'var(--text-subtle)', float: 'right' }}>(USD MM)</span></div>
+                <div>Net sales</div><div className="mono" style={{ textAlign: 'right' }}>{t.income.ns.toLocaleString()}</div>
+                <div>Gross profit</div><div className="mono" style={{ textAlign: 'right' }}>{t.income.gp.toLocaleString()}</div>
+                <div>Profit margin</div><div className="mono" style={{ textAlign: 'right' }}>{t.income.pm.toFixed(2)}%</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '6px 10px', fontSize: 11 }}>
+                <div style={{ fontWeight: 700, gridColumn: '1 / 3' }}>Cash flow <span style={{ color: 'var(--text-subtle)', float: 'right' }}>(USD MM)</span></div>
+                <div>Operating</div><div className="mono" style={{ textAlign: 'right' }}>{t.cf.op.toLocaleString()}</div>
+                <div>Net cash flow</div><div className="mono" style={{ textAlign: 'right', color: t.cf.ncf < 0 ? 'var(--neg)' : 'var(--pos)' }}>({Math.abs(t.cf.ncf).toLocaleString()})</div>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>Top competitors <span style={{ fontSize: 11, color: 'var(--text-subtle)', fontWeight: 400 }}>ⓘ</span></h3>
+              <table style={{ width: '100%', fontSize: 11 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ textAlign: 'left', padding: 4, color: 'var(--text-muted)' }}>As of Apr-17-2026</th>
+                    <th style={{ textAlign: 'right', padding: 4 }}>{SYMBOL}</th>
+                    <th style={{ textAlign: 'right', padding: 4 }}>Industry Average</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style={{ padding: 4 }}>Industry</td><td style={{ textAlign: 'right', color: 'var(--accent)' }}>{t.industry} ↗</td><td style={{ textAlign: 'right', color: 'var(--accent)' }}>{t.industry} ↗</td></tr>
+                  <tr><td style={{ padding: 4, color: 'var(--accent)' }}>Equity Summary Score</td><td style={{ textAlign: 'right' }}><span className={'ess-box ' + (t.essDir === 'pos' ? 'bull' : t.essDir === 'neutral' ? 'neutral' : '')}>{t.ess.toFixed(1)}</span></td><td></td></tr>
+                  <tr><td style={{ padding: 4, color: 'var(--accent)' }}>Price performance (52 Weeks)</td><td className="mono" style={{ textAlign: 'right' }}>+7.31%</td><td className="mono" style={{ textAlign: 'right' }}>+233.65%</td></tr>
+                  <tr><td style={{ padding: 4, color: 'var(--accent)' }}>P/E (This year's estimate)</td><td className="mono" style={{ textAlign: 'right' }}>15.84</td><td className="mono" style={{ textAlign: 'right' }}>—</td></tr>
+                  <tr><td style={{ padding: 4, color: 'var(--accent)' }}>Beta</td><td className="mono" style={{ textAlign: 'right' }}>{t.beta.toFixed(2)}</td><td className="mono" style={{ textAlign: 'right' }}>0.93</td></tr>
+                  <tr><td style={{ padding: 4, color: 'var(--accent)' }}>Shares outstanding</td><td className="mono" style={{ textAlign: 'right' }}>—</td><td className="mono" style={{ textAlign: 'right' }}>344,954</td></tr>
+                </tbody>
+              </table>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Currently, {SYMBOL} does not have a full list of top competitors.</div>
+
+              <div style={{ marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Other ways to invest in {SYMBOL} <span style={{ fontSize: 11, color: 'var(--text-subtle)', fontWeight: 400 }}>ⓘ</span></h3>
+                <table style={{ width: '100%', fontSize: 11 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                      <th style={{ textAlign: 'left', padding: 4 }}>Symbol</th>
+                      <th style={{ textAlign: 'left', padding: 4 }}>Fund Name</th>
+                      <th style={{ textAlign: 'left', padding: 4 }}>Exposure % to {SYMBOL}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td style={{ padding: 4, color: 'var(--accent)' }}>AINT</td><td style={{ padding: 4 }}>FINQ DOLLAR NEUTRAL U.S. Large Cap AI-Managed Equity ETF</td><td style={{ padding: 4 }}>9.06% <div style={{ display: 'inline-block', width: 80, height: 8, background: 'var(--accent-2)', marginLeft: 4, verticalAlign: 'middle' }}/></td></tr>
+                  </tbody>
+                </table>
+                <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginTop: 6 }}>Leverage and inverse ETFs are not included in the top 10 matches</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'viewall' && (
+          <div className="card">
+            <h3>All research</h3>
+            <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Click any tab above to see that section in full — Overview, Chart+, Dividends & Earnings, Sentiment, Analyst Ratings, Comparisons, and Statistics.</div>
+          </div>
+        )}
+      </div>
+
+      <div className="feedback-fab">Feedback</div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

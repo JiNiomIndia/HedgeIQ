@@ -6,6 +6,23 @@ or natural-language feedback. The autonomous build prompt
 (`docs/PHASE_2_AUTONOMOUS_PROMPT.md`) reads this folder before generating
 any UI code.
 
+## Delivered by Claude Design (v1, 2026-04-19)
+
+Three themes, implemented as working React prototype (~8,000 lines JSX +
+350 lines CSS) with 3 top-level variants archived in the root-level
+`Claude Designs/` folder (`HedgeIQ_Basic`, `HedgeIQ_Adnl_Features`,
+`HedgeIQ_Futuristic`). This folder holds the extracted **Futuristic**
+variant as the default for Phase 2.
+
+| Theme key | Label | Vibe |
+|---|---|---|
+| `meridian` | Meridian | Editorial · navy + copper (default) |
+| `lumen` | Lumen | Light modern · indigo |
+| `terminal` | Terminal | Pro dark · neon lime + cyan |
+
+Theme switching: set `data-theme="meridian" \| "lumen" \| "terminal"` on
+the `<html>` or `<body>` element.
+
 ## Folder layout
 
 | Path | Contents |
