@@ -859,16 +859,31 @@ Never claim "done" without:
 
 Mark each session ✅ when complete.
 
-- [ ] Session 1 — Theme + Responsive
-- [ ] Session 2 — Widget Dashboard
-- [ ] Session 3 — Interactive Chart
-- [ ] Session 4 — Options Chain v2
-- [ ] Session 5 — Position Detail + News
-- [ ] Session 6 — Persistent AI Advisor
+**Sessions 1-10 (original plan):**
+- [ ] Session 1 — Theme + Responsive (+ density, colorblind, futuristic-mode toggle, full icon set port)
+- [ ] Session 2 — Widget Dashboard (+ 11 new dashboard card widgets, filter popover, inline position drawer)
+- [ ] Session 3 — Interactive Chart (+ port AreaChart/CandleChart/MiniBars/Donut, 13 range buttons)
+- [ ] Session 4 — Options Chain v2 (+ expanded strategy dropdown, E/W badges, IV30/HV30, Day/52w sparklines)
+- [ ] Session 5 — Position Detail + News (inline-expand row, Purchase history, Fundamentals tabs)
+- [ ] Session 6 — Persistent AI Advisor (+ insights cards Opportunity/Alert/Rebalance)
 - [ ] Session 7 — Tiered Cache + Dev Mode
-- [ ] Session 8 — Order Tickets + Broker Links
-- [ ] Session 9 — Real-Time Feel
-- [ ] Session 10 — Performance + Polish
+- [ ] Session 8 — Order Tickets (+ draggable TradeDrawer, Route dropdown, Help mode, placed-state confirmation)
+- [ ] Session 9 — Real-Time Feel (+ notifications bell, sync timestamps)
+- [ ] Session 10 — Performance + Polish (+ CommandPalette fuzzy search)
+
+**Sessions 11-18 (added after Futuristic audit):**
+- [ ] Session 11 — Market Tape + Navigation Shell (scrolling ticker, TopBar breadcrumb/search/bell/avatar, Preferences popover)
+- [ ] Session 12 — Futuristic Mode Home + Agents (9-workspace rail, agents sidebar, Home briefs, narrative summary)
+- [ ] Session 13 — Trade Enhancements (Level II order book, AI risk narrative, recent activity log)
+- [ ] Session 14 — AI-Native Trade Commander (prompt bar, voice dictation, parse chips, multi-order preview)
+- [ ] Session 15 — AI-Native Options Intent Studio (thesis input, intent knobs, ranked strategies, Tweak & Simulate with Monte Carlo)
+- [ ] Session 16 — Research Page (8 tabs, Analyst consensus, Bull/Bear AI brief, Financials)
+- [ ] Session 17 — Activity / Balances / Watchlists / Transfer screens
+- [ ] Session 18 — Onboarding (4-step flow, account type selector)
+
+> Detailed feature→session mapping in **docs/design/COMPONENT_MAP.md**.
+> The autonomous build reads that file first and treats every ❌ row as a
+> mandatory implementation target.
 
 ---
 
