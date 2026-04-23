@@ -22,7 +22,7 @@ export default function Sparkline({ symbol, days = 30, width = 100, height = 30 
     return () => { cancelled = true; };
   }, [symbol, days]);
 
-  if (!bars.length) return <div style={{ width, height }} className="bg-gray-800 rounded animate-pulse" />;
+  if (!bars.length) return <div style={{ width, height, background: 'var(--surface)', borderRadius: 'var(--radius-sm)' }} />;
 
   const closes = bars.map(b => b.close);
   const min = Math.min(...closes);
@@ -35,10 +35,10 @@ export default function Sparkline({ symbol, days = 30, width = 100, height = 30 
     .join(' ');
 
   const up = closes[closes.length - 1] >= closes[0];
-  const color = up ? '#00FF88' : '#FF4466';
+  const color = up ? 'var(--pos)' : 'var(--neg)';
 
   return (
-    <svg width={width} height={height} className="inline-block">
+    <svg width={width} height={height} style={{ display: 'inline-block' }}>
       <path d={path} fill="none" stroke={color} strokeWidth="1.3" />
     </svg>
   );

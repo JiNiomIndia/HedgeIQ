@@ -1,10 +1,7 @@
-/**
- * EmergencyHedge — calculate optimal puts to hedge a stock position.
- * Designed for midnight use: large inputs, high contrast, minimal clicks.
- * Calls POST /api/v1/hedge/recommend.
- * @component
- */
 import { useState } from 'react';
+import { API } from '../lib/api';
+import { Markdown } from '../lib/markdown';
+import PayoffChart from './PayoffChart';
 
 interface Recommendation {
   expiry_date: string; strike: number; ask: number;
@@ -14,19 +11,16 @@ interface Recommendation {
   _localExplain?: string; _explaining?: boolean;
 }
 
-import { API } from '../lib/api';
-import { Markdown } from '../lib/markdown';
-import PayoffChart from './PayoffChart';
 const fmt = (n: number) => n?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 export default function EmergencyHedge() {
-  const [symbol, setSymbol] = useState('');
-  const [shares, setShares] = useState('');
-  const [entryPrice, setEntryPrice] = useState('');
+  const [symbol, setSymbol]           = useState('');
+  const [shares, setShares]           = useState('');
+  const [entryPrice, setEntryPrice]   = useState('');
   const [currentPrice, setCurrentPrice] = useState('');
-  const [recs, setRecs] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [recs, setRecs]               = useState<Recommendation[]>([]);
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState('');
 
   const explainRec = async (idx: number, rec: Recommendation) => {
     setRecs(prev => prev.map((r, i) => i === idx ? { ...r, _explaining: true } : r));
@@ -36,18 +30,14 @@ export default function EmergencyHedge() {
         headers: { 'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
         body: JSON.stringify({
-          contract: {
-            symbol, expiry: rec.expiry_date, strike: rec.strike,
-            option_type: 'put', ask: rec.ask,
-            open_interest: rec.open_interest,
-            total_cost: rec.total_cost, breakeven: rec.breakeven_price,
-          }
+          contract: { symbol, expiry: rec.expiry_date, strike: rec.strike,
+            option_type: 'put', ask: rec.ask, open_interest: rec.open_interest,
+            total_cost: rec.total_cost, breakeven: rec.breakeven_price },
         }),
       });
       if (!res.ok) throw new Error('API error');
       const data = await res.json();
-      setRecs(prev => prev.map((r, i) => i === idx
-        ? { ...r, _localExplain: data.explanation, _explaining: false } : r));
+      setRecs(prev => prev.map((r, i) => i === idx ? { ...r, _localExplain: data.explanation, _explaining: false } : r));
     } catch {
       setRecs(prev => prev.map((r, i) => i === idx
         ? { ...r, _localExplain: 'Could not load explanation. Try again.', _explaining: false } : r));
@@ -55,7 +45,7 @@ export default function EmergencyHedge() {
   };
 
   const positionValue = parseFloat(shares) * parseFloat(currentPrice);
-  const positionLoss = (parseFloat(currentPrice) - parseFloat(entryPrice)) * parseFloat(shares);
+  const positionLoss  = (parseFloat(currentPrice) - parseFloat(entryPrice)) * parseFloat(shares);
 
   const findHedge = async () => {
     setLoading(true); setError('');
@@ -65,7 +55,7 @@ export default function EmergencyHedge() {
         headers: { 'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
         body: JSON.stringify({ symbol, shares_held: parseInt(shares),
-          entry_price: parseFloat(entryPrice), current_price: parseFloat(currentPrice) })
+          entry_price: parseFloat(entryPrice), current_price: parseFloat(currentPrice) }),
       });
       if (!res.ok) { const e = await res.json(); setError(e.detail || 'No liquid options found.'); }
       else setRecs((await res.json()).recommendations);
@@ -73,92 +63,105 @@ export default function EmergencyHedge() {
     setLoading(false);
   };
 
+  const inputStyle = {
+    width: '100%', borderRadius: 'var(--radius-sm)', padding: '10px 12px',
+    background: 'var(--bg)', color: 'var(--text)',
+    border: '1px solid var(--border)', fontFamily: 'var(--font-sans)',
+    fontSize: 'var(--fs-lg)', fontWeight: 700,
+  };
+
   return (
-    <div className="p-6 max-w-2xl">
-      <h2 className="text-xl font-bold mb-2" style={{color:'#E8EAF0'}}>Emergency Hedge Calculator</h2>
-      <p className="text-gray-500 text-sm mb-6">Designed for midnight decisions — find the best puts in 60 seconds.</p>
-      <div className="rounded p-4 mb-4 space-y-3" style={{backgroundColor:'#131929'}}>
+    <div style={{ padding: 24, maxWidth: 680 }}>
+      <h2 style={{ fontSize: 'var(--fs-xl)', fontWeight: 700, marginBottom: 4, color: 'var(--text)' }}>Emergency Hedge Calculator</h2>
+      <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)', marginBottom: 24 }}>
+        Designed for midnight decisions — find the best puts in 60 seconds.
+      </p>
+
+      <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', padding: 16, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
-          <label className="text-gray-500 text-xs block mb-1">TICKER SYMBOL</label>
-          <input value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())} placeholder="AAL"
-            className="w-full rounded px-3 py-3 text-2xl font-bold border border-gray-700"
-            style={{backgroundColor:'#0A0E1A', color:'#E8EAF0'}} />
+          <label style={{ color: 'var(--text-subtle)', fontSize: 'var(--fs-xs)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Ticker Symbol</label>
+          <input value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())}
+            placeholder="AAL" style={{ ...inputStyle, fontSize: 'var(--fs-2xl)' }} />
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          {[{label:'SHARES HELD', val:shares, set:setShares, ph:'5000'},
-            {label:'ENTRY PRICE', val:entryPrice, set:setEntryPrice, ph:'11.30'},
-            {label:'CURRENT PRICE', val:currentPrice, set:setCurrentPrice, ph:'10.97'}].map(f => (
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {[{ label: 'Shares Held', val: shares, set: setShares, ph: '5000' },
+            { label: 'Entry Price', val: entryPrice, set: setEntryPrice, ph: '11.30' },
+            { label: 'Current Price', val: currentPrice, set: setCurrentPrice, ph: '10.97' }].map(f => (
             <div key={f.label}>
-              <label className="text-gray-500 text-xs block mb-1">{f.label}</label>
-              <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph} type="number" step="0.01"
-                className="w-full rounded px-3 py-3 text-xl font-bold border border-gray-700"
-                style={{backgroundColor:'#0A0E1A', color:'#E8EAF0'}} />
+              <label style={{ color: 'var(--text-subtle)', fontSize: 'var(--fs-xs)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{f.label}</label>
+              <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
+                type="number" step="0.01" style={inputStyle} />
             </div>
           ))}
         </div>
+
         {shares && currentPrice && (
-          <div className="flex gap-4 text-sm pt-1">
-            <span className="text-gray-500">Position: <span className="font-bold" style={{color:'#E8EAF0'}}>{fmt(positionValue)}</span></span>
-            {entryPrice && <span className="text-gray-500">P&amp;L: <span className="font-bold" style={{color: positionLoss >= 0 ? '#00FF88' : '#FF4466'}}>{fmt(positionLoss)}</span></span>}
+          <div style={{ display: 'flex', gap: 16, fontSize: 'var(--fs-sm)', paddingTop: 4 }}>
+            <span style={{ color: 'var(--text-muted)' }}>Position: <span style={{ fontWeight: 700, color: 'var(--text)' }}>{fmt(positionValue)}</span></span>
+            {entryPrice && (
+              <span style={{ color: 'var(--text-muted)' }}>P&L: <span style={{ fontWeight: 700, color: positionLoss >= 0 ? 'var(--pos)' : 'var(--neg)' }}>{fmt(positionLoss)}</span></span>
+            )}
           </div>
         )}
+
         <button onClick={findHedge} disabled={loading || !symbol || !shares || !currentPrice}
-          className="w-full py-4 rounded text-lg font-bold disabled:opacity-50"
-          style={{backgroundColor:'#00D4FF', color:'#0A0E1A'}}>
-          {loading ? 'Calculating...' : '🛡️ Find Best Hedge'}
+          className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 'var(--fs-lg)', padding: '14px', opacity: loading || !symbol || !shares || !currentPrice ? 0.5 : 1 }}>
+          {loading ? 'Calculating…' : '🛡️ Find Best Hedge'}
         </button>
       </div>
-      {error && <div className="rounded p-3 text-sm mb-4 border" style={{borderColor:'#FF4466', color:'#FF4466', backgroundColor:'rgba(255,68,102,0.1)'}}>{error}</div>}
+
+      {error && (
+        <div style={{ borderRadius: 'var(--radius-sm)', padding: '10px 14px', fontSize: 'var(--fs-sm)', marginBottom: 16, border: '1px solid var(--neg)', color: 'var(--neg)', background: 'var(--neg-bg)' }}>
+          {error}
+        </div>
+      )}
+
       {recs.map((rec, i) => {
         const contracts = rec.contracts_to_buy || Math.ceil(parseInt(shares || '0') / 100);
         return (
-        <div key={i} className="rounded p-4 mb-3 border border-gray-800" style={{backgroundColor:'#131929'}}>
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <span className="font-bold text-lg" style={{color:'#00D4FF'}}>{rec.expiry_date} ${rec.strike} PUT</span>
-              <span className="ml-2 text-xs px-2 py-0.5 rounded" style={{backgroundColor:'rgba(0,212,255,0.1)', color:'#00D4FF'}}>#{i+1}</span>
+          <div key={i} style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', padding: 16, marginBottom: 12, border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div>
+                <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)', color: 'var(--accent)' }}>{rec.expiry_date} ${rec.strike} PUT</span>
+                <span style={{ marginLeft: 8, fontSize: 'var(--fs-xs)', padding: '2px 8px', borderRadius: 'var(--radius-pill)', background: 'var(--accent-muted)', color: 'var(--accent)' }}>#{i + 1}</span>
+              </div>
+              <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)', color: 'var(--text)' }}>{fmt(rec.total_cost)}</span>
             </div>
-            <span className="font-bold text-lg" style={{color:'#E8EAF0'}}>{fmt(rec.total_cost)}</span>
-          </div>
-          <div className="grid grid-cols-4 gap-2 text-xs mb-3">
-            <span className="text-gray-500">Ask: <span style={{color:'#E8EAF0'}}>${rec.ask?.toFixed(2)}</span></span>
-            <span className="text-gray-500">Breakeven: <span style={{color:'#E8EAF0'}}>${rec.breakeven_price?.toFixed(2)}</span></span>
-            <span className="text-gray-500">OI: <span style={{color:'#E8EAF0'}}>{rec.open_interest?.toLocaleString()}</span></span>
-            <span className="text-gray-500">Contracts: <span style={{color:'#E8EAF0'}}>{contracts}</span></span>
-          </div>
 
-          {/* Payoff chart */}
-          <div className="mb-3 pt-2 border-t border-gray-800">
-            <p className="text-xs text-gray-500 mb-1">Payoff at expiry — combined stock + put</p>
-            <PayoffChart
-              shares={parseInt(shares)}
-              entryPrice={parseFloat(entryPrice)}
-              currentPrice={parseFloat(currentPrice)}
-              strike={rec.strike}
-              premium={rec.ask}
-              contracts={contracts}
-            />
-          </div>
-
-          {(rec.ai_explanation || rec._localExplain) && (
-            <div className="text-gray-300 text-xs border-t border-gray-800 pt-2">
-              <Markdown text={rec._localExplain || rec.ai_explanation || ''} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 'var(--fs-xs)', marginBottom: 12 }}>
+              {[['Ask', `$${rec.ask?.toFixed(2)}`], ['Breakeven', `$${rec.breakeven_price?.toFixed(2)}`],
+                ['OI', rec.open_interest?.toLocaleString()], ['Contracts', contracts]].map(([k, v]) => (
+                <span key={k} style={{ color: 'var(--text-muted)' }}>{k}: <span style={{ color: 'var(--text)' }}>{v}</span></span>
+              ))}
             </div>
-          )}
-          <div className="flex gap-2 mt-3 flex-wrap">
-            {!rec._localExplain && !rec.ai_explanation && (
-              <button
-                onClick={() => explainRec(i, rec)}
-                disabled={rec._explaining}
-                className="text-xs px-3 py-1 rounded font-bold disabled:opacity-50"
-                style={{backgroundColor:'rgba(0,212,255,0.15)', color:'#00D4FF', border:'1px solid rgba(0,212,255,0.3)'}}>
-                {rec._explaining ? 'Claude is thinking…' : '🤖 Ask Claude to explain'}
-              </button>
+
+            <div style={{ marginBottom: 12, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginBottom: 4 }}>Payoff at expiry — combined stock + put</p>
+              <PayoffChart
+                shares={parseInt(shares)} entryPrice={parseFloat(entryPrice)}
+                currentPrice={parseFloat(currentPrice)} strike={rec.strike}
+                premium={rec.ask} contracts={contracts}
+              />
+            </div>
+
+            {(rec.ai_explanation || rec._localExplain) && (
+              <div style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-xs)', borderTop: '1px solid var(--border)', paddingTop: 8 }}>
+                <Markdown text={rec._localExplain || rec.ai_explanation || ''} />
+              </div>
             )}
-            <button className="text-xs px-3 py-1 rounded" style={{backgroundColor:'#1F2937', color:'#E8EAF0'}}>Buy on Fidelity</button>
-            <button className="text-xs px-3 py-1 rounded" style={{backgroundColor:'#1F2937', color:'#E8EAF0'}}>Buy on Public</button>
+
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+              {!rec._localExplain && !rec.ai_explanation && (
+                <button onClick={() => explainRec(i, rec)} disabled={rec._explaining}
+                  className="chip chip-outline" style={{ cursor: rec._explaining ? 'default' : 'pointer', opacity: rec._explaining ? 0.5 : 1, fontSize: 'var(--fs-xs)' }}>
+                  {rec._explaining ? 'Claude is thinking…' : '🤖 Ask Claude to explain'}
+                </button>
+              )}
+              <button className="chip" style={{ fontSize: 'var(--fs-xs)', cursor: 'pointer' }}>Buy on Fidelity</button>
+              <button className="chip" style={{ fontSize: 'var(--fs-xs)', cursor: 'pointer' }}>Buy on Public</button>
+            </div>
           </div>
-        </div>
         );
       })}
     </div>

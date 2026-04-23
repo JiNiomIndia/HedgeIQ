@@ -44,9 +44,9 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
               borderRadius: 'var(--radius-md)', padding: 8, cursor: 'pointer', textAlign: 'left',
             }}>
               <div style={{ display: 'flex', gap: 3, marginBottom: 5 }}>
-                {t.key === 'meridian' && <><span style={{ width: 12, height: 12, borderRadius: 3, background: '#1E2A4A', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#B8542A', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F4F1EC', border: '1px solid #E2DCD0', display: 'inline-block' }}/></>}
-                {t.key === 'lumen'    && <><span style={{ width: 12, height: 12, borderRadius: 3, background: '#4F46E5', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#22D3EE', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#F7F8FB', border: '1px solid #E5E8F0', display: 'inline-block' }}/></>}
-                {t.key === 'terminal' && <><span style={{ width: 12, height: 12, borderRadius: 3, background: '#0A0D12', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#C6F24E', display: 'inline-block' }}/><span style={{ width: 12, height: 12, borderRadius: 3, background: '#22D3EE', display: 'inline-block' }}/></>}
+                {t.swatches.map((c, si) => (
+                  <span key={si} style={{ width: 12, height: 12, borderRadius: 3, background: c, display: 'inline-block', border: si === 2 ? '1px solid var(--border)' : 'none' }} />
+                ))}
               </div>
               <div style={{ fontSize: 'var(--fs-sm)', fontWeight: 600, color: 'var(--text)' }}>{t.name}</div>
               <div style={{ fontSize: 10, color: 'var(--text-subtle)', marginTop: 2 }}>{t.desc}</div>

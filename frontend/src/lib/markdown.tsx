@@ -13,8 +13,8 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIdx) parts.push(text.slice(lastIdx, match.index));
     const m = match[0];
-    if (m.startsWith('**')) parts.push(<strong key={`${keyPrefix}-b-${k++}`} style={{ color: '#E8EAF0' }}>{m.slice(2, -2)}</strong>);
-    else if (m.startsWith('`')) parts.push(<code key={`${keyPrefix}-c-${k++}`} className="px-1.5 py-0.5 rounded text-xs" style={{ backgroundColor: '#1F2937', color: '#00D4FF' }}>{m.slice(1, -1)}</code>);
+    if (m.startsWith('**')) parts.push(<strong key={`${keyPrefix}-b-${k++}`} style={{ color: 'var(--text)' }}>{m.slice(2, -2)}</strong>);
+    else if (m.startsWith('`')) parts.push(<code key={`${keyPrefix}-c-${k++}`} style={{ padding: '1px 6px', borderRadius: 'var(--radius-sm)', fontSize: 'var(--fs-xs)', background: 'var(--surface-2)', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{m.slice(1, -1)}</code>);
     else parts.push(<em key={`${keyPrefix}-i-${k++}`}>{m.slice(1, -1)}</em>);
     lastIdx = match.index + m.length;
   }
@@ -46,13 +46,13 @@ export function Markdown({ text }: { text: string }) {
     // Headings
     if (trimmed.startsWith('### ')) {
       flushList(i);
-      out.push(<h4 key={i} className="font-bold text-sm mt-2 mb-1" style={{ color: '#00D4FF' }}>{renderInline(trimmed.slice(4), `h-${i}`)}</h4>);
+      out.push(<h4 key={i} className="font-bold text-sm mt-2 mb-1" style={{ color: 'var(--accent)' }}>{renderInline(trimmed.slice(4), `h-${i}`)}</h4>);
     } else if (trimmed.startsWith('## ')) {
       flushList(i);
-      out.push(<h3 key={i} className="font-bold text-sm mt-3 mb-1" style={{ color: '#00D4FF' }}>{renderInline(trimmed.slice(3), `h-${i}`)}</h3>);
+      out.push(<h3 key={i} className="font-bold text-sm mt-3 mb-1" style={{ color: 'var(--accent)' }}>{renderInline(trimmed.slice(3), `h-${i}`)}</h3>);
     } else if (trimmed.startsWith('# ')) {
       flushList(i);
-      out.push(<h2 key={i} className="font-bold text-base mt-3 mb-2" style={{ color: '#00D4FF' }}>{renderInline(trimmed.slice(2), `h-${i}`)}</h2>);
+      out.push(<h2 key={i} className="font-bold text-base mt-3 mb-2" style={{ color: 'var(--accent)' }}>{renderInline(trimmed.slice(2), `h-${i}`)}</h2>);
     }
     // Bulleted list items
     else if (/^[-*]\s/.test(trimmed)) {
@@ -67,7 +67,7 @@ export function Markdown({ text }: { text: string }) {
     // Horizontal rule
     else if (trimmed === '---') {
       flushList(i);
-      out.push(<hr key={i} className="my-2" style={{ borderColor: '#1F2937' }} />);
+      out.push(<hr key={i} style={{ margin: '8px 0', borderColor: 'var(--border)' }} />);
     }
     // Empty line
     else if (trimmed === '') {

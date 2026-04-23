@@ -2,10 +2,10 @@ export type Theme = 'meridian' | 'lumen' | 'terminal';
 export type Density = 'balanced' | 'dense' | 'sparse';
 export type Mode = 'classic' | 'futuristic';
 
-export const THEMES: { key: Theme; name: string; desc: string }[] = [
-  { key: 'meridian', name: 'Meridian', desc: 'Editorial · navy + copper' },
-  { key: 'lumen',    name: 'Lumen',    desc: 'Light modern · indigo' },
-  { key: 'terminal', name: 'Terminal', desc: 'Pro dark · neon lime' },
+export const THEMES: { key: Theme; name: string; desc: string; swatches: [string, string, string] }[] = [
+  { key: 'meridian', name: 'Meridian', desc: 'Editorial · navy + copper',  swatches: ['#1E2A4A', '#B8542A', '#F4F1EC'] },
+  { key: 'lumen',    name: 'Lumen',    desc: 'Light modern · indigo',       swatches: ['#4F46E5', '#22D3EE', '#F7F8FB'] },
+  { key: 'terminal', name: 'Terminal', desc: 'Pro dark · neon lime',        swatches: ['#0A0D12', '#C6F24E', '#22D3EE'] },
 ];
 
 export const DENSITIES: { key: Density; name: string }[] = [

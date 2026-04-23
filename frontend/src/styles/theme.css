@@ -103,16 +103,24 @@ a { color: inherit; text-decoration: none; }
   --pos-bg: rgba(14, 143, 74, 0.08);
   --neg: #C8352A;
   --neg-bg: rgba(200, 53, 42, 0.08);
+  --warn: #D4890A;
+  --warn-bg: rgba(212, 137, 10, 0.09);
+  --accent-bg: rgba(184, 84, 42, 0.10);
+  --radius-pill: 999px;
 }
 [data-theme="terminal"] {
   --pos: #34E893;
   --pos-bg: rgba(52, 232, 147, 0.10);
   --neg: #FF5A5F;
   --neg-bg: rgba(255, 90, 95, 0.10);
+  --warn: #F0C040;
+  --warn-bg: rgba(240, 192, 64, 0.10);
+  --accent-bg: rgba(198, 242, 78, 0.10);
 }
 [data-theme="lumen"] {
   --pos: #0E9F5E;
   --neg: #E23B3B;
+  --accent-bg: rgba(79, 70, 229, 0.10);
 }
 
 /* Colorblind mode — swap red/green for blue/orange */

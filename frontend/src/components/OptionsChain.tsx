@@ -1,9 +1,3 @@
-/**
- * OptionsChain — Fidelity-style options chain browser.
- * Header with symbol quote, expiration tabs, calls/puts toggle, strike filter,
- * grouped by expiry, ATM highlighting, inline Buy/Sell buttons.
- * @component
- */
 import { useState } from 'react';
 import AIExplainer from './AIExplainer';
 import PriceChart from './PriceChart';
@@ -19,16 +13,16 @@ interface Contract {
 type SideFilter = 'puts' | 'calls' | 'both';
 
 export default function OptionsChain() {
-  const [symbol, setSymbol] = useState('');
-  const [loaded, setLoaded] = useState('');
-  const [chain, setChain] = useState<{puts: Contract[], calls: Contract[]}>({puts:[], calls:[]});
-  const [quote, setQuote] = useState<{ last: number; change: number; changePct: number } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<Contract | null>(null);
+  const [symbol, setSymbol]               = useState('');
+  const [loaded, setLoaded]               = useState('');
+  const [chain, setChain]                 = useState<{puts: Contract[], calls: Contract[]}>({ puts: [], calls: [] });
+  const [quote, setQuote]                 = useState<{ last: number; change: number; changePct: number } | null>(null);
+  const [loading, setLoading]             = useState(false);
+  const [selected, setSelected]           = useState<Contract | null>(null);
   const [selectedExpiry, setSelectedExpiry] = useState<string>('');
-  const [side, setSide] = useState<SideFilter>('puts');
-  const [strikeRange, setStrikeRange] = useState(20);
-  const [showChart, setShowChart] = useState(true);
+  const [side, setSide]                   = useState<SideFilter>('puts');
+  const [strikeRange, setStrikeRange]     = useState(20);
+  const [showChart, setShowChart]         = useState(true);
 
   const fetchAll = async () => {
     if (!symbol) return;
@@ -51,17 +45,14 @@ export default function OptionsChain() {
   const f2 = (n: number) => n?.toFixed(2);
   const allExpiries = [...new Set([...chain.puts, ...chain.calls].map(c => c.expiry_date))].sort();
 
-  // Filter to the selected expiry
-  const expPuts = chain.puts.filter(p => !selectedExpiry || p.expiry_date === selectedExpiry);
+  const expPuts  = chain.puts.filter(p => !selectedExpiry || p.expiry_date === selectedExpiry);
   const expCalls = chain.calls.filter(c => !selectedExpiry || c.expiry_date === selectedExpiry);
   const allStrikes = [...new Set([...expPuts, ...expCalls].map(c => c.strike))].sort((a, b) => a - b);
 
-  // ATM is the strike closest to current price
   const atmStrike = quote && allStrikes.length
     ? allStrikes.reduce((best, s) => Math.abs(s - quote.last) < Math.abs(best - quote.last) ? s : best, allStrikes[0])
     : 0;
 
-  // Limit to +/- strikeRange / 2 around ATM
   const half = Math.floor(strikeRange / 2);
   const atmIdx = allStrikes.indexOf(atmStrike);
   const visibleStrikes = atmIdx >= 0
@@ -70,40 +61,40 @@ export default function OptionsChain() {
 
   const dte = expPuts[0]?.days_to_expiry ?? expCalls[0]?.days_to_expiry ?? 0;
 
+  const surface  = { background: 'var(--surface)', border: '1px solid var(--border)' };
+  const cellText = { color: 'var(--text)' };
+
   return (
-    <div className="p-4">
+    <div style={{ padding: 16 }}>
       {/* Search bar */}
-      <div className="flex gap-2 mb-4">
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <input value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())}
           onKeyDown={e => e.key === 'Enter' && fetchAll()}
           placeholder="Enter ticker e.g. AAPL"
-          className="flex-1 rounded px-3 py-2 text-sm border border-gray-700 outline-none"
-          style={{backgroundColor:'#131929', color:'#E8EAF0'}} />
-        <button onClick={fetchAll} className="px-5 py-2 rounded text-sm font-bold"
-          style={{backgroundColor:'#00D4FF', color:'#0A0E1A'}}>Load Chain</button>
+          className="input" style={{ flex: 1 }} />
+        <button onClick={fetchAll} className="btn btn-primary" style={{ padding: '7px 20px' }}>Load Chain</button>
       </div>
 
-      {loading && <p className="text-gray-500 text-sm py-8 text-center">Loading chain…</p>}
+      {loading && <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-sm)', padding: '32px 0', textAlign: 'center' }}>Loading chain…</p>}
 
       {loaded && quote && !loading && (
         <>
-          {/* Symbol header with quote */}
-          <div className="rounded p-3 mb-3 flex items-center gap-4 flex-wrap" style={{backgroundColor:'#131929', border:'1px solid #1F2937'}}>
+          {/* Symbol header */}
+          <div style={{ ...surface, borderRadius: 'var(--radius-md)', padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <span className="text-sm text-gray-400">SYMBOL</span>
-              <h2 className="font-bold text-xl" style={{color:'#E8EAF0'}}>{loaded}</h2>
+              <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Symbol</span>
+              <h2 style={{ fontWeight: 700, fontSize: 'var(--fs-xl)', color: 'var(--text)', margin: 0 }}>{loaded}</h2>
             </div>
-            <div className="text-right">
-              <p className="font-bold text-2xl" style={{color:'#E8EAF0'}}>${f2(quote.last)}</p>
-              <p className="text-sm" style={{color: quote.change >= 0 ? '#00FF88' : '#FF4466'}}>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontWeight: 700, fontSize: 'var(--fs-2xl)', color: 'var(--text)', margin: 0 }}>${f2(quote.last)}</p>
+              <p style={{ fontSize: 'var(--fs-sm)', color: quote.change >= 0 ? 'var(--pos)' : 'var(--neg)', margin: 0 }}>
                 {quote.change >= 0 ? '+' : ''}{f2(quote.change)} ({quote.change >= 0 ? '+' : ''}{f2(quote.changePct)}%)
               </p>
             </div>
-            <div className="text-xs text-gray-400 flex gap-4 ml-auto">
-              <span>Contracts: <span style={{color:'#E8EAF0'}}>{chain.puts.length + chain.calls.length}</span></span>
-              <span>Expiries: <span style={{color:'#E8EAF0'}}>{allExpiries.length}</span></span>
-              <button onClick={() => setShowChart(s => !s)}
-                className="text-xs px-2 py-0.5 rounded" style={{backgroundColor:'#1F2937', color:'#00D4FF'}}>
+            <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', display: 'flex', gap: 16, marginLeft: 'auto', alignItems: 'center' }}>
+              <span>Contracts: <span style={cellText}>{chain.puts.length + chain.calls.length}</span></span>
+              <span>Expiries: <span style={cellText}>{allExpiries.length}</span></span>
+              <button onClick={() => setShowChart(s => !s)} className="btn btn-sm btn-ghost">
                 {showChart ? 'Hide chart' : 'Show chart'}
               </button>
             </div>
@@ -111,47 +102,42 @@ export default function OptionsChain() {
 
           {/* Price chart */}
           {showChart && (
-            <div className="rounded p-3 mb-3" style={{backgroundColor:'#131929', border:'1px solid #1F2937'}}>
+            <div style={{ ...surface, borderRadius: 'var(--radius-md)', padding: 12, marginBottom: 12 }}>
               <PriceChart symbol={loaded} days={90} height={240} />
             </div>
           )}
 
           {/* Filters */}
-          <div className="rounded p-3 mb-2 flex flex-wrap items-center gap-4" style={{backgroundColor:'#131929', border:'1px solid #1F2937'}}>
+          <div style={{ ...surface, borderRadius: 'var(--radius-md)', padding: 12, marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Option type</p>
-              <div className="flex rounded overflow-hidden" style={{border:'1px solid #1F2937'}}>
-                {(['calls','puts','both'] as SideFilter[]).map(s => (
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginBottom: 4 }}>Option type</p>
+              <div style={{ display: 'flex', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', overflow: 'hidden' }}>
+                {(['calls', 'puts', 'both'] as SideFilter[]).map(s => (
                   <button key={s} onClick={() => setSide(s)}
-                    className="px-3 py-1 text-xs font-bold capitalize"
-                    style={side === s
-                      ? { backgroundColor:'#00D4FF', color:'#0A0E1A' }
-                      : { backgroundColor:'transparent', color:'#9CA3AF' }}>
+                    className={side === s ? 'btn-primary' : 'btn-ghost'}
+                    style={{ padding: '4px 12px', fontSize: 'var(--fs-xs)', fontWeight: 700, textTransform: 'capitalize', border: 'none' }}>
                     {s}
                   </button>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-1">Strike range</p>
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginBottom: 4 }}>Strike range</p>
               <select value={strikeRange} onChange={e => setStrikeRange(parseInt(e.target.value))}
-                className="rounded px-2 py-1 text-xs border border-gray-700 outline-none"
-                style={{backgroundColor:'#0A0E1A', color:'#E8EAF0'}}>
+                className="input" style={{ width: 'auto', padding: '4px 8px', fontSize: 'var(--fs-xs)' }}>
                 <option value={6}>6 strikes</option>
                 <option value={10}>10 strikes</option>
                 <option value={20}>20 strikes</option>
                 <option value={50}>All</option>
               </select>
             </div>
-            <div className="flex-1">
-              <p className="text-xs text-gray-500 mb-1">Expiration ({dte} days)</p>
-              <div className="flex gap-1 flex-wrap">
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginBottom: 4 }}>Expiration ({dte} days)</p>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {allExpiries.map(ex => (
                   <button key={ex} onClick={() => setSelectedExpiry(ex)}
-                    className="text-xs px-3 py-1 rounded font-bold"
-                    style={selectedExpiry === ex
-                      ? { backgroundColor:'#0F2540', color:'#00D4FF', border:'1px solid #00D4FF' }
-                      : { backgroundColor:'#131929', color:'#9CA3AF', border:'1px solid #1F2937' }}>
+                    className={selectedExpiry === ex ? 'chip' : 'chip chip-outline'}
+                    style={{ cursor: 'pointer', ...(selectedExpiry === ex ? { background: 'var(--accent-bg)', color: 'var(--accent)', borderColor: 'var(--accent)' } : {}) }}>
                     {ex}
                   </button>
                 ))}
@@ -160,67 +146,67 @@ export default function OptionsChain() {
           </div>
 
           {/* Chain table */}
-          <div className="rounded overflow-hidden border border-gray-800" style={{backgroundColor:'#0A0E1A'}}>
-            <table className="w-full text-xs">
+          <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--bg)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-xs)' }}>
               <thead>
-                <tr className="text-gray-500 border-b border-gray-800" style={{backgroundColor:'#131929'}}>
+                <tr style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
                   {(side === 'calls' || side === 'both') && (
                     <>
-                      <th className="text-right py-2">Call Bid</th>
-                      <th className="text-right">Call Ask</th>
-                      <th className="text-right">Vol</th>
-                      <th className="text-right">OI</th>
-                      <th className="text-right">IV</th>
-                      <th className="text-right">Δ</th>
+                      <th style={{ textAlign: 'right', padding: '8px 6px', fontWeight: 500 }}>Call Bid</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Call Ask</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Vol</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>OI</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>IV</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Δ</th>
                     </>
                   )}
-                  <th className="text-center py-2 font-bold px-3" style={{color:'#00D4FF'}}>STRIKE</th>
+                  <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 700, color: 'var(--accent)' }}>STRIKE</th>
                   {(side === 'puts' || side === 'both') && (
                     <>
-                      <th className="text-right">Δ</th>
-                      <th className="text-right">IV</th>
-                      <th className="text-right">OI</th>
-                      <th className="text-right">Vol</th>
-                      <th className="text-right">Put Bid</th>
-                      <th className="text-right pr-2">Put Ask</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Δ</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>IV</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>OI</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Vol</th>
+                      <th style={{ textAlign: 'right', fontWeight: 500 }}>Put Bid</th>
+                      <th style={{ textAlign: 'right', paddingRight: 8, fontWeight: 500 }}>Put Ask</th>
                     </>
                   )}
                 </tr>
               </thead>
               <tbody>
                 {visibleStrikes.map(strike => {
-                  const put = expPuts.find(p => p.strike === strike);
+                  const put  = expPuts.find(p => p.strike === strike);
                   const call = expCalls.find(c => c.strike === strike);
                   const isATM = strike === atmStrike;
-                  const row = {
-                    backgroundColor: isATM ? 'rgba(255,196,0,0.08)' : 'transparent',
-                    borderLeft: isATM ? '2px solid #FFC400' : 'none',
-                  };
                   return (
-                    <tr key={strike} className="border-b border-gray-900 hover:bg-gray-900/40 cursor-pointer transition-colors"
-                      onClick={() => put && setSelected(put)}
-                      style={row}>
+                    <tr key={strike} onClick={() => put && setSelected(put)}
+                      style={{
+                        borderBottom: '1px solid var(--border)',
+                        cursor: 'pointer',
+                        background: isATM ? 'var(--warn-bg)' : 'transparent',
+                        borderLeft: isATM ? '2px solid var(--warn)' : '2px solid transparent',
+                      }}>
                       {(side === 'calls' || side === 'both') && (
                         <>
-                          <td className="text-right py-1.5 tabular-nums" style={{color:'#00FF88'}}>{call ? f2(call.bid) : '—'}</td>
-                          <td className="text-right tabular-nums" style={{color:'#FF4466'}}>{call ? f2(call.ask) : '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{call?.volume?.toLocaleString() ?? '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{call?.open_interest?.toLocaleString() ?? '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{call ? (call.implied_volatility * 100).toFixed(0) + '%' : '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{call?.delta?.toFixed(2) ?? '—'}</td>
+                          <td style={{ textAlign: 'right', padding: '6px', fontVariantNumeric: 'tabular-nums', color: 'var(--pos)' }}>{call ? f2(call.bid) : '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--neg)' }}>{call ? f2(call.ask) : '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{call?.volume?.toLocaleString() ?? '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{call?.open_interest?.toLocaleString() ?? '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{call ? (call.implied_volatility * 100).toFixed(0) + '%' : '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{call?.delta?.toFixed(2) ?? '—'}</td>
                         </>
                       )}
-                      <td className="text-center font-bold py-1.5 px-3 tabular-nums" style={{color: isATM ? '#FFC400' : '#E8EAF0'}}>
+                      <td style={{ textAlign: 'center', fontWeight: 700, padding: '6px 12px', fontVariantNumeric: 'tabular-nums', color: isATM ? 'var(--warn)' : 'var(--text)' }}>
                         {f2(strike)}{isATM ? ' ATM' : ''}
                       </td>
                       {(side === 'puts' || side === 'both') && (
                         <>
-                          <td className="text-right tabular-nums text-gray-400">{put?.delta?.toFixed(2) ?? '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{put ? (put.implied_volatility * 100).toFixed(0) + '%' : '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{put?.open_interest?.toLocaleString() ?? '—'}</td>
-                          <td className="text-right tabular-nums text-gray-400">{put?.volume?.toLocaleString() ?? '—'}</td>
-                          <td className="text-right tabular-nums" style={{color:'#00FF88'}}>{put ? f2(put.bid) : '—'}</td>
-                          <td className="text-right pr-2 tabular-nums" style={{color:'#FF4466'}}>{put ? f2(put.ask) : '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{put?.delta?.toFixed(2) ?? '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{put ? (put.implied_volatility * 100).toFixed(0) + '%' : '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{put?.open_interest?.toLocaleString() ?? '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--text-muted)' }}>{put?.volume?.toLocaleString() ?? '—'}</td>
+                          <td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--pos)' }}>{put ? f2(put.bid) : '—'}</td>
+                          <td style={{ textAlign: 'right', paddingRight: 8, fontVariantNumeric: 'tabular-nums', color: 'var(--neg)' }}>{put ? f2(put.ask) : '—'}</td>
                         </>
                       )}
                     </tr>
@@ -229,16 +215,16 @@ export default function OptionsChain() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-600 mt-2">
-            Click any row to get an AI explanation. ATM row highlighted amber.
-            {' '}<span style={{color:'#00FF88'}}>Green = bid</span>, <span style={{color:'#FF4466'}}>red = ask</span>, Δ = delta.
+          <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', marginTop: 8 }}>
+            Click any row to get an AI explanation. ATM row highlighted amber.{' '}
+            <span style={{ color: 'var(--pos)' }}>Green = bid</span>,{' '}
+            <span style={{ color: 'var(--neg)' }}>red = ask</span>, Δ = delta.
           </p>
         </>
       )}
 
-      {/* AI explainer panel */}
       {selected && (
-        <div className="fixed right-6 bottom-6 w-80 z-40 shadow-2xl">
+        <div style={{ position: 'fixed', right: 24, bottom: 24, width: 320, zIndex: 40, boxShadow: 'var(--shadow-md)' }}>
           <AIExplainer contract={selected} onClose={() => setSelected(null)} />
         </div>
       )}

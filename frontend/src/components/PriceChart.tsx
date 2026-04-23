@@ -28,7 +28,7 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
     return () => { cancelled = true; };
   }, [symbol, days]);
 
-  if (!bars.length) return <div style={{ height }} className="w-full bg-gray-800/40 rounded animate-pulse" />;
+  if (!bars.length) return <div style={{ height, width: '100%', background: 'var(--surface)', borderRadius: 'var(--radius-sm)', opacity: 0.6 }} />;
 
   const W = 700;
   const priceH = height * 0.72;
@@ -54,29 +54,26 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
   const up = meta.change >= 0;
 
   return (
-    <div className="w-full">
-      <div className="flex items-baseline gap-3 mb-2 px-1">
-        <span className="font-bold text-lg" style={{ color: '#E8EAF0' }}>{symbol}</span>
-        <span className="font-bold text-base" style={{ color: '#E8EAF0' }}>${meta.last.toFixed(2)}</span>
-        <span className="text-sm" style={{ color: up ? '#00FF88' : '#FF4466' }}>
+    <div style={{ width: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 8, padding: '0 4px' }}>
+        <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg)', color: 'var(--text)' }}>{symbol}</span>
+        <span style={{ fontWeight: 700, fontSize: 'var(--fs-md)', color: 'var(--text)' }}>${meta.last.toFixed(2)}</span>
+        <span style={{ fontSize: 'var(--fs-sm)', color: up ? 'var(--pos)' : 'var(--neg)' }}>
           {up ? '+' : ''}{meta.change.toFixed(2)} ({up ? '+' : ''}{meta.changePct.toFixed(2)}%)
         </span>
-        <span className="text-xs text-gray-500 ml-auto">{days}-day chart</span>
+        <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-muted)', marginLeft: 'auto' }}>{days}-day chart</span>
       </div>
-      <svg viewBox={`0 0 ${W} ${height}`} className="w-full">
-        {/* Grid + y labels */}
+      <svg viewBox={`0 0 ${W} ${height}`} style={{ width: '100%' }}>
         {gridLines.map((p, i) => (
           <g key={i}>
-            <line x1={padL} y1={priceY(p)} x2={W - padR} y2={priceY(p)} stroke="#1F2937" strokeWidth="0.5" />
-            <text x={padL - 5} y={priceY(p) + 3} textAnchor="end" fill="#9CA3AF" fontSize="10">${p.toFixed(2)}</text>
+            <line x1={padL} y1={priceY(p)} x2={W - padR} y2={priceY(p)} stroke="var(--border)" strokeWidth="0.5" />
+            <text x={padL - 5} y={priceY(p) + 3} textAnchor="end" fill="var(--text-muted)" fontSize="10">${p.toFixed(2)}</text>
           </g>
         ))}
-
-        {/* Candles */}
         {bars.map((b, i) => {
           const cx = padL + step * i + step / 2;
           const barUp = b.close >= b.open;
-          const color = barUp ? '#00FF88' : '#FF4466';
+          const color = barUp ? 'var(--pos)' : 'var(--neg)';
           const bodyTop = priceY(Math.max(b.open, b.close));
           const bodyBottom = priceY(Math.min(b.open, b.close));
           const bodyH = Math.max(1, bodyBottom - bodyTop);
@@ -87,8 +84,6 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
             </g>
           );
         })}
-
-        {/* Volume bars */}
         {bars.map((b, i) => {
           const cx = padL + step * i + step / 2;
           const barUp = b.close >= b.open;
@@ -96,13 +91,11 @@ export default function PriceChart({ symbol, days = 90, height = 260 }: { symbol
           return (
             <rect key={i} x={cx - bw / 2} y={padT + priceH + volH - vH}
               width={bw} height={vH}
-              fill={barUp ? '#00FF88' : '#FF4466'} opacity="0.3" />
+              fill={barUp ? 'var(--pos)' : 'var(--neg)'} opacity="0.3" />
           );
         })}
-
-        {/* X-axis date labels */}
-        <text x={padL} y={height - 5} fill="#9CA3AF" fontSize="10">{bars[0]?.date}</text>
-        <text x={W - padR} y={height - 5} textAnchor="end" fill="#9CA3AF" fontSize="10">{bars[bars.length - 1]?.date}</text>
+        <text x={padL} y={height - 5} fill="var(--text-muted)" fontSize="10">{bars[0]?.date}</text>
+        <text x={W - padR} y={height - 5} textAnchor="end" fill="var(--text-muted)" fontSize="10">{bars[bars.length - 1]?.date}</text>
       </svg>
     </div>
   );
