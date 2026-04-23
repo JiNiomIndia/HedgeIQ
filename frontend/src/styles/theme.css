@@ -356,3 +356,92 @@ table.data tbody tr.expanded td { background: var(--surface-sunken); }
 .icon { width: 16px; height: 16px; flex-shrink: 0; }
 .icon-sm { width: 14px; height: 14px; }
 .icon-lg { width: 20px; height: 20px; }
+
+/* ---------- Futuristic mode overrides ---------- */
+[data-mode="futuristic"] {
+  --font-display: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'JetBrains Mono', ui-monospace, monospace;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-sm: 1px;
+  --shadow-sm: 0 0 8px rgba(198, 242, 78, 0.06);
+  --shadow-md: 0 0 20px rgba(198, 242, 78, 0.12);
+}
+
+/* Force Terminal theme in Futuristic mode */
+[data-mode="futuristic"] {
+  --bg: #070a0f;
+  --surface: #0d1117;
+  --surface-2: #111820;
+  --surface-sunken: #060910;
+  --border: rgba(198, 242, 78, 0.12);
+  --border-strong: rgba(198, 242, 78, 0.28);
+  --text: #e8f5c8;
+  --text-muted: #7a9a50;
+  --text-subtle: #4a6a30;
+  --accent: #C6F24E;
+  --accent-2: #22D3EE;
+  --accent-contrast: #070a0f;
+  --accent-bg: rgba(198, 242, 78, 0.08);
+  --pos: #7FFF00;
+  --neg: #FF4444;
+  --pos-bg: rgba(127, 255, 0, 0.08);
+  --neg-bg: rgba(255, 68, 68, 0.08);
+  --warn: #F0C040;
+  --warn-bg: rgba(240, 192, 64, 0.08);
+  --chip: rgba(198, 242, 78, 0.12);
+}
+
+/* Futuristic scanlines overlay */
+[data-mode="futuristic"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Futuristic glow on widget borders */
+[data-mode="futuristic"] .widget-border {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 12px rgba(198, 242, 78, 0.08);
+}
+
+/* Futuristic: accent glow on interactive elements */
+[data-mode="futuristic"] .btn-primary {
+  box-shadow: 0 0 12px rgba(198, 242, 78, 0.3);
+}
+
+[data-mode="futuristic"] input:focus,
+[data-mode="futuristic"] select:focus,
+[data-mode="futuristic"] textarea:focus {
+  box-shadow: 0 0 0 2px rgba(198, 242, 78, 0.25);
+}
+
+/* Futuristic: pulsing accent on positive P&L */
+@keyframes hiq-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+[data-mode="futuristic"] .pos-pulse {
+  animation: hiq-pulse 2s ease-in-out infinite;
+}
+
+/* Market tape scrolling animation */
+@keyframes tape-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.market-tape-track {
+  display: flex;
+  animation: tape-scroll 60s linear infinite;
+  white-space: nowrap;
+}
+.market-tape-track:hover { animation-play-state: paused; }

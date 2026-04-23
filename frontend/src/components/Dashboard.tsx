@@ -11,6 +11,8 @@ import {
 import { WIDGET_REGISTRY } from '../widgets/WidgetRegistry';
 import Widget from '../widgets/Widget';
 import PositionDrawer from './PositionDrawer';
+import MarketTape from './MarketTape';
+import Onboarding, { useOnboarding } from './Onboarding';
 
 function PreferencesPopover({ onClose }: { onClose: () => void }) {
   const { theme, setTheme, density, setDensity, colorblind, setColorblind, mode, setMode } = useTheme();
@@ -126,6 +128,8 @@ export default function Dashboard() {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
+  const onboarding = useOnboarding();
+  const [showOnboarding, setShowOnboarding] = useState(onboarding.shouldShow);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -261,6 +265,9 @@ export default function Dashboard() {
           </button>
         </header>
 
+        {/* Market tape */}
+        <MarketTape />
+
         {/* Grid area */}
         <div id="grid-main" ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
           <GridLayout
@@ -287,6 +294,7 @@ export default function Dashboard() {
         </div>
       </div>
       <PositionDrawer />
+      {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
     </LayoutContext.Provider>
   );
 }
