@@ -29,26 +29,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const html = document.documentElement;
-    html.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    document.body.setAttribute('data-theme', theme);
     localStorage.setItem('hedgeiq_theme', theme);
   }, [theme]);
 
   useEffect(() => {
-    const html = document.documentElement;
-    html.setAttribute('data-density', density);
+    document.documentElement.setAttribute('data-density', density);
+    document.body.setAttribute('data-density', density);
     localStorage.setItem('hedgeiq_density', density);
   }, [density]);
 
   useEffect(() => {
-    const html = document.documentElement;
-    html.setAttribute('data-colorblind', String(colorblind));
+    document.documentElement.setAttribute('data-colorblind', String(colorblind));
+    document.body.setAttribute('data-colorblind', String(colorblind));
     localStorage.setItem('hedgeiq_colorblind', String(colorblind));
   }, [colorblind]);
 
   useEffect(() => {
-    const html = document.documentElement;
-    html.setAttribute('data-mode', mode);
+    document.documentElement.setAttribute('data-mode', mode);
+    document.body.setAttribute('data-mode', mode);
     localStorage.setItem('hedgeiq_mode', mode);
   }, [mode]);
 

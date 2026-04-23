@@ -25,7 +25,7 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
 
   return (
     <div ref={ref} className="card" style={{
-      position: 'absolute', bottom: 48, left: 0, width: 300, padding: 14, zIndex: 300,
+      position: 'absolute', top: 44, right: 0, width: 300, padding: 14, zIndex: 300,
       boxShadow: 'var(--shadow-md)', background: 'var(--surface)', border: '1px solid var(--border)',
     }} role="dialog" aria-label="Preferences">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
