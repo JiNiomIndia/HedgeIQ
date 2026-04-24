@@ -72,7 +72,7 @@ async def get_current_user(
                 is_admin=db_user.is_admin,
                 daily_ai_calls_used=db_user.daily_ai_calls_used,
                 snaptrade_user_id=db_user.snaptrade_user_id or settings.snaptrade_personal_user_id or user_id,
-                snaptrade_user_secret=db_user.snaptrade_user_secret or settings.snaptrade_user_secret or None,
+                snaptrade_user_secret=db_user.snaptrade_user_secret or None,
             )
 
         # Fallback: admin token (user_id is a one-time UUID, not in DB)
@@ -163,9 +163,16 @@ async def connect_broker(broker: str, current_user=Depends(get_current_user)):
     from backend.infrastructure.snaptrade.facade import SnapTradeFacade
 
     facade = SnapTradeFacade(settings.snaptrade_client_id, settings.snaptrade_consumer_key)
+
+    user_secret = current_user.snaptrade_user_secret
+
+    # If user has no SnapTrade secret yet, attempt registration now
+    if not user_secret:
+        user_secret = await facade.register_user(current_user.snaptrade_user_id)
+
     url = await facade.get_connection_url(
         current_user.snaptrade_user_id,
         broker.upper(),
-        user_secret=current_user.snaptrade_user_secret,
+        user_secret=user_secret,
     )
     return {"connection_url": url, "broker": broker.upper()}
