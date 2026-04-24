@@ -72,6 +72,7 @@ async def get_current_user(
                 is_admin=db_user.is_admin,
                 daily_ai_calls_used=db_user.daily_ai_calls_used,
                 snaptrade_user_id=db_user.snaptrade_user_id or settings.snaptrade_personal_user_id or user_id,
+                snaptrade_user_secret=db_user.snaptrade_user_secret or settings.snaptrade_user_secret or None,
             )
 
         # Fallback: admin token (user_id is a one-time UUID, not in DB)
@@ -82,6 +83,7 @@ async def get_current_user(
             is_admin=True,
             daily_ai_calls_used=0,
             snaptrade_user_id=settings.snaptrade_personal_user_id or user_id,
+            snaptrade_user_secret=settings.snaptrade_user_secret or None,
         )
     except ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
@@ -91,13 +93,19 @@ async def get_current_user(
 
 @router.post("/register", response_model=TokenResponse, summary="Register a new account")
 async def register(request: RegisterRequest, db: Session = Depends(get_db)):
-    """Create a new user account and return a JWT token."""
+    """Create a new user account, register with SnapTrade, and return a JWT token."""
     try:
         init_db()  # Ensure tables exist
         email = request.email.strip().lower()
         if db.query(User).filter(User.email == email).first():
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
         user_id = str(uuid.uuid4())
+
+        # Register user with SnapTrade to get their per-user secret
+        from backend.infrastructure.snaptrade.facade import SnapTradeFacade
+        facade = SnapTradeFacade(settings.snaptrade_client_id, settings.snaptrade_consumer_key)
+        snaptrade_secret = await facade.register_user(user_id)
+
         user = User(
             id=user_id,
             email=email,
@@ -106,6 +114,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
             is_admin=False,
             daily_ai_calls_used=0,
             snaptrade_user_id=user_id,
+            snaptrade_user_secret=snaptrade_secret,
         )
         db.add(user)
         db.commit()
@@ -157,6 +166,6 @@ async def connect_broker(broker: str, current_user=Depends(get_current_user)):
     url = await facade.get_connection_url(
         current_user.snaptrade_user_id,
         broker.upper(),
-        user_secret=settings.snaptrade_user_secret or None,
+        user_secret=current_user.snaptrade_user_secret,
     )
     return {"connection_url": url, "broker": broker.upper()}

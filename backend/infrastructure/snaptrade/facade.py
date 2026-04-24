@@ -47,6 +47,20 @@ class SnapTradeFacade:
     # Public API
     # ------------------------------------------------------------------
 
+    async def register_user(self, user_id: str) -> str | None:
+        """Register a new user with SnapTrade and return their userSecret.
+
+        Returns None if the SDK is unavailable or the call fails.
+        """
+        if self._client is None:
+            return None
+        try:
+            resp = self._client.authentication.register_snap_trade_user(user_id=user_id)
+            body = resp.body if hasattr(resp, "body") else (resp if isinstance(resp, dict) else {})
+            return body.get("userSecret") or body.get("user_secret")
+        except Exception:
+            return None
+
     async def get_connection_url(self, user_id: str, broker: str, user_secret: str | None = None) -> str:
         """Generate a broker OAuth connection URL for the given user.
 
