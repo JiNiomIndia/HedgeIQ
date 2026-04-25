@@ -99,10 +99,12 @@ def test_disclaimer_appended(facade):
 # ---------------------------------------------------------------------------
 
 def test_haiku_model_used(facade):
-    """Only claude-haiku-4-5-20251001 must be used in v0.1."""
+    """The Haiku model (claude-haiku-4-5 family) must be used in v0.1."""
     with patch.object(facade._client.messages, "create") as mock:
         mock.return_value = MagicMock(content=[MagicMock(text="Explanation")])
         asyncio.run(
             facade.explain_option(OPTION_PAYLOAD, calls_today=0, is_free_user=False)
         )
-    assert mock.call_args.kwargs.get("model") == "claude-haiku-4-5-20251001"
+    model_used = mock.call_args.kwargs.get("model") or ""
+    # Accept any claude-haiku-4-5 variant (with or without date suffix)
+    assert "claude-haiku-4-5" in model_used

@@ -166,8 +166,8 @@ export default function AIChat() {
         <button onClick={clearChat} className="btn btn-sm btn-ghost" style={{ fontSize: 10 }}>Clear</button>
       </div>
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Messages — role="log" + aria-live for screen reader announcements */}
+      <div role="log" aria-live="polite" aria-label="Chat messages" style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {messages.map((m, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start', gap: 6 }}>
             {m.role === 'assistant' && (

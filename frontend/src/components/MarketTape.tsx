@@ -37,7 +37,7 @@ export default function MarketTape() {
   const doubled = [...ticks, ...ticks];
 
   return (
-    <div style={{
+    <div aria-label="Live market prices" style={{
       height: 28, overflow: 'hidden', background: 'var(--surface-sunken)',
       borderBottom: '1px solid var(--border)', flexShrink: 0,
       display: 'flex', alignItems: 'center',

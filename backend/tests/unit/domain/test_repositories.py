@@ -2,7 +2,6 @@
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 
 from backend.adapters.adapter_registry import AdapterRegistry
 from backend.infrastructure.polygon.options_repository import PolygonOptionsRepository

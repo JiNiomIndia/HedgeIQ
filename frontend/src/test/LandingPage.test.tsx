@@ -63,6 +63,7 @@ describe('LandingPage', () => {
   it('renders the Try it free CTA link', () => {
     render(<LandingPage />);
     const cta = screen.getByRole('link', { name: /try it free/i });
-    expect(cta).toHaveAttribute('href', '/dashboard');
+    // CTA links to /login (auth required before dashboard)
+    expect(cta).toHaveAttribute('href', '/login');
   });
 });

@@ -85,7 +85,7 @@ class ChatMessage(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(..., min_length=1)
     history: List[ChatMessage] = []
     portfolio_context: Optional[dict] = None
 
