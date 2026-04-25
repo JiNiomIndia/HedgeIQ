@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="AI advisor chat">
+  <rect width="1600" height="1000" fill="#F4F1EC"/>
+  <rect x="0" y="0" width="1600" height="64" fill="#FFFFFF"/>
+  <rect x="0" y="63" width="1600" height="1" fill="#E2DCD0"/>
+  <text x="32" y="40" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">HedgeIQ · AI advisor</text>
+
+  <rect x="220" y="120" width="1160" height="760" rx="12" fill="#FFFFFF" stroke="#E2DCD0"/>
+
+  <!-- user msg -->
+  <rect x="640" y="160" width="700" height="64" rx="8" fill="#EFE9DD"/>
+  <text x="660" y="184" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">You</text>
+  <text x="660" y="208" font-family="Inter, sans-serif" font-size="13" fill="#141B2D">Should I hedge AAL before earnings?</text>
+
+  <!-- ai msg 1 -->
+  <circle cx="276" cy="276" r="20" fill="#B8542A"/>
+  <text x="276" y="282" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#FFF" text-anchor="middle">AI</text>
+  <rect x="312" y="248" width="800" height="170" rx="8" fill="#FAF7F2"/>
+  <text x="332" y="280" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Claude · HedgeIQ advisor</text>
+  <text x="332" y="312" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">Yes — earnings is in 3 days and IV is at 42%, well above the 30-day average. Your</text>
+  <text x="332" y="332" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">5,000-share position is meaningful enough that a 10% gap-down would cost $5,650.</text>
+  <text x="332" y="362" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">A $11 put expiring Nov 8 caps that downside at $1,840 — about 3.25% of position</text>
+  <text x="332" y="382" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">value. That's a fair trade for tail-risk insurance through the print.</text>
+
+  <!-- user msg 2 -->
+  <rect x="640" y="450" width="700" height="64" rx="8" fill="#EFE9DD"/>
+  <text x="660" y="474" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">You</text>
+  <text x="660" y="498" font-family="Inter, sans-serif" font-size="13" fill="#141B2D">What if oil spikes again like the Iran scare?</text>
+
+  <!-- ai msg 2 -->
+  <circle cx="276" cy="566" r="20" fill="#B8542A"/>
+  <text x="276" y="572" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#FFF" text-anchor="middle">AI</text>
+  <rect x="312" y="538" width="800" height="220" rx="8" fill="#FAF7F2"/>
+  <text x="332" y="570" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Claude · HedgeIQ advisor</text>
+  <text x="332" y="602" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">Then you'd want a wider strike — the $10 put would activate sooner if AAL gaps</text>
+  <text x="332" y="622" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">to $9. It's $920 cheaper but starts protecting only past $10. Pairing 30 of the</text>
+  <text x="332" y="642" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">$11 puts with 20 of the $10 puts gives you graduated protection for $1,664 total.</text>
+  <text x="332" y="682" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">If you want, I can show you the payoff curve at expiry.</text>
+  <rect x="332" y="704" width="180" height="34" rx="4" fill="#B8542A"/>
+  <text x="422" y="726" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#FFF" text-anchor="middle">Show payoff chart</text>
+
+  <!-- input -->
+  <rect x="240" y="816" width="1120" height="48" rx="24" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="272" y="846" font-family="Inter, sans-serif" font-size="13" fill="#6E7384">Ask anything about your portfolio…</text>
+  <circle cx="1320" cy="840" r="18" fill="#B8542A"/>
+  <path d="M1313 840 L1327 840 M1320 833 L1327 840 L1320 847" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

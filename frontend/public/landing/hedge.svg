@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Hedge calculator">
+  <rect width="1600" height="1000" fill="#FAF7F2"/>
+  <rect x="0" y="0" width="1600" height="64" fill="#FFFFFF"/>
+  <rect x="0" y="63" width="1600" height="1" fill="#E2DCD0"/>
+  <text x="32" y="40" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">HedgeIQ · Hedge calculator</text>
+
+  <!-- input panel -->
+  <rect x="32" y="96" width="500" height="848" rx="8" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="56" y="136" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Position</text>
+  <rect x="56" y="156" width="450" height="44" rx="4" fill="#FAF7F2" stroke="#E2DCD0"/>
+  <text x="72" y="184" font-family="Inter, sans-serif" font-size="14" fill="#141B2D">AAL · 5,000 shares · avg $11.30</text>
+
+  <text x="56" y="232" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Protect against</text>
+  <rect x="56" y="252" width="220" height="40" rx="4" fill="#B8542A"/>
+  <text x="166" y="278" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#FFF" text-anchor="middle">10% downside</text>
+  <rect x="288" y="252" width="218" height="40" rx="4" fill="#FAF7F2" stroke="#E2DCD0"/>
+  <text x="397" y="278" font-family="Inter, sans-serif" font-size="13" fill="#5A6075" text-anchor="middle">15%</text>
+
+  <text x="56" y="336" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Horizon</text>
+  <rect x="56" y="356" width="450" height="40" rx="4" fill="#FAF7F2" stroke="#E2DCD0"/>
+  <text x="72" y="382" font-family="Inter, sans-serif" font-size="13" fill="#141B2D">14 days · expiry Nov 8</text>
+
+  <rect x="56" y="448" width="450" height="48" rx="4" fill="#B8542A"/>
+  <text x="281" y="478" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="#FFF" text-anchor="middle">Find best hedge</text>
+
+  <text x="56" y="544" font-family="Inter, sans-serif" font-size="12" fill="#6E7384" letter-spacing="1">PORTFOLIO IMPACT</text>
+  <text x="56" y="580" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#141B2D">$56,500 protected</text>
+  <text x="56" y="608" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">at cost of $1,840 (3.25%)</text>
+
+  <!-- results -->
+  <text x="556" y="128" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Top 3 hedges · ranked by value/$</text>
+
+  <g>
+    <rect x="556" y="148" width="1012" height="240" rx="8" fill="#FFFFFF" stroke="#B8542A" stroke-width="1.5"/>
+    <text x="580" y="184" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">AAL Put · $11 · Nov 8</text>
+    <text x="580" y="212" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">Bid $0.36 · Ask $0.38 · IV 42.1% · Volume 2,140</text>
+    <rect x="580" y="232" width="68" height="22" rx="11" fill="#0E8F4A"/>
+    <text x="614" y="247" font-size="12" fill="#FFF" font-weight="600" text-anchor="middle">BEST</text>
+    <text x="660" y="248" font-size="12" fill="#5A6075">value/$ 4.71 · breakeven $10.62 · max protected $56,500</text>
+    <text x="580" y="304" font-family="Inter, sans-serif" font-size="13" fill="#141B2D" font-style="italic">"Pays out if AAL drops below $11. Cheapest meaningful protection. 3 days before earnings."</text>
+    <rect x="580" y="332" width="160" height="34" rx="4" fill="#B8542A"/>
+    <text x="660" y="354" font-size="13" fill="#FFF" font-weight="600" text-anchor="middle">Buy 50 contracts</text>
+    <text x="760" y="354" font-size="13" fill="#5A6075">$1,840 total cost</text>
+  </g>
+  <g>
+    <rect x="556" y="408" width="1012" height="160" rx="8" fill="#FFFFFF" stroke="#E2DCD0"/>
+    <text x="580" y="440" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#141B2D">AAL Put · $10 · Nov 8</text>
+    <text x="580" y="464" font-size="12" fill="#5A6075">Bid $0.18 · value/$ 3.95 · Cost $920</text>
+    <text x="580" y="500" font-size="12" fill="#5A6075">Cheaper but only kicks in past $10. Useful if you expect a sharp gap-down.</text>
+  </g>
+  <g>
+    <rect x="556" y="588" width="1012" height="160" rx="8" fill="#FFFFFF" stroke="#E2DCD0"/>
+    <text x="580" y="620" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#141B2D">AAL Put · $11.50 · Nov 1</text>
+    <text x="580" y="644" font-size="12" fill="#5A6075">Bid $0.41 · value/$ 3.10 · Cost $2,090</text>
+    <text x="580" y="680" font-size="12" fill="#5A6075">Tighter strike, shorter window. Highest premium, full coverage past $11.50.</text>
+  </g>
+
+  <rect x="556" y="768" width="1012" height="176" rx="8" fill="#FAF7F2" stroke="#E2DCD0"/>
+  <text x="580" y="800" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#141B2D">AI advisor</text>
+  <text x="580" y="828" font-family="Georgia, serif" font-size="14" fill="#5A6075" font-style="italic">"Pick option 1. It's the cheapest meaningful protection — at 3.25% of position value, you cap your loss at $1,840 + your existing unrealized P/L. The IV is elevated but reasonable for the news cycle."</text>
+  <text x="580" y="912" font-family="Inter, sans-serif" font-size="11" fill="#6E7384">Not financial advice. Powered by Claude Haiku.</text>
+</svg>
