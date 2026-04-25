@@ -1,4 +1,23 @@
-"""JWT authentication endpoints and dependency."""
+"""JWT authentication endpoints and the ``get_current_user`` dependency.
+
+This module is the single source of truth for HedgeIQ user
+authentication. It exposes:
+
+* ``POST /api/v1/auth/register`` — create a new user, register them with
+  SnapTrade, return a 24-hour JWT.
+* ``POST /api/v1/auth/login`` — verify credentials, return a JWT.
+* ``POST /api/v1/auth/waitlist`` — pre-launch lead capture.
+* ``GET  /api/v1/auth/db-status`` — admin-only DB diagnostics.
+* ``GET  /api/v1/auth/connect-broker`` — generate a SnapTrade OAuth URL
+  using the *user's own* SnapTrade secret.
+
+Password hashing uses ``hashlib.pbkdf2_hmac`` (SHA-256, 100k iterations,
+16-byte salt). We deliberately stick to the standard library so the
+container stays small and avoids C-extension build pain on Railway.
+
+JWTs are HS256-signed with ``settings.secret_key``. Tokens carry only
+``sub`` (the user UUID), ``iat`` and ``exp`` — no PII.
+"""
 import uuid
 from datetime import datetime, timedelta, UTC
 from types import SimpleNamespace
@@ -29,12 +48,33 @@ ALGORITHM = "HS256"
 
 
 def _hash_pw(plain: str) -> str:
+    """Hash a plaintext password using PBKDF2-HMAC-SHA256.
+
+    100,000 iterations and a fresh 16-byte random salt per password.
+    The salt is stored alongside the derived key in the form
+    ``"<salt_hex>:<dk_hex>"`` so verification can re-derive the hash
+    without a separate column.
+
+    :param plain: user-supplied plaintext password.
+    :returns: ``"<salt>:<derived_key>"`` colon-separated hex string.
+    """
     salt = os.urandom(16).hex()
     dk = hashlib.pbkdf2_hmac('sha256', plain.encode(), bytes.fromhex(salt), 100_000)
     return f"{salt}:{dk.hex()}"
 
 
 def _verify_pw(plain: str, hashed: str) -> bool:
+    """Constant-time password verification.
+
+    Splits the stored ``"salt:dk"`` string, recomputes PBKDF2 with the
+    same parameters and uses ``hmac.compare_digest`` to avoid timing
+    attacks. Any malformed stored value returns ``False`` rather than
+    raising — we never want to leak *why* verification failed.
+
+    :param plain: candidate plaintext password.
+    :param hashed: stored ``"salt:dk"`` hex string.
+    :returns: ``True`` iff the candidate matches.
+    """
     try:
         salt_hex, dk_hex = hashed.split(':', 1)
         dk = hashlib.pbkdf2_hmac('sha256', plain.encode(), bytes.fromhex(salt_hex), 100_000)
@@ -44,6 +84,15 @@ def _verify_pw(plain: str, hashed: str) -> bool:
 
 
 def create_token(user_id: str) -> str:
+    """Issue a 24-hour HS256 JWT for ``user_id``.
+
+    Claims: ``sub`` (user UUID), ``iat`` (issued-at), ``exp`` (24h).
+    No PII (email, name) is embedded — clients fetch profile data via
+    the authenticated ``/positions`` etc. endpoints instead.
+
+    :param user_id: user primary key (a UUID4 string).
+    :returns: signed compact JWT.
+    """
     now = datetime.now(UTC).replace(tzinfo=None)
     payload = {"sub": user_id, "iat": now, "exp": now + timedelta(hours=24)}
     return jwt.encode(payload, settings.secret_key, algorithm=ALGORITHM)

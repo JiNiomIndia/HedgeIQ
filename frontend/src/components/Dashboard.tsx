@@ -1,3 +1,24 @@
+/**
+ * @file Dashboard.tsx
+ * @description Top-level orchestrator for the authenticated HedgeIQ
+ * application. Renders the persistent header (logo, market tape,
+ * preferences popover, sign-out), the resizable widget grid powered by
+ * `react-grid-layout`, and the position-detail side drawer.
+ *
+ * Responsibilities:
+ *  - Load the saved widget layout from `localStorage` (via
+ *    `layout-store`) and persist it on every change.
+ *  - Provide the `LayoutContext` so child widgets can add / remove /
+ *    reorder themselves without prop-drilling.
+ *  - Coordinate the onboarding flow for first-time users.
+ *  - Host the in-app preferences popover (theme, density, colour-blind
+ *    mode, market mode).
+ *
+ * Exported components:
+ *  - `Dashboard` (default) — the page-level component, mounted at `/app`.
+ *  - `PreferencesPopover` (internal) — popover triggered from the header
+ *    cog icon.
+ */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { GridLayout } from 'react-grid-layout';
 import type { Layout } from 'react-grid-layout';
