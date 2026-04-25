@@ -1,92 +1,216 @@
 /**
- * Hero section — eyebrow, large serif H1, dual CTAs, screenshot carousel.
+ * Hero — dark, cinematic, demo-forward.
+ * Two-column on desktop: copy left, animated LiveDemoWidget right.
  * @component
  */
-import HeroCarousel from './HeroCarousel';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+import LiveDemoWidget from './LiveDemoWidget';
+import VideoModal from './VideoModal';
 
 export default function Hero() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
-    <section id="top" style={{ position: 'relative', padding: 'clamp(48px, 8vw, 96px) 24px 64px', overflow: 'hidden' }}>
-      {/* radial glow */}
+    <section
+      id="top"
+      className="hero-v2"
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: '#0A0E1A',
+        color: '#F8FAFC',
+      }}
+    >
+      {/* Radial gradient overlay */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
-          left: '50%',
-          top: '-10%',
-          transform: 'translateX(-50%)',
-          width: 1200,
-          height: 700,
-          background: 'radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%)',
-          filter: 'blur(20px)',
+          inset: 0,
+          background: 'radial-gradient(ellipse at top, rgba(139,92,246,0.18), transparent 60%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      {/* Noise texture (inline SVG) */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.05,
+          mixBlendMode: 'overlay',
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
           pointerEvents: 'none',
           zIndex: 0,
         }}
       />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 999, fontSize: 12, color: 'var(--text-muted)', marginBottom: 24, fontWeight: 500 }}>
-          <span style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--accent)' }} />
-          AI-powered portfolio hedging
-        </div>
-
-        <h1
+      <div
+        className="hero-v2-inner"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: 1280,
+          margin: '0 auto',
+          padding: '24px',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          className="hero-v2-grid"
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2.4rem, 6vw, 4.6rem)',
-            lineHeight: 1.04,
-            letterSpacing: '-0.02em',
-            fontWeight: 700,
-            color: 'var(--text)',
-            margin: '0 auto 20px',
-            maxWidth: 920,
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gap: 48,
+            alignItems: 'center',
+            width: '100%',
+            paddingTop: 80,
+            paddingBottom: 80,
           }}
         >
-          Hedge your portfolio at midnight — in 60 seconds.
-        </h1>
+          <div className="hero-v2-copy" style={{ maxWidth: 560 }}>
+            <p
+              style={{
+                fontSize: 12,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: '#A78BFA',
+                fontWeight: 600,
+                margin: '0 0 24px',
+              }}
+            >
+              AI-Powered Portfolio Hedging
+            </p>
 
-        <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', color: 'var(--text-muted)', lineHeight: 1.55, margin: '0 auto 32px', maxWidth: 680 }}>
-          Built from a real $2,355 loss. Now production-ready, with broker sync, options analysis,
-          and an AI advisor that explains every decision in plain English.
-        </p>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display, Fraunces, Georgia, serif)',
+                fontSize: 'clamp(3rem, 7vw, 6rem)',
+                fontWeight: 600,
+                lineHeight: 1.05,
+                letterSpacing: '-0.04em',
+                color: '#F8FAFC',
+                margin: 0,
+              }}
+            >
+              Hedge your portfolio at midnight — in{' '}
+              <span
+                className="grad"
+                style={{
+                  backgroundImage: 'linear-gradient(135deg, #6366F1, #8B5CF6, #EC4899)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                }}
+              >
+                60 seconds
+              </span>
+              .
+            </h1>
 
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-          <a
-            href="/login"
-            className="landing-cta"
+            <p
+              style={{
+                fontFamily: 'var(--font-sans, Inter Tight, Inter, sans-serif)',
+                fontSize: 18,
+                lineHeight: 1.55,
+                color: '#94A3B8',
+                maxWidth: '60ch',
+                margin: '24px 0 0',
+              }}
+            >
+              Built from a real $2,355 loss. Production-ready, with broker sync, options analysis,
+              and an AI advisor that explains every decision in plain English.
+            </p>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: 16,
+                marginTop: 32,
+                flexWrap: 'wrap',
+              }}
+            >
+              <Link
+                to="/login"
+                className="landing-cta"
+                style={{
+                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                  color: '#fff',
+                  padding: '14px 28px',
+                  borderRadius: 10,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  boxShadow: '0 8px 24px rgba(139,92,246,0.35)',
+                  transition: 'transform 120ms ease, filter 120ms ease',
+                }}
+              >
+                Get started — free
+              </Link>
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="landing-cta-ghost"
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #334155',
+                  color: '#F8FAFC',
+                  padding: '13px 26px',
+                  borderRadius: 10,
+                  fontSize: 16,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 120ms ease, transform 120ms ease',
+                }}
+              >
+                Watch demo
+              </button>
+            </div>
+          </div>
+
+          <div
+            className="hero-v2-demo"
             style={{
-              background: 'var(--accent)',
-              color: 'var(--accent-contrast)',
-              padding: '13px 24px',
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 600,
-              transition: 'transform 120ms ease, filter 120ms ease, box-shadow 120ms ease',
-              boxShadow: '0 6px 20px color-mix(in srgb, var(--accent) 30%, transparent)',
+              width: '100%',
+              maxWidth: 640,
+              justifySelf: 'start',
             }}
           >
-            Get started — free
-          </a>
-          <a
-            href="#features"
-            className="landing-cta-ghost"
-            style={{
-              border: '1px solid var(--border-strong)',
-              color: 'var(--text)',
-              padding: '12px 22px',
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 500,
-              background: 'transparent',
-              transition: 'background 120ms ease, transform 120ms ease',
-            }}
-          >
-            View live demo  →
-          </a>
+            <LiveDemoWidget />
+          </div>
         </div>
-
-        <HeroCarousel />
       </div>
+
+      <VideoModal open={modalOpen} onClose={() => setModalOpen(false)} />
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .hero-v2 .hero-v2-grid {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+          }
+          .hero-v2 .hero-v2-demo {
+            justify-self: end !important;
+          }
+        }
+        @media (max-width: 1023px) {
+          .hero-v2 .hero-v2-inner {
+            min-height: auto !important;
+          }
+          .hero-v2 .hero-v2-grid {
+            padding-top: 80px !important;
+            padding-bottom: 64px !important;
+          }
+          .hero-v2 .hero-v2-demo {
+            justify-self: center !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

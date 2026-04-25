@@ -2,12 +2,22 @@
  * 4-column footer with wordmark and GitHub link.
  * @component
  */
+import { Link } from 'react-router-dom';
+
 const COLS = [
-  { title: 'Product',   items: [['Features', '#features'], ['How it works', '#how'], ['Pricing', '#pricing'], ['FAQ', '#faq']] },
+  { title: 'Product',   items: [['Features', '#features'], ['How it works', '#how'], ['FAQ', '#faq']] },
   { title: 'Company',   items: [['About', '/wiki'], ['Blog', '/wiki'], ['Contact', 'mailto:hello@hedgeiq.app']] },
   { title: 'Resources', items: [['Documentation', '/wiki'], ['Changelog', '/wiki'], ['Status', 'https://hedge-iq-five.vercel.app']] },
   { title: 'Legal',     items: [['Privacy', '/wiki'], ['Terms', '/wiki'], ['Security', '/wiki']] },
 ] as const;
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  // Internal in-app routes use Link; anchors and external/mailto stay as <a>
+  if (href.startsWith('/') && !href.startsWith('//')) {
+    return <Link to={href} style={{ fontSize: 13, color: 'var(--text-muted)' }}>{children}</Link>;
+  }
+  return <a href={href} style={{ fontSize: 13, color: 'var(--text-muted)' }}>{children}</a>;
+}
 
 export default function Footer() {
   return (
@@ -28,7 +38,7 @@ export default function Footer() {
               <h4 style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text)', margin: '0 0 14px' }}>{c.title}</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {c.items.map(([label, href]) => (
-                  <li key={label}><a href={href} style={{ fontSize: 13, color: 'var(--text-muted)' }}>{label}</a></li>
+                  <li key={label}><FooterLink href={href}>{label}</FooterLink></li>
                 ))}
               </ul>
             </div>
