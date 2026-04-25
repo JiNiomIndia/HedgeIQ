@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HedgeIQ — Executive Briefing</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css" id="theme">
+  <style>
+    :root {
+      --accent: #10b981;
+    }
+    .reveal { font-family: 'Inter', system-ui, sans-serif; }
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'JetBrains Mono', 'Menlo', monospace;
+      color: var(--accent);
+      text-transform: none;
+      letter-spacing: -0.02em;
+    }
+    .reveal .accent { color: var(--accent); }
+    .reveal blockquote {
+      border-left: 4px solid var(--accent);
+      padding-left: 1em;
+      font-style: italic;
+      color: #ddd;
+    }
+    .reveal .placeholder {
+      border: 2px dashed #444;
+      padding: 2em;
+      color: #888;
+      border-radius: 8px;
+      margin: 1em auto;
+      max-width: 80%;
+    }
+    .reveal .pillar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+      text-align: left;
+    }
+    .reveal .pillar-grid .card {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 1em;
+    }
+    .reveal .small { font-size: 0.7em; color: #aaa; }
+    .reveal pre.mermaid { background: transparent; box-shadow: none; }
+    .reveal table { font-size: 0.7em; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 1. Title -->
+      <section>
+        <h1 style="font-size: 3em; margin-bottom: 0;">HedgeIQ</h1>
+        <p style="font-size: 1.4em; color: var(--accent);">Hedge your portfolio at midnight — in 60 seconds.</p>
+        <p class="small">Executive Briefing &middot; April 2026</p>
+        <aside class="notes">Open with the tagline. The whole product is a 60-second answer to a midnight question.</aside>
+      </section>
+
+      <!-- 2. The Problem -->
+      <section>
+        <h2>The Problem</h2>
+        <blockquote>
+          "I held 5,000 shares of AAL on the Sunday the Iran-US peace talks collapsed.
+          Oil futures were spiking. I knew I needed protective puts. The Fidelity chain
+          had 240 contracts. It was 11pm. I froze. Markets opened. I lost $2,355."
+        </blockquote>
+        <p class="small">— HedgeIQ founder, January 2024</p>
+        <aside class="notes">This is the founding story. Real money, real night, real freeze. The problem is decision speed under pressure, not knowledge.</aside>
+      </section>
+
+      <!-- 3. The Insight -->
+      <section>
+        <h2>Why retail investors don't hedge</h2>
+        <ul>
+          <li><strong>Cost</strong> — premiums feel like waste when nothing happens.</li>
+          <li><strong>Complexity</strong> — strikes, expiries, IV, OI, deltas.</li>
+          <li><strong>Time</strong> — 240 contracts, 10 hours until open.</li>
+          <li><strong>Jargon</strong> — "protective put" is a barrier word.</li>
+        </ul>
+        <p class="accent">They have the money. They have the knowledge. They don't have a clear answer at the moment they need one.</p>
+      </section>
+
+      <!-- 4. The Solution -->
+      <section>
+        <h2>The Solution</h2>
+        <p style="font-size: 1.6em;">An AI-powered hedge calculator.</p>
+        <p>Plain English. Sixty seconds. Three ranked recommendations.</p>
+        <pre class="placeholder">Screenshot: emergency hedge dialog with top 3 puts</pre>
+      </section>
+
+      <!-- 5. Demo flow -->
+      <section>
+        <h2>Demo Flow</h2>
+        <ol>
+          <li>Sign up &rarr; connect broker via SnapTrade.</li>
+          <li>Live positions populate.</li>
+          <li>Click "Hedge" on any position.</li>
+          <li>Pick a risk scenario (10% drop / earnings / sector shock).</li>
+          <li>See top 3 puts ranked by value-score.</li>
+          <li>Read the AI's plain-English explanation.</li>
+          <li>Place the order in your broker.</li>
+        </ol>
+      </section>
+
+      <!-- 6. Pillars -->
+      <section>
+        <h2>Product Pillars</h2>
+        <div class="pillar-grid">
+          <div class="card"><h3>Unified Dashboard</h3><p>Positions, charts, news, AI — one page.</p></div>
+          <div class="card"><h3>Smart Hedge Calculator</h3><p>Top 3 puts in 60 seconds.</p></div>
+          <div class="card"><h3>Plain-English AI</h3><p>"Buy 50 puts, costs $400, protects $2,000 of downside."</p></div>
+          <div class="card"><h3>Smart Caching</h3><p>Sub-second responses, vendor-cost-efficient.</p></div>
+        </div>
+      </section>
+
+      <!-- 7. Architecture -->
+      <section>
+        <h2>Architecture</h2>
+        <pre class="mermaid">
+flowchart LR
+  UI[React 19 SPA<br/>Vercel] -- HTTPS / JWT --> API[FastAPI<br/>Railway]
+  API <--> DB[(SQLite/Postgres)]
+  API <--> Cache[(ChromaDB)]
+  API -- positions --> SnapTrade
+  API -- chains, charts, news --> Polygon
+  API -- explanations --> Anthropic
+        </pre>
+      </section>
+
+      <!-- 8. Tech stack -->
+      <section>
+        <h2>Tech Stack</h2>
+        <table>
+          <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+          <tr><td>Backend</td><td>Python 3.12 + FastAPI</td><td>Async, type-safe, fast.</td></tr>
+          <tr><td>Frontend</td><td>React 19 + Vite + TypeScript + Tailwind</td><td>Modern stack, fast HMR.</td></tr>
+          <tr><td>AI</td><td>Anthropic Claude Haiku</td><td>Cheap, fast, good enough.</td></tr>
+          <tr><td>Brokerage</td><td>SnapTrade aggregator</td><td>Single integration, four brokers.</td></tr>
+          <tr><td>Market data</td><td>Polygon.io</td><td>Quality options + news.</td></tr>
+          <tr><td>Cache</td><td>ChromaDB</td><td>TTL + metadata + future similarity search.</td></tr>
+          <tr><td>Hosting</td><td>Railway + Vercel</td><td>Push-to-deploy, zero ops.</td></tr>
+        </table>
+      </section>
+
+      <!-- 9. Hedge algorithm -->
+      <section>
+        <h2>Hedge Algorithm</h2>
+        <p>Deterministic Python. No LLM in the critical path.</p>
+        <ol>
+          <li>Filter chain: PUTs only, expiry 14–90 days, strike 80–105% of spot, OI &ge; 5,000.</li>
+          <li>For each survivor compute <code>coverage / total_cost</code> at a 10% drop.</li>
+          <li>Rank by <code>value_score</code> descending. Return top 3.</li>
+        </ol>
+        <p class="small">Full worked AAL example in <a href="../wiki/07-hedge-algorithm.md">wiki/07</a>.</p>
+      </section>
+
+      <!-- 10. AI -->
+      <section>
+        <h2>AI Layer</h2>
+        <ul>
+          <li><strong>Model</strong>: Claude Haiku — sub-second, sub-cent.</li>
+          <li><strong>Role</strong>: translation only. Never the decision.</li>
+          <li><strong>System prompt</strong>: clamps behaviour to no specific trade advice.</li>
+          <li><strong>Daily limits</strong>: 10 (free), 100 (pro), unlimited (admin).</li>
+          <li><strong>Caching</strong>: identical prompts within 1h served from ChromaDB.</li>
+        </ul>
+      </section>
+
+      <!-- 11. Broker -->
+      <section>
+        <h2>Broker Integration</h2>
+        <p>SnapTrade aggregator. Four brokers today: <strong>Fidelity, IBKR, Robinhood, Public.</strong></p>
+        <ul>
+          <li>Each user gets their own SnapTrade per-user secret on registration.</li>
+          <li>We never reuse the admin secret for end-user calls.</li>
+          <li>Mock fallback when SnapTrade is down — labelled clearly to the user.</li>
+        </ul>
+      </section>
+
+      <!-- 12. Security -->
+      <section>
+        <h2>Security Posture</h2>
+        <ul>
+          <li>PBKDF2-HMAC-SHA256 (100k, salt) — stdlib only.</li>
+          <li>HS256 JWT, 24h expiry, no PII in claims.</li>
+          <li>Strict CSP whitelisting only Anthropic, SnapTrade, Polygon.</li>
+          <li>OWASP headers, GZip, global exception handler (no stack-trace leak).</li>
+          <li>Per-IP and per-user rate limits.</li>
+          <li>SQL injection-safe (ORM only); prompt injection contained by role separation.</li>
+        </ul>
+      </section>
+
+      <!-- 13. Accessibility -->
+      <section>
+        <h2>Accessibility</h2>
+        <p>Targeting <strong>WCAG 2.1 AA</strong>.</p>
+        <ul>
+          <li>3 themes: Meridian (calm), Terminal (dense), Lumen (high-contrast).</li>
+          <li>Light/dark, balanced/dense, colour-blind palette.</li>
+          <li>Full keyboard navigation; visible focus rings.</li>
+          <li>Live regions announce data refreshes.</li>
+          <li>Lighthouse a11y score &gt; 95 enforced in CI.</li>
+        </ul>
+      </section>
+
+      <!-- 14. Test coverage -->
+      <section>
+        <h2>Test Coverage</h2>
+        <table>
+          <tr><th></th><th>Count</th><th>Coverage</th></tr>
+          <tr><td>Backend unit</td><td>150+</td><td>87% line</td></tr>
+          <tr><td>Backend integration</td><td>60+</td><td>—</td></tr>
+          <tr><td>Frontend</td><td>82</td><td>—</td></tr>
+          <tr><td>E2E (Playwright)</td><td>10</td><td>—</td></tr>
+        </table>
+      </section>
+
+      <!-- 15. Phase 1 recap -->
+      <section>
+        <h2>Phase 1 — Shipped</h2>
+        <p>v0.1 product: register, connect broker, see positions, hedge calculator, AI explanation, three themes, full keyboard support, 200+ tests, deployed to Railway + Vercel.</p>
+      </section>
+
+      <!-- 16. Phase 2 recap -->
+      <section>
+        <h2>Phase 2 — This Session</h2>
+        <ul>
+          <li>Comprehensive test suite + CI workflows.</li>
+          <li>Production hardening (security headers, GZip, CSP, exception handler, enriched health).</li>
+          <li>WCAG 2.1 AA pass on top-level components.</li>
+          <li>Full documentation wiki (17 sections).</li>
+          <li>This presentation deck.</li>
+          <li>Vercel pipeline updated to serve docs + presentation.</li>
+        </ul>
+      </section>
+
+      <!-- 17. Performance -->
+      <section>
+        <h2>Performance SLAs</h2>
+        <table>
+          <tr><th>Endpoint</th><th>p95 budget</th><th>Current</th></tr>
+          <tr><td>/health</td><td>50ms</td><td>12ms</td></tr>
+          <tr><td>/positions</td><td>200ms</td><td>89ms</td></tr>
+          <tr><td>/options/{sym}</td><td>300ms</td><td>145ms</td></tr>
+          <tr><td>/hedge/recommend</td><td>500ms</td><td>312ms</td></tr>
+          <tr><td>/ai/explain</td><td>2000ms</td><td>1180ms</td></tr>
+        </table>
+      </section>
+
+      <!-- 18. CI/CD -->
+      <section>
+        <h2>CI/CD</h2>
+        <ul>
+          <li>GitHub Actions: backend tests, frontend tests, tsc, eslint, e2e, accessibility.</li>
+          <li>Vercel preview-deploys every PR.</li>
+          <li>Push to <code>main</code> &rarr; Railway + Vercel auto-deploy.</li>
+          <li>Squash-merge keeps history linear.</li>
+        </ul>
+      </section>
+
+      <!-- 19. Documentation -->
+      <section>
+        <h2>Documentation</h2>
+        <ul>
+          <li>Wiki: 17 sections, all in <code>docs/wiki/</code>.</li>
+          <li>Backend API reference: every endpoint, every error.</li>
+          <li>Component catalog for the SPA.</li>
+          <li>Worked AAL hedge example with the math.</li>
+          <li>Deployment runbook.</li>
+        </ul>
+      </section>
+
+      <!-- 20. Deployment -->
+      <section>
+        <h2>Deployment</h2>
+        <p><strong>Backend</strong> &rarr; Railway: <code>hedgeiq-production.up.railway.app</code></p>
+        <p><strong>Frontend</strong> &rarr; Vercel: <code>hedgeiq.vercel.app</code></p>
+        <p>Both auto-deploy from <code>main</code>. No manual steps.</p>
+      </section>
+
+      <!-- 21. Roadmap Phase 3 -->
+      <section>
+        <h2>Roadmap — Phase 3</h2>
+        <ul>
+          <li>Real-time risk alerts (push + SMS).</li>
+          <li>Multi-leg strategies (collar, spreads).</li>
+          <li>Mobile experience (responsive, then RN).</li>
+          <li>Greeks-aware ranking option.</li>
+          <li>Portfolio-level risk dashboard.</li>
+        </ul>
+      </section>
+
+      <!-- 22. Roadmap Phase 4 -->
+      <section>
+        <h2>Roadmap — Phase 4</h2>
+        <ul>
+          <li>Coaching mode — proactive AI suggestions.</li>
+          <li>Educational track unlocked progressively.</li>
+          <li>Tiered pricing: Free / Pro $15 / Pro+ $35.</li>
+          <li>Reg BI compliance review.</li>
+        </ul>
+      </section>
+
+      <!-- 23. Metrics -->
+      <section>
+        <h2>Metrics that Matter</h2>
+        <ul>
+          <li>DAU and weekly retention.</li>
+          <li>Hedge calculator usage / DAU.</li>
+          <li>AI calls per user per day.</li>
+          <li>p95 latency on the hedge endpoint.</li>
+          <li>Error rate per surface.</li>
+          <li>Time-to-first-hedge for new users.</li>
+        </ul>
+      </section>
+
+      <!-- 24. Open questions -->
+      <section>
+        <h2>Open Questions</h2>
+        <ul>
+          <li>Pricing sensitivity at $15/mo vs free-only with a usage cap.</li>
+          <li>Reg BI: how close can we get to "advice" without crossing the line?</li>
+          <li>Which broker to add fifth — Schwab or Webull?</li>
+          <li>Self-serve account deletion — must ship before any paid tier launches.</li>
+        </ul>
+      </section>
+
+      <!-- 25. CTA -->
+      <section>
+        <h1>Try it.</h1>
+        <p style="font-size: 1.4em;">
+          <a href="https://hedgeiq.vercel.app">hedgeiq.vercel.app</a>
+        </p>
+        <p class="small">Code: <a href="https://github.com/JiNiomIndia/HedgeIQ">github.com/JiNiomIndia/HedgeIQ</a></p>
+        <p class="small">Wiki: <a href="../wiki/README.md">/wiki</a></p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      transition: 'slide',
+      controls: true,
+      progress: true,
+    }).then(() => {
+      mermaid.run({ querySelector: 'pre.mermaid' });
+    });
+  </script>
+</body>
+</html>
