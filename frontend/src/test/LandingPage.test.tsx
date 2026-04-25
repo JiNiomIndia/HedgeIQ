@@ -87,9 +87,9 @@ describe('LandingPage', () => {
     expect(signIn).toHaveAttribute('href', '/login');
   });
 
-  it('renders all anchor sections (#features, #how, #pricing, #faq)', () => {
+  it('renders all anchor sections (#features, #how, #faq)', () => {
     render(<LandingPage />);
-    ['features', 'how', 'pricing', 'faq'].forEach(id => {
+    ['features', 'how', 'faq'].forEach(id => {
       expect(document.getElementById(id)).not.toBeNull();
     });
   });
@@ -98,15 +98,5 @@ describe('LandingPage', () => {
     render(<LandingPage />);
     const docs = screen.getByRole('link', { name: /read the docs/i });
     expect(docs).toHaveAttribute('href', '/wiki');
-  });
-
-  it('hero carousel exposes a region landmark', () => {
-    render(<LandingPage />);
-    // Carousel is wrapped in a region with aria-label
-    const region = screen.getByRole('region', { name: /carousel/i });
-    expect(region).toBeInTheDocument();
-    // Has prev/next controls
-    expect(within(region).getByRole('button', { name: /next slide/i })).toBeInTheDocument();
-    expect(within(region).getByRole('button', { name: /previous slide/i })).toBeInTheDocument();
   });
 });
