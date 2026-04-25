@@ -50,19 +50,19 @@ export default function LoginPage() {
           </h2>
 
           <div>
-            <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
-            <input type="email" value={email} required autoFocus onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com" className="input" />
+            <label htmlFor="login-email" style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
+            <input id="login-email" type="email" value={email} required autoFocus onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com" className="input" aria-required="true" />
           </div>
 
           <div>
-            <label style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Password</label>
-            <input type="password" value={password} required minLength={8} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••" className="input" />
+            <label htmlFor="login-password" style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Password</label>
+            <input id="login-password" type="password" value={password} required minLength={8} onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••" className="input" aria-required="true" />
           </div>
 
           {error && (
-            <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--neg)', background: 'var(--neg-bg)', borderRadius: 'var(--radius-sm)', padding: '8px 12px' }}>{error}</p>
+            <p role="alert" aria-live="assertive" style={{ fontSize: 'var(--fs-xs)', color: 'var(--neg)', background: 'var(--neg-bg)', borderRadius: 'var(--radius-sm)', padding: '8px 12px' }}>{error}</p>
           )}
 
           <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', opacity: loading ? 0.5 : 1 }}>

@@ -127,6 +127,49 @@ class TestHealth:
             r = await client.get("/health")
         assert r.status_code == 200
 
+    @pytest.mark.asyncio
+    async def test_health_contains_enriched_fields(self):
+        """Health endpoint must return version, environment, db, and checks fields (2E)."""
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            r = await client.get("/health")
+        body = r.json()
+        assert "version" in body
+        assert "environment" in body
+        assert "db" in body
+        assert "checks" in body
+        assert body["db"] in ("connected", "error")
+        assert "database" in body["checks"]
+
+    @pytest.mark.asyncio
+    async def test_health_db_connected_under_normal_conditions(self):
+        """Health endpoint must report db=connected when DB is accessible (2E)."""
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            r = await client.get("/health")
+        assert r.json()["db"] == "connected"
+
+    @pytest.mark.asyncio
+    async def test_security_headers_present(self):
+        """Security headers must be present on all responses (2A)."""
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            r = await client.get("/health")
+        assert r.headers.get("x-content-type-options") == "nosniff"
+        assert r.headers.get("x-frame-options") == "DENY"
+        assert r.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+        assert "permissions-policy" in r.headers
+        assert "content-security-policy" in r.headers
+
+    @pytest.mark.asyncio
+    async def test_global_exception_handler_is_registered(self):
+        """Global exception handler must be registered on the app (2D).
+
+        FastAPI's exception handler for Exception is invoked for unhandled errors.
+        We verify it is registered in the exception handlers dict.
+        """
+        from backend.main import app as main_app, global_exception_handler
+        # Verify the handler is wired up
+        handler = main_app.exception_handlers.get(Exception)
+        assert handler is not None, "global_exception_handler must be registered"
+
 
 # ---------------------------------------------------------------------------
 # 2. Auth — Register

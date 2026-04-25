@@ -27,10 +27,10 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
     <div ref={ref} className="card" style={{
       position: 'absolute', top: 44, right: 0, width: 300, padding: 14, zIndex: 300,
       boxShadow: 'var(--shadow-md)', background: 'var(--surface)', border: '1px solid var(--border)',
-    }} role="dialog" aria-label="Preferences">
+    }} role="dialog" aria-modal="true" aria-label="Preferences">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span style={{ fontWeight: 700, fontSize: 'var(--fs-md)', fontFamily: 'var(--font-display)' }}>Preferences</span>
-        <button className="btn btn-sm btn-ghost" onClick={onClose} style={{ width: 22, height: 22, padding: 0 }}><I.X size={12} /></button>
+        <button className="btn btn-sm btn-ghost" onClick={onClose} aria-label="Close preferences" style={{ width: 22, height: 22, padding: 0 }}><I.X size={12} /></button>
       </div>
 
       <div style={{ marginBottom: 14 }}>
@@ -249,7 +249,7 @@ export default function Dashboard() {
 
           {/* Preferences */}
           <div style={{ position: 'relative' }}>
-            <button onClick={() => setShowPrefs(v => !v)} className="btn btn-sm btn-ghost" title="Preferences">
+            <button onClick={() => setShowPrefs(v => !v)} className="btn btn-sm btn-ghost" title="Preferences" aria-label="Preferences" aria-haspopup="dialog" aria-expanded={showPrefs}>
               <I.Settings size={14} />
             </button>
             {showPrefs && <PreferencesPopover onClose={() => setShowPrefs(false)} />}
@@ -268,8 +268,8 @@ export default function Dashboard() {
         {/* Market tape */}
         <MarketTape />
 
-        {/* Grid area */}
-        <div id="grid-main" ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
+        {/* Grid area — <main> landmark for screen reader navigation */}
+        <main id="grid-main" ref={containerRef} style={{ flex: 1, overflow: 'auto', padding: 8 }}>
           <GridLayout
             layout={currentLayout}
             width={containerWidth - 16}
@@ -291,7 +291,7 @@ export default function Dashboard() {
               );
             })}
           </GridLayout>
-        </div>
+        </main>
       </div>
       <PositionDrawer />
       {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
