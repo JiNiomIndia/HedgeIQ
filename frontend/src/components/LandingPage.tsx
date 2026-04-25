@@ -18,6 +18,8 @@ import ProblemSolutionSplit from './landing/ProblemSolutionSplit';
 import Testimonial from './landing/Testimonial';
 import TechStack from './landing/TechStack';
 import TrustStrip from './landing/TrustStrip';
+import TrustSecurity from './landing/TrustSecurity';
+import ExplainerVideo from './landing/ExplainerVideo';
 
 import './landing/landing.css';
 
@@ -38,9 +40,11 @@ export default function LandingPage() {
       <main>
         <Hero />
         <TrustStrip />
+        <ExplainerVideo />
         <ProblemSolutionSplit />
         <FeatureGrid />
         <HowItWorks />
+        <TrustSecurity />
         <LiveDemoCard />
         <TechStack />
         <Testimonial />

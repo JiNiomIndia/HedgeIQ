@@ -2,9 +2,13 @@
  * LandingPage component tests.
  * Verifies hero, primary CTAs to /login, feature cards (>=6), FAQ (8 items), and core sections.
  */
-import { render, screen, within } from '@testing-library/react';
+import { render as rtlRender, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import type { ReactElement } from 'react';
 import { describe, it, expect, beforeAll } from 'vitest';
 import LandingPage from '../components/LandingPage';
+
+const render = (ui: ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 
 
 
@@ -67,7 +71,7 @@ describe('LandingPage', () => {
 
   it('renders the AAL position context (problem section)', () => {
     render(<LandingPage />);
-    expect(screen.getByText(/5,000 shares of AAL/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/5,000 shares of AAL/i).length).toBeGreaterThan(0);
   });
 
   it('renders sticky navbar with HedgeIQ wordmark', () => {
