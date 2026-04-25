@@ -16,3 +16,7 @@ data/chroma_cache/
 node_modules/
 .DS_Store
 .claude/settings.local.json
+
+# Playwright live-prod test artifacts
+frontend/playwright-report-live/
+frontend/test-results/
