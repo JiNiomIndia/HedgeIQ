@@ -1,6 +1,37 @@
 # 08 — AI integration
 
+<figure>
+  <img src="/landing/ai-chat.svg" alt="AI Advisor with streaming responses">
+  <figcaption>AI Advisor with streaming responses</figcaption>
+</figure>
+
 HedgeIQ uses **Anthropic Claude Haiku** for plain-English explanations and lightweight chat. Claude is never used for the actual hedge calculation — that is deterministic Python (see [07](07-hedge-algorithm.md)). Claude's role is *translation*: turning numbers into a sentence the user can act on.
+
+## Request + cache flow
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant API as FastAPI
+  participant Cache as ChromaDB
+  participant Claude as Anthropic
+  U->>API: POST /ai/explain {contract, calls_today}
+  API->>API: check daily limit (5/day free)
+  alt over limit
+    API-->>U: 429 Daily limit
+  else under limit
+    API->>Cache: get(hash(contract))
+    alt cache hit
+      Cache-->>API: cached explanation
+      API-->>U: 200 (cached=true)
+    else cache miss
+      API->>Claude: messages.create (Haiku)
+      Claude-->>API: explanation
+      API->>Cache: set(hash, explanation, ttl=24h)
+      API-->>U: 200 (cached=false)
+    end
+  end
+```
 
 ## Why Haiku
 

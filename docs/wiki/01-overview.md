@@ -1,5 +1,10 @@
 # 01 — Overview
 
+<figure>
+  <img src="/landing/dashboard.svg" alt="HedgeIQ dashboard">
+  <figcaption>HedgeIQ dashboard — unified view across brokers</figcaption>
+</figure>
+
 ## What HedgeIQ is
 
 HedgeIQ is an AI-powered hedge calculator for retail equity investors. It connects to your brokerage (Fidelity, Interactive Brokers, Robinhood, Public — via SnapTrade), reads your live positions, and — when you're worried about a stock — recommends specific put options that protect the position cheaply, ranked by a *value score* (downside coverage per dollar of premium).

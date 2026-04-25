@@ -2,6 +2,53 @@
 
 HedgeIQ handles brokerage account credentials (indirectly via SnapTrade), live position data and an LLM prompt surface. Security is non-negotiable.
 
+## Auth + JWT lifecycle
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant FE as Frontend
+  participant API as FastAPI
+  participant DB as SQLite
+  U->>FE: enter email + password
+  FE->>API: POST /auth/login
+  API->>DB: SELECT user WHERE email=?
+  DB-->>API: hashed_password
+  API->>API: PBKDF2 verify (100k iters, hmac.compare_digest)
+  alt match
+    API->>API: create JWT (HS256, exp=24h, sub=user_id)
+    API-->>FE: 200 {access_token}
+    FE->>FE: localStorage.setItem('hedgeiq_token', token)
+  else mismatch
+    API-->>FE: 401
+  end
+  Note over FE: Subsequent requests
+  FE->>API: GET /positions<br/>Authorization: Bearer <token>
+  API->>API: get_current_user (decode JWT, verify exp)
+  API-->>FE: 200 / 401
+```
+
+## Defense-in-depth
+
+```mermaid
+graph TB
+  subgraph "Outer Edge"
+    CDN[Vercel CDN<br/>HTTPS, DDoS]
+    RW[Railway proxy<br/>HTTPS, rate-aware]
+  end
+  subgraph "Application Middleware"
+    GZIP[GZipMiddleware]
+    SEC[SecurityHeadersMiddleware<br/>CSP, XFO, XSS-Protection,<br/>Referrer-Policy, Permissions-Policy]
+    CORS[CORSMiddleware]
+    EXC[GlobalExceptionHandler<br/>no traceback leakage]
+  end
+  subgraph "Domain"
+    AUTH[get_current_user<br/>JWT verification]
+    BIZ[Business Logic<br/>Pydantic validation]
+  end
+  CDN --> RW --> GZIP --> SEC --> CORS --> EXC --> AUTH --> BIZ
+```
+
 ## Authentication
 
 ### Password storage

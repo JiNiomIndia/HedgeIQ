@@ -85,6 +85,11 @@ renderer.heading = function ({ tokens, depth }) {
 
 renderer.code = function ({ text, lang }) {
   const language = (lang || '').trim().toLowerCase();
+  // Mermaid code blocks render client-side via mermaid.esm.min.mjs.
+  // Emit a <pre class="mermaid"> with the raw source so mermaid can pick it up.
+  if (language === 'mermaid') {
+    return `<pre class="mermaid">${escapeHtml(text)}</pre>\n`;
+  }
   const grammar = Prism.languages[language];
   let highlighted;
   if (grammar) {
@@ -206,21 +211,51 @@ function pageTemplate({ section, body, pageTitle, h2s, prev, next }) {
   </div>
   <a class="cta-app" href="/login">Get the app</a>
 </header>
-<div class="layout">
-  <aside class="sidebar" aria-label="Documentation sections">
-    <nav class="nav">${nav}</nav>
-  </aside>
-  <div class="sidebar-overlay" hidden></div>
-  <main class="content">
-    <article class="prose">${body}</article>
-    <footer class="page-footer">
-      <a class="edit-link" href="${editUrl}" target="_blank" rel="noopener">Edit this page on GitHub →</a>
-      <div class="page-nav">${prevLink}${nextLink}</div>
-    </footer>
-  </main>
+<div class="wiki-shell">
+  <div class="layout">
+    <aside class="sidebar" aria-label="Documentation sections">
+      <nav class="nav">${nav}</nav>
+    </aside>
+    <div class="sidebar-overlay" hidden></div>
+    <main class="content">
+      <article class="prose">${body}</article>
+      <footer class="page-footer">
+        <a class="edit-link" href="${editUrl}" target="_blank" rel="noopener">Edit this page on GitHub →</a>
+        <div class="page-nav">${prevLink}${nextLink}</div>
+      </footer>
+    </main>
+  </div>
 </div>
 <script src="https://unpkg.com/lunr@2.3.9/lunr.min.js" defer></script>
 <script src="/wiki/wiki.js" defer></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  function mermaidThemeFor(t) {
+    if (t === 'terminal') return 'dark';
+    if (t === 'lumen') return 'default';
+    return 'default';
+  }
+  const initial = document.documentElement.getAttribute('data-theme') || 'meridian';
+  mermaid.initialize({ startOnLoad: true, theme: mermaidThemeFor(initial), securityLevel: 'loose' });
+  // Re-render when the wiki theme switches
+  const obs = new MutationObserver(async (muts) => {
+    for (const m of muts) {
+      if (m.attributeName === 'data-theme') {
+        const t = document.documentElement.getAttribute('data-theme') || 'meridian';
+        // Reset processed nodes and re-init
+        document.querySelectorAll('pre.mermaid').forEach((el) => {
+          if (el.dataset.source) el.innerHTML = el.dataset.source;
+          el.removeAttribute('data-processed');
+        });
+        mermaid.initialize({ startOnLoad: false, theme: mermaidThemeFor(t), securityLevel: 'loose' });
+        try { await mermaid.run({ querySelector: 'pre.mermaid' }); } catch (e) {}
+      }
+    }
+  });
+  // Cache original source so we can re-render on theme change
+  document.querySelectorAll('pre.mermaid').forEach((el) => { el.dataset.source = el.textContent; });
+  obs.observe(document.documentElement, { attributes: true });
+</script>
 </body>
 </html>
 `;
@@ -430,6 +465,11 @@ a:hover { text-decoration: underline; }
 .cta-app:hover { filter: brightness(1.06); text-decoration: none; }
 
 /* ---------- Layout ---------- */
+.wiki-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
 .layout {
   display: grid;
   grid-template-columns: 240px 1fr;
@@ -543,6 +583,38 @@ a:hover { text-decoration: underline; }
 .prose hr { border: 0; border-top: 1px solid var(--border); margin: 40px 0; }
 
 .prose img { max-width: 100%; border-radius: 6px; }
+
+/* Mermaid diagrams */
+.prose pre.mermaid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 0 0 22px;
+  text-align: center;
+  overflow-x: auto;
+  font-family: var(--font-sans);
+  color: var(--text);
+}
+.prose pre.mermaid svg { max-width: 100%; height: auto; }
+
+/* Wiki figures (screenshots with caption) */
+.prose figure {
+  margin: 0 0 22px;
+  text-align: center;
+}
+.prose figure img {
+  display: block;
+  margin: 0 auto 8px;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.prose figure figcaption {
+  font-size: 13px;
+  color: var(--text-subtle);
+  font-style: italic;
+}
 
 .prose .anchor {
   display: inline-block; opacity: 0;

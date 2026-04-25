@@ -1,5 +1,19 @@
 # 14 — Deployment
 
+## Deploy pipeline
+
+```mermaid
+graph LR
+  DEV[Developer] -->|git push main| GH[GitHub]
+  GH -->|webhook| R[Railway]
+  GH -->|webhook| V[Vercel]
+  R -->|Dockerfile.backend| RBUILD[Build Image]
+  RBUILD -->|deploy| BACKEND[hedgeiq-production<br/>.up.railway.app]
+  V -->|Vite build + copy-docs + build-wiki| VBUILD[Bundle dist/]
+  VBUILD -->|deploy| FRONTEND[hedge-iq-five<br/>.vercel.app]
+  FRONTEND -.proxy /api/*.-> BACKEND
+```
+
 HedgeIQ deploys to two managed platforms. Pushes to `main` auto-deploy.
 
 ## Backend — Railway

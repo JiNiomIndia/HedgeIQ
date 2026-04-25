@@ -1,5 +1,10 @@
 # 10 — Data sources
 
+<figure>
+  <img src="/landing/options-chain.svg" alt="Options chain with 3 expiries x 10 strikes">
+  <figcaption>Options chain with 3 expiries x 10 strikes</figcaption>
+</figure>
+
 ## Polygon.io
 
 Polygon is the source of truth for:
