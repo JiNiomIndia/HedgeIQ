@@ -269,6 +269,8 @@ def test_create_token_is_decodable():
 def test_login_invalid_credentials():
     from fastapi.testclient import TestClient
     from backend.main import app
+    from backend.db.session import init_db
+    init_db()  # ensure schema exists in CI's fresh sqlite file
     client = TestClient(app, raise_server_exceptions=False)
     response = client.post(
         "/api/v1/auth/login",
