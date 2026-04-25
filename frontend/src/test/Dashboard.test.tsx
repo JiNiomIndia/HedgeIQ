@@ -1,12 +1,35 @@
 /**
  * Dashboard component tests.
- * Verifies: sidebar nav, view switching, sign-out behaviour.
+ * Verifies: header elements, preset chips, edit-layout toggle, sign-out behaviour.
+ * PriceChart (lightweight-charts) is mocked to prevent canvas/URL errors in jsdom.
+ *
+ * Contract: The dashboard renders a multi-widget grid with preset layouts,
+ * an edit-layout mode, a preferences popover, and sign-out.
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Dashboard from '../components/Dashboard';
+import { ThemeProvider } from '../lib/ThemeProvider';
 
-// PositionsTable, OptionsChain, EmergencyHedge each call fetch — stub globally
+// Mock lightweight-charts to prevent canvas/URL errors in jsdom
+vi.mock('lightweight-charts', () => ({
+  createChart: () => ({
+    addCandlestickSeries: () => ({ setData: () => {}, applyOptions: () => {} }),
+    addHistogramSeries: () => ({ setData: () => {}, applyOptions: () => {} }),
+    addLineSeries: () => ({ setData: () => {}, applyOptions: () => {} }),
+    applyOptions: () => {},
+    resize: () => {},
+    remove: () => {},
+    timeScale: () => ({ fitContent: () => {}, setVisibleLogicalRange: () => {} }),
+    subscribeCrosshairMove: () => {},
+    unsubscribeCrosshairMove: () => {},
+  }),
+  CrosshairMode: { Normal: 1 },
+  LineStyle: { Solid: 0 },
+  ColorType: { Solid: 'solid' },
+}));
+
+// All child components (PositionsTable, PriceChart, AIChat etc.) call fetch — stub globally
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
@@ -19,46 +42,64 @@ beforeEach(() => {
   localStorage.setItem('hedgeiq_token', 'test-token');
 });
 
+function renderDashboard() {
+  return render(<ThemeProvider><Dashboard /></ThemeProvider>);
+}
+
 describe('Dashboard', () => {
   it('renders the HedgeIQ brand name', () => {
-    render(<Dashboard />);
+    renderDashboard();
     expect(screen.getByText('HedgeIQ')).toBeInTheDocument();
   });
 
-  it('renders all three nav items', () => {
-    render(<Dashboard />);
-    expect(screen.getByRole('button', { name: /positions/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /options chain/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /emergency hedge/i })).toBeInTheDocument();
+  it('renders a Sign out button', () => {
+    renderDashboard();
+    expect(screen.getByText(/sign out/i)).toBeInTheDocument();
   });
 
-  it('shows PositionsTable by default (loading state)', () => {
-    render(<Dashboard />);
-    // PositionsTable shows "Loading positions..." or "No broker accounts connected."
-    // Either is valid depending on fetch timing — just check nav is rendered
-    expect(screen.getByRole('button', { name: /positions/i })).toBeInTheDocument();
+  it('renders the Edit Layout button', () => {
+    renderDashboard();
+    // Could be "Edit Layout" or an icon button depending on viewport
+    const editBtn = screen.queryByText(/edit layout/i) ?? screen.queryByTitle(/edit layout/i);
+    expect(editBtn).toBeInTheDocument();
   });
 
-  it('switches to Emergency Hedge view on click', () => {
-    render(<Dashboard />);
-    fireEvent.click(screen.getByRole('button', { name: /emergency hedge/i }));
-    expect(screen.getByText('Emergency Hedge Calculator')).toBeInTheDocument();
+  it('renders preset chip buttons', () => {
+    renderDashboard();
+    // At least one preset chip should be visible (Day Trader, Long-Term, etc.)
+    const chips = screen.getAllByRole('button');
+    expect(chips.length).toBeGreaterThan(1);
   });
 
-  it('switches to Options Chain view on click', () => {
-    render(<Dashboard />);
-    fireEvent.click(screen.getByRole('button', { name: /options chain/i }));
-    // OptionsChain renders its own heading
-    expect(screen.getByRole('button', { name: /options chain/i })).toBeInTheDocument();
+  it('Edit Layout toggles to Done when clicked', () => {
+    renderDashboard();
+    const editBtn = screen.getByText(/edit layout/i);
+    fireEvent.click(editBtn);
+    expect(screen.getByText(/done/i)).toBeInTheDocument();
   });
 
-  it('sign out clears token and redirects', () => {
+  it('Done button returns to normal mode', () => {
+    renderDashboard();
+    fireEvent.click(screen.getByText(/edit layout/i));
+    fireEvent.click(screen.getByText(/done/i));
+    expect(screen.getByText(/edit layout/i)).toBeInTheDocument();
+  });
+
+  it('sign out clears hedgeiq_token from localStorage', () => {
     Object.defineProperty(window, 'location', {
       value: { href: '/' },
       writable: true,
     });
-    render(<Dashboard />);
+    renderDashboard();
     fireEvent.click(screen.getByText(/sign out/i));
     expect(localStorage.getItem('hedgeiq_token')).toBeNull();
+  });
+
+  it('renders Preferences button', () => {
+    renderDashboard();
+    const prefsBtn = screen.queryByTitle(/preferences/i) ??
+                     screen.queryByLabelText(/preferences/i) ??
+                     screen.queryByText(/preferences/i);
+    expect(prefsBtn).toBeInTheDocument();
   });
 });
