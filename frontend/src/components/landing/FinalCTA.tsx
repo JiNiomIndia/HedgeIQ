@@ -2,6 +2,8 @@
  * Final CTA band before footer.
  * @component
  */
+import { Link } from 'react-router-dom';
+
 export default function FinalCTA() {
   return (
     <section style={{ padding: 'clamp(64px, 10vw, 120px) 24px', background: 'var(--surface-2)' }}>
@@ -18,8 +20,8 @@ export default function FinalCTA() {
           Stop watching positions bleed.
         </h2>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="landing-cta"
             style={{
               background: 'var(--accent)',
@@ -33,9 +35,9 @@ export default function FinalCTA() {
             }}
           >
             Get started — free
-          </a>
-          <a
-            href="/wiki"
+          </Link>
+          <Link
+            to="/wiki"
             className="landing-cta-ghost"
             style={{
               border: '1px solid var(--border-strong)',
@@ -48,7 +50,7 @@ export default function FinalCTA() {
             }}
           >
             Read the docs
-          </a>
+          </Link>
         </div>
       </div>
     </section>

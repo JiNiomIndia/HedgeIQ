@@ -1,6 +1,66 @@
 # 02 — Architecture
 
-## System diagram
+## System architecture
+
+```mermaid
+graph TB
+  subgraph "Client (Vercel)"
+    U[User Browser]
+    L[Landing Page]
+    D[Dashboard SPA]
+    W[Wiki]
+  end
+  subgraph "API Layer (Railway)"
+    API[FastAPI<br/>backend.main]
+    AUTH[Auth Service<br/>PBKDF2 + JWT]
+    HEDGE[Hedge Engine<br/>ProtectivePut]
+    AI[Claude Facade]
+    POS[Position Service]
+    CACHE[(ChromaDB Cache)]
+    DB[(SQLite)]
+  end
+  subgraph "External Services"
+    SNAP[SnapTrade<br/>broker connect]
+    POLY[Polygon.io<br/>options + news]
+    CLAUDE[Anthropic Claude<br/>Haiku model]
+  end
+  U --> L
+  U --> D
+  U --> W
+  D -.JWT.-> API
+  API --> AUTH
+  API --> POS
+  API --> HEDGE
+  API --> AI
+  POS --> SNAP
+  HEDGE --> POLY
+  HEDGE --> CACHE
+  AI --> CLAUDE
+  AI --> CACHE
+  AUTH --> DB
+```
+
+## Component layering
+
+```mermaid
+graph LR
+  subgraph "Frontend"
+    UI[React Components]
+    HOOKS[Custom Hooks]
+    API_CLIENT[API Client]
+  end
+  subgraph "Backend"
+    ROUTES[FastAPI Routes]
+    DOMAIN[Domain Services]
+    INFRA[Infrastructure Adapters]
+  end
+  UI --> HOOKS --> API_CLIENT
+  API_CLIENT -.HTTPS.-> ROUTES
+  ROUTES --> DOMAIN
+  DOMAIN --> INFRA
+```
+
+## Vendor + data flow
 
 ```mermaid
 flowchart LR

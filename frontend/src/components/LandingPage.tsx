@@ -35,7 +35,27 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
+    <div
+      style={{
+        // Dark-mode CSS variable overrides scoped to the landing page only.
+        ['--bg' as string]: '#0A0E1A',
+        ['--surface' as string]: '#11172A',
+        ['--surface-2' as string]: '#1A2236',
+        ['--surface-sunken' as string]: '#0B1220',
+        ['--text' as string]: '#F8FAFC',
+        ['--text-muted' as string]: '#94A3B8',
+        ['--text-subtle' as string]: '#64748B',
+        ['--accent' as string]: '#8B5CF6',
+        ['--accent-2' as string]: '#6366F1',
+        ['--accent-contrast' as string]: '#FFFFFF',
+        ['--border' as string]: '#1E293B',
+        ['--border-strong' as string]: '#334155',
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        fontFamily: 'var(--font-sans)',
+      } as React.CSSProperties}
+    >
       <Navbar />
       <main>
         <Hero />

@@ -2,9 +2,11 @@
  * Live demo invitation card with accent border.
  * @component
  */
+import { Link } from 'react-router-dom';
+
 export default function LiveDemoCard() {
   return (
-    <section id="pricing" style={{ padding: 'clamp(48px, 8vw, 96px) 24px', scrollMarginTop: 80 }}>
+    <section id="try" style={{ padding: 'clamp(48px, 8vw, 96px) 24px', scrollMarginTop: 80 }}>
       <div style={{ maxWidth: 1000, margin: '0 auto' }}>
         <div style={{
           position: 'relative',
@@ -29,8 +31,8 @@ export default function LiveDemoCard() {
             <p style={{ fontSize: 'clamp(1rem, 1.3vw, 1.15rem)', color: 'var(--text-muted)', maxWidth: 580, margin: '0 auto 28px', lineHeight: 1.55 }}>
               5 AI calls per day, unlimited dashboard access. Upgrade to Pro for unlimited AI usage.
             </p>
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="landing-cta"
               style={{
                 display: 'inline-flex',
@@ -45,7 +47,7 @@ export default function LiveDemoCard() {
               }}
             >
               Get started — free
-            </a>
+            </Link>
             <p style={{ marginTop: 16, fontSize: 13, color: 'var(--text-subtle)' }}>No credit card required.</p>
           </div>
         </div>

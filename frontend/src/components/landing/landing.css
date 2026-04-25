@@ -6,7 +6,12 @@
 */
 
 html.landing-html { scroll-behavior: smooth; }
-body.landing-body { overflow: auto !important; overflow-x: hidden !important; }
+html.landing-html, body.landing-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh;
+}
 
 /* CTA hover */
 .landing-cta { display: inline-flex; align-items: center; justify-content: center; }

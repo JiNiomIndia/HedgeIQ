@@ -1,8 +1,10 @@
 /**
  * Sticky top navbar — transparent at top, blurred surface on scroll.
+ * Uses react-router Link for in-app routes so navigation is SPA-fast.
  * @component
  */
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -37,7 +39,7 @@ export default function Navbar() {
     >
       <div
         style={{
-          maxWidth: 1200,
+          maxWidth: 1280,
           margin: '0 auto',
           padding: '14px 24px',
           display: 'flex',
@@ -54,14 +56,13 @@ export default function Navbar() {
         <nav className="landing-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
           <a href="#features" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>Features</a>
           <a href="#how" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>How it works</a>
-          <a href="#pricing" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>Pricing</a>
           <a href="#faq" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>FAQ</a>
         </nav>
 
         <div className="landing-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <a href="/login" style={{ ...linkStyle, color: 'var(--text)' }}>Sign in</a>
-          <a
-            href="/login"
+          <Link to="/login" style={{ ...linkStyle, color: 'var(--text)' }}>Sign in</Link>
+          <Link
+            to="/login"
             className="landing-cta"
             style={{
               background: 'var(--accent)',
@@ -77,7 +78,7 @@ export default function Navbar() {
             }}
           >
             Get started — free
-          </a>
+          </Link>
         </div>
 
         <button
@@ -107,11 +108,10 @@ export default function Navbar() {
         <div className="landing-mobile-menu" style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <a href="#features" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Features</a>
           <a href="#how" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>How it works</a>
-          <a href="#pricing" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Pricing</a>
           <a href="#faq" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>FAQ</a>
           <div style={{ height: 1, background: 'var(--border)' }} />
-          <a href="/login" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Sign in</a>
-          <a href="/login" style={{ background: 'var(--accent)', color: 'var(--accent-contrast)', padding: '11px 16px', borderRadius: 6, fontWeight: 600, textAlign: 'center' }}>Get started — free</a>
+          <Link to="/login" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Sign in</Link>
+          <Link to="/login" onClick={() => setOpen(false)} style={{ background: 'var(--accent)', color: 'var(--accent-contrast)', padding: '11px 16px', borderRadius: 6, fontWeight: 600, textAlign: 'center' }}>Get started — free</Link>
         </div>
       )}
     </header>

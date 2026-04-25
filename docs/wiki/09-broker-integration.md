@@ -2,6 +2,47 @@
 
 HedgeIQ doesn't connect to brokers directly — it uses **SnapTrade** as a single OAuth-style aggregator. Today four brokers are supported: Fidelity, Interactive Brokers, Robinhood, Public.
 
+## Broker fan-in
+
+```mermaid
+graph LR
+  F[Fidelity] --> ST[SnapTrade<br/>aggregator]
+  IB[Interactive Brokers] --> ST
+  RH[Robinhood] --> ST
+  PB[Public] --> ST
+  ST --> H[HedgeIQ API]
+  H --> UI[Dashboard]
+```
+
+## End-to-end OAuth + positions
+
+```mermaid
+sequenceDiagram
+  participant U as User Browser
+  participant H as HedgeIQ API
+  participant S as SnapTrade
+  participant B as Broker (e.g. Robinhood)
+  U->>H: GET /auth/connect-broker?broker=ROBINHOOD
+  alt new user
+    H->>S: register_user(user_id)
+    S-->>H: user_secret
+    H->>H: store user_secret in DB
+  end
+  H->>S: get_redirect_uri(user_id, broker)
+  S-->>H: connection_url
+  H-->>U: 200 {connection_url}
+  U->>S: redirect to OAuth
+  S->>B: OAuth handshake
+  B-->>S: tokens (held by SnapTrade)
+  S-->>U: redirect back to HedgeIQ
+  U->>H: GET /positions
+  H->>S: get_user_holdings(user_id, user_secret)
+  S->>B: API call with stored tokens
+  B-->>S: positions
+  S-->>H: positions
+  H-->>U: normalized positions
+```
+
 ## The flow
 
 ```mermaid

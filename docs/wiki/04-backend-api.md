@@ -1,5 +1,26 @@
 # 04 — Backend API reference
 
+## Route map
+
+```mermaid
+graph LR
+  ROOT[/api/v1] --> AUTH[/auth]
+  ROOT --> POS[/positions]
+  ROOT --> OPT[/options]
+  ROOT --> HEDGE[/hedge]
+  ROOT --> AI[/ai]
+  ROOT --> Q[/quotes]
+  AUTH --> R1[POST /register]
+  AUTH --> R2[POST /login]
+  AUTH --> R3[GET /connect-broker]
+  POS --> P1[GET /]
+  OPT --> O1[GET /chain/:symbol]
+  HEDGE --> H1[POST /recommend]
+  AI --> A1[POST /explain]
+  AI --> A2[POST /chat]
+  Q --> Q1[GET /:symbol]
+```
+
 All endpoints are under `/api/v1`. Authentication is JWT (HS256) via the `Authorization: Bearer <token>` header unless noted.
 
 ## Auth
