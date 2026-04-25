@@ -9,7 +9,23 @@
       "destination": "https://hedgeiq-production.up.railway.app/api/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/presentation",
+      "destination": "/presentation/index.html"
+    },
+    {
+      "source": "/wiki",
+      "destination": "/wiki/README.md"
+    },
+    {
+      "source": "/presentation/:path*",
+      "destination": "/presentation/:path*"
+    },
+    {
+      "source": "/wiki/:path*",
+      "destination": "/wiki/:path*"
+    },
+    {
+      "source": "/((?!api|presentation|wiki|assets).*)",
       "destination": "/index.html"
     }
   ],
