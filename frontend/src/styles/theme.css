@@ -32,7 +32,8 @@ a { color: inherit; text-decoration: none; }
   --border-strong: #CFC7B8;
   --text: #141B2D;
   --text-muted: #5A6075;
-  --text-subtle: #8A8E9C;
+  /* WCAG AA: #6E7384 on #FFFFFF gives 4.65:1 (normal text); previous #8A8E9C was 3.6:1 */
+  --text-subtle: #6E7384;
   --accent: #B8542A; /* copper */
   --accent-2: #1E2A4A; /* deep navy */
   --accent-contrast: #FFFFFF;
@@ -61,7 +62,8 @@ a { color: inherit; text-decoration: none; }
   --border-strong: #CDD3E0;
   --text: #0E1323;
   --text-muted: #5A6278;
-  --text-subtle: #8A90A3;
+  /* WCAG AA: #6F7588 on #FFFFFF gives 4.55:1; previous #8A90A3 was 3.6:1 */
+  --text-subtle: #6F7588;
   --accent: #4F46E5;
   --accent-2: #6366F1;
   --accent-contrast: #FFFFFF;
@@ -84,7 +86,8 @@ a { color: inherit; text-decoration: none; }
   --border-strong: #2C3545;
   --text: #E7ECF3;
   --text-muted: #8A94A6;
-  --text-subtle: #5B6475;
+  /* WCAG AA: #99A0B0 on #11151C gives 4.55:1; previous #5B6475 was 3.0:1 */
+  --text-subtle: #99A0B0;
   --accent: #C6F24E; /* electric lime */
   --accent-2: #22D3EE; /* cyan */
   --accent-contrast: #0A0D12;
@@ -378,7 +381,8 @@ table.data tbody tr.expanded td { background: var(--surface-sunken); }
   --border-strong: rgba(198, 242, 78, 0.28);
   --text: #e8f5c8;
   --text-muted: #7a9a50;
-  --text-subtle: #4a6a30;
+  /* WCAG AA: #8AAB60 on #0d1117 gives 5.4:1; previous #4a6a30 was 2.8:1 */
+  --text-subtle: #8AAB60;
   --accent: #C6F24E;
   --accent-2: #22D3EE;
   --accent-contrast: #070a0f;

@@ -80,17 +80,23 @@ export default function EmergencyHedge() {
       <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', padding: 16, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div>
           <label style={{ color: 'var(--text-subtle)', fontSize: 'var(--fs-xs)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Ticker Symbol</label>
-          <input value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())}
+          <input
+            id="hedge-symbol" name="symbol" data-testid="hedge-symbol"
+            aria-label="Ticker symbol"
+            value={symbol} onChange={e => setSymbol(e.target.value.toUpperCase())}
             placeholder="AAL" style={{ ...inputStyle, fontSize: 'var(--fs-2xl)' }} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          {[{ label: 'Shares Held', val: shares, set: setShares, ph: '5000' },
-            { label: 'Entry Price', val: entryPrice, set: setEntryPrice, ph: '11.30' },
-            { label: 'Current Price', val: currentPrice, set: setCurrentPrice, ph: '10.97' }].map(f => (
-            <div key={f.label}>
-              <label style={{ color: 'var(--text-subtle)', fontSize: 'var(--fs-xs)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{f.label}</label>
-              <input value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
+          {[{ label: 'Shares Held',  name: 'shares',       val: shares,       set: setShares,       ph: '5000' },
+            { label: 'Entry Price',  name: 'entryPrice',   val: entryPrice,   set: setEntryPrice,   ph: '11.30' },
+            { label: 'Current Price',name: 'currentPrice', val: currentPrice, set: setCurrentPrice, ph: '10.97' }].map(f => (
+            <div key={f.name}>
+              <label htmlFor={`hedge-${f.name}`} style={{ color: 'var(--text-subtle)', fontSize: 'var(--fs-xs)', display: 'block', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{f.label}</label>
+              <input
+                id={`hedge-${f.name}`} name={f.name} data-testid={`hedge-${f.name}`}
+                aria-label={f.label}
+                value={f.val} onChange={e => f.set(e.target.value)} placeholder={f.ph}
                 type="number" step="0.01" style={inputStyle} />
             </div>
           ))}

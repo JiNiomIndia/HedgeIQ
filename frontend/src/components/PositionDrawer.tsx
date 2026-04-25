@@ -77,10 +77,17 @@ export default function PositionDrawer() {
   return (
     <>
       {/* Backdrop */}
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 90 }} />
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 90 }} />
 
-      {/* Drawer */}
-      <div ref={drawerRef} style={{
+      {/* Drawer — WCAG 2.1 AA: role=dialog + aria-modal so screen readers announce it as a modal,
+          and so axe-core flags missing dialog semantics in regression tests. */}
+      <div
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Details for ${position.symbol}`}
+        data-testid="position-drawer"
+        style={{
         position: 'fixed', top: 0, right: 0, bottom: 0, width: 420,
         background: 'var(--surface)', borderLeft: '1px solid var(--border)',
         boxShadow: 'var(--shadow-md)', zIndex: 91, display: 'flex', flexDirection: 'column',
@@ -98,6 +105,8 @@ export default function PositionDrawer() {
             <p style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-subtle)', margin: 0 }}>{position.accountName}</p>
           </div>
           <button onClick={() => setPosition(null)}
+            aria-label="Close position details"
+            data-testid="position-drawer-close"
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20, lineHeight: 1, padding: 4 }}>
             ×
           </button>
