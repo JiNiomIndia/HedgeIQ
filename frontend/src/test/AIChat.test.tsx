@@ -175,7 +175,7 @@ describe('AIChat — clear', () => {
 // ---------------------------------------------------------------------------
 
 describe('AIChat — quick-reply chips', () => {
-  it('clicking a starter chip prefills or submits the message', async () => {
+  it('clicking a starter chip prefills the textarea or submits a message', async () => {
     const mockStreamResponse = {
       ok: true,
       body: {
@@ -195,19 +195,28 @@ describe('AIChat — quick-reply chips', () => {
 
     render(<AIChat />);
 
-    await waitFor(() => {
+    const textarea = screen.getByRole('textbox') as HTMLTextAreaElement;
+
+    await waitFor(async () => {
       const buttons = screen.getAllByRole('button');
       const hedgeBtn = buttons.find(btn =>
-        btn.textContent?.includes('hedge') ||
-        btn.textContent?.includes('How do I hedge')
+        btn.textContent?.toLowerCase().includes('hedge') ||
+        btn.textContent?.toLowerCase().includes('position') ||
+        btn.textContent?.toLowerCase().includes('explain')
       );
       if (hedgeBtn) {
-        act(() => hedgeBtn.click());
+        await act(async () => { hedgeBtn.click(); });
+        // After clicking a chip, textarea must be non-empty OR a chat API call was made
+        const chatCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
+          url.includes('/chat') || url.includes('/ai/')
+        );
+        const textareaFilled = textarea.value.length > 0;
+        expect(textareaFilled || chatCalls.length > 0).toBe(true);
+      } else {
+        // Chips not rendered yet — just verify component is stable
+        expect(textarea).toBeInTheDocument();
       }
     });
-
-    // After clicking a starter chip, the textarea should be filled or a message submitted
-    // This test verifies the chip is interactive and doesn't throw
   });
 });
 
@@ -236,13 +245,17 @@ describe('AIChat — error states', () => {
       fireEvent.keyDown(textarea, { key: 'Enter', code: 'Enter' });
     });
 
-    // Error state should appear — look for any error indication
+    // Error state must appear — component shows an error message in the chat
     await waitFor(() => {
+      // Look for limit/daily/upgrade text OR the generic error message the component renders
+      const errorText = screen.queryByText(/limit|daily|upgrade|429/i) ??
+                        screen.queryByText(/couldn.*reach|server|try again/i) ??
+                        screen.queryByText(/api error/i);
       const errorEl = document.querySelector('[style*="var(--neg)"]') ??
-                      document.querySelector('.error') ??
-                      screen.queryByText(/limit/i);
-      // At minimum, the component should not crash
-      expect(document.body).toBeInTheDocument();
+                      document.querySelector('[class*="error"]') ??
+                      document.querySelector('[role="alert"]');
+      // At least one error indicator must be present
+      expect(errorText ?? errorEl).not.toBeNull();
     }, { timeout: 3000 });
   });
 });

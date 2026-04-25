@@ -11,10 +11,36 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
-// jsdom does not implement HTMLCanvasElement.getContext — stub it so
-// lightweight-charts and other canvas-based libraries don't throw.
+// jsdom does not implement HTMLCanvasElement.getContext — provide a full no-op
+// canvas context mock so components doing ctx.fillRect(...) etc. don't crash.
 HTMLCanvasElement.prototype.getContext = function () {
-  return null;
+  return {
+    fillRect: () => {},
+    clearRect: () => {},
+    getImageData: () => ({ data: [] }),
+    putImageData: () => {},
+    createImageData: () => [],
+    setTransform: () => {},
+    drawImage: () => {},
+    save: () => {},
+    fillText: () => {},
+    restore: () => {},
+    beginPath: () => {},
+    moveTo: () => {},
+    lineTo: () => {},
+    closePath: () => {},
+    stroke: () => {},
+    translate: () => {},
+    scale: () => {},
+    rotate: () => {},
+    arc: () => {},
+    fill: () => {},
+    measureText: () => ({ width: 0 }),
+    transform: () => {},
+    rect: () => {},
+    clip: () => {},
+    canvas: { width: 0, height: 0 },
+  } as unknown as CanvasRenderingContext2D;
 };
 
 // Suppress IntersectionObserver errors from UI libraries.

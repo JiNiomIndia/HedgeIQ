@@ -165,12 +165,11 @@ test('login page passes color-contrast check', async ({ page }) => {
   const results = await new AxeBuilder({ page })
     .withRules(['color-contrast'])
     .analyze();
-  const violations = results.violations.filter(v => v.id === 'color-contrast');
-  if (violations.length > 0) {
-    const details = violations[0].nodes.slice(0, 3).map(n => n.html).join('\n');
-    console.warn(`Color contrast violations on /login:\n${details}`);
-    // Report but don't fail — contrast depends on CSS variable resolution in jsdom
-  }
+  const contrastViolations = results.violations.filter(v => v.id === 'color-contrast');
+  expect(
+    contrastViolations,
+    `Color contrast violations on /login:\n${JSON.stringify(contrastViolations, null, 2)}`
+  ).toHaveLength(0);
 });
 
 // ---------------------------------------------------------------------------

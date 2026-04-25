@@ -169,8 +169,12 @@ describe('OptionsChain — filters', () => {
     fireEvent.click(screen.getByRole('button', { name: /Load Chain/i }));
 
     await waitFor(() => {
-      // At least some filter UI should be present after chain loads
-      expect(document.body).toBeInTheDocument();
-    });
+      // After chain loads, filter buttons for Puts/Calls/Both must be present
+      const buttons = screen.getAllByRole('button');
+      const filterBtn = buttons.find(btn =>
+        /puts|calls|both/i.test(btn.textContent ?? '')
+      );
+      expect(filterBtn).toBeTruthy();
+    }, { timeout: 3000 });
   });
 });

@@ -158,15 +158,13 @@ test('duplicate email during registration shows error', async ({ page }) => {
 // Protected routes
 // ---------------------------------------------------------------------------
 
-test('navigating to /dashboard without token redirects to login or landing', async ({ page }) => {
+test('navigating to /dashboard without token redirects to /login', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.removeItem('hedgeiq_token'));
   await page.goto('/dashboard');
 
-  // Should redirect away from /dashboard
-  await expect(page).not.toHaveURL(/dashboard/, { timeout: 5000 }).catch(() => {
-    // If it stays on dashboard (no auth guard), that's still acceptable for this app version
-  });
+  // Must redirect to /login (or landing page /) — never stay on /dashboard unauthenticated
+  await expect(page).toHaveURL(/\/(login|$)/, { timeout: 5000 });
 });
 
 // ---------------------------------------------------------------------------
