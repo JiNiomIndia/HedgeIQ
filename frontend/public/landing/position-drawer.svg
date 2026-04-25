@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Position drawer">
+  <rect width="1600" height="1000" fill="rgba(20,27,45,0.45)"/>
+  <rect x="0" y="0" width="1600" height="64" fill="#FFFFFF"/>
+  <rect x="0" y="63" width="1600" height="1" fill="#E2DCD0"/>
+  <text x="32" y="40" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">HedgeIQ</text>
+
+  <!-- side drawer -->
+  <rect x="600" y="64" width="1000" height="936" fill="#FFFFFF"/>
+  <rect x="600" y="64" width="1" height="936" fill="#E2DCD0"/>
+
+  <text x="640" y="120" font-family="Georgia, serif" font-size="32" font-weight="700" fill="#141B2D">AAL · 5,000 sh</text>
+  <text x="640" y="156" font-family="Inter, sans-serif" font-size="14" fill="#5A6075">American Airlines · NASDAQ · entry $11.30 · current $10.97</text>
+
+  <!-- key stats -->
+  <g font-family="Inter, sans-serif" fill="#141B2D">
+    <rect x="640" y="192" width="220" height="92" rx="6" fill="#FAF7F2" stroke="#E2DCD0"/>
+    <text x="660" y="220" font-size="11" fill="#6E7384" letter-spacing="1">UNREALIZED P/L</text>
+    <text x="660" y="260" font-size="24" font-weight="700" fill="#C8352A">-$1,650</text>
+    <rect x="876" y="192" width="220" height="92" rx="6" fill="#FAF7F2" stroke="#E2DCD0"/>
+    <text x="896" y="220" font-size="11" fill="#6E7384" letter-spacing="1">DAY P/L</text>
+    <text x="896" y="260" font-size="24" font-weight="700" fill="#C8352A">-$320</text>
+    <rect x="1112" y="192" width="220" height="92" rx="6" fill="#FAF7F2" stroke="#E2DCD0"/>
+    <text x="1132" y="220" font-size="11" fill="#6E7384" letter-spacing="1">EXPOSURE</text>
+    <text x="1132" y="260" font-size="24" font-weight="700">$54,850</text>
+    <rect x="1348" y="192" width="220" height="92" rx="6" fill="#FAF7F2" stroke="#E2DCD0"/>
+    <text x="1368" y="220" font-size="11" fill="#6E7384" letter-spacing="1">UNHEDGED</text>
+    <text x="1368" y="260" font-size="24" font-weight="700" fill="#D4890A">100%</text>
+  </g>
+
+  <!-- chart -->
+  <rect x="640" y="312" width="928" height="300" rx="6" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="660" y="342" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#141B2D">Price · 6mo</text>
+  <polyline points="660,420 760,400 860,380 960,400 1060,440 1160,460 1260,510 1360,540 1460,580" stroke="#C8352A" stroke-width="2" fill="none"/>
+  <line x1="660" y1="580" x2="1540" y2="580" stroke="#E6E0D3"/>
+  <text x="660" y="604" font-family="Inter, sans-serif" font-size="11" fill="#6E7384">May</text>
+  <text x="1500" y="604" font-family="Inter, sans-serif" font-size="11" fill="#6E7384" text-anchor="end">Today</text>
+
+  <!-- recommended action -->
+  <rect x="640" y="640" width="928" height="160" rx="6" fill="#FFFFFF" stroke="#B8542A"/>
+  <text x="660" y="676" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#B8542A" letter-spacing="1">RECOMMENDED HEDGE</text>
+  <text x="660" y="710" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">Buy 50 × AAL Put · $11 · Nov 8</text>
+  <text x="660" y="738" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">Cost $1,840 · caps downside at $10.62 · value/$ 4.71</text>
+  <rect x="660" y="754" width="180" height="34" rx="4" fill="#B8542A"/>
+  <text x="750" y="776" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#FFF" text-anchor="middle">Find best hedge</text>
+  <rect x="852" y="754" width="160" height="34" rx="4" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="932" y="776" font-family="Inter, sans-serif" font-size="13" fill="#141B2D" text-anchor="middle">Ask AI</text>
+
+  <!-- broker breakdown -->
+  <rect x="640" y="824" width="928" height="140" rx="6" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="660" y="856" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#141B2D">By account</text>
+  <g font-family="Inter, sans-serif" font-size="13" fill="#5A6075">
+    <text x="660" y="886">Fidelity Brokerage</text><text x="900" y="886">2,000</text>
+    <text x="660" y="912">Public.com</text><text x="900" y="912">1,500</text>
+    <text x="660" y="938">Robinhood</text><text x="900" y="938">1,500</text>
+  </g>
+</svg>

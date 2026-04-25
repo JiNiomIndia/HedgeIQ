@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Options chain">
+  <rect width="1600" height="1000" fill="#FAF7F2"/>
+  <rect x="0" y="0" width="1600" height="64" fill="#FFFFFF"/>
+  <rect x="0" y="63" width="1600" height="1" fill="#E2DCD0"/>
+  <text x="32" y="40" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#141B2D">AAL · Options chain · Nov 8 expiry</text>
+
+  <text x="32" y="112" font-family="Inter, sans-serif" font-size="13" fill="#5A6075">Underlying $10.97  ·  IV 42.1%  ·  Days to expiry 14</text>
+
+  <!-- table header -->
+  <g font-family="Inter, sans-serif" font-size="11" fill="#6E7384" letter-spacing="1">
+    <text x="64" y="172">CALLS</text>
+    <text x="80" y="208">BID</text>
+    <text x="180" y="208">ASK</text>
+    <text x="280" y="208">VOL</text>
+    <text x="380" y="208">OI</text>
+    <text x="480" y="208">DELTA</text>
+    <text x="780" y="208" text-anchor="middle">STRIKE</text>
+    <text x="1100" y="208" text-anchor="end">DELTA</text>
+    <text x="1200" y="208" text-anchor="end">OI</text>
+    <text x="1300" y="208" text-anchor="end">VOL</text>
+    <text x="1400" y="208" text-anchor="end">ASK</text>
+    <text x="1500" y="208" text-anchor="end">BID</text>
+    <text x="1500" y="172" text-anchor="end">PUTS</text>
+  </g>
+  <line x1="32" y1="222" x2="1568" y2="222" stroke="#E2DCD0"/>
+
+  <!-- rows -->
+  <g font-family="Inter, sans-serif" font-size="13" fill="#141B2D">
+    <!-- 12.5 -->
+    <text x="80" y="252">0.04</text><text x="180" y="252">0.06</text><text x="280" y="252">120</text><text x="380" y="252">540</text><text x="480" y="252">0.12</text>
+    <text x="780" y="252" text-anchor="middle" font-weight="600">12.50</text>
+    <text x="1100" y="252" text-anchor="end">-0.88</text><text x="1200" y="252" text-anchor="end">3.2k</text><text x="1300" y="252" text-anchor="end">410</text><text x="1400" y="252" text-anchor="end">1.62</text><text x="1500" y="252" text-anchor="end">1.55</text>
+    <line x1="32" y1="270" x2="1568" y2="270" stroke="#E6E0D3"/>
+    <!-- 12 -->
+    <text x="80" y="298">0.08</text><text x="180" y="298">0.11</text><text x="280" y="298">320</text><text x="380" y="298">1.1k</text><text x="480" y="298">0.22</text>
+    <text x="780" y="298" text-anchor="middle" font-weight="600">12.00</text>
+    <text x="1100" y="298" text-anchor="end">-0.78</text><text x="1200" y="298" text-anchor="end">4.1k</text><text x="1300" y="298" text-anchor="end">680</text><text x="1400" y="298" text-anchor="end">1.18</text><text x="1500" y="298" text-anchor="end">1.10</text>
+    <line x1="32" y1="316" x2="1568" y2="316" stroke="#E6E0D3"/>
+    <!-- 11.5 -->
+    <text x="80" y="344">0.18</text><text x="180" y="344">0.20</text><text x="280" y="344">820</text><text x="380" y="344">2.4k</text><text x="480" y="344">0.41</text>
+    <text x="780" y="344" text-anchor="middle" font-weight="600">11.50</text>
+    <text x="1100" y="344" text-anchor="end">-0.59</text><text x="1200" y="344" text-anchor="end">5.6k</text><text x="1300" y="344" text-anchor="end">1.4k</text><text x="1400" y="344" text-anchor="end">0.74</text><text x="1500" y="344" text-anchor="end">0.71</text>
+    <!-- ATM highlight -->
+    <rect x="32" y="362" width="1536" height="46" fill="rgba(184,84,42,0.10)"/>
+    <text x="80" y="392">0.31</text><text x="180" y="392">0.34</text><text x="280" y="392">2.1k</text><text x="380" y="392">5.8k</text><text x="480" y="392">0.51</text>
+    <text x="780" y="392" text-anchor="middle" font-weight="700" fill="#B8542A">11.00 · ATM</text>
+    <text x="1100" y="392" text-anchor="end" font-weight="700" fill="#B8542A">-0.49</text>
+    <text x="1200" y="392" text-anchor="end">7.2k</text><text x="1300" y="392" text-anchor="end">2.1k</text><text x="1400" y="392" text-anchor="end">0.38</text><text x="1500" y="392" text-anchor="end">0.36</text>
+    <!-- 10.5 -->
+    <text x="80" y="438">0.62</text><text x="180" y="438">0.65</text><text x="280" y="438">1.4k</text><text x="380" y="438">3.9k</text><text x="480" y="438">0.66</text>
+    <text x="780" y="438" text-anchor="middle" font-weight="600">10.50</text>
+    <text x="1100" y="438" text-anchor="end">-0.34</text><text x="1200" y="438" text-anchor="end">4.4k</text><text x="1300" y="438" text-anchor="end">1.2k</text><text x="1400" y="438" text-anchor="end">0.22</text><text x="1500" y="438" text-anchor="end">0.20</text>
+    <line x1="32" y1="456" x2="1568" y2="456" stroke="#E6E0D3"/>
+    <!-- 10 -->
+    <text x="80" y="484">0.99</text><text x="180" y="484">1.02</text><text x="280" y="484">880</text><text x="380" y="484">2.8k</text><text x="480" y="484">0.79</text>
+    <text x="780" y="484" text-anchor="middle" font-weight="600">10.00</text>
+    <text x="1100" y="484" text-anchor="end">-0.21</text><text x="1200" y="484" text-anchor="end">3.6k</text><text x="1300" y="484" text-anchor="end">680</text><text x="1400" y="484" text-anchor="end">0.20</text><text x="1500" y="484" text-anchor="end">0.18</text>
+    <line x1="32" y1="502" x2="1568" y2="502" stroke="#E6E0D3"/>
+    <!-- 9.5 -->
+    <text x="80" y="530">1.45</text><text x="180" y="530">1.50</text><text x="280" y="530">240</text><text x="380" y="530">1.2k</text><text x="480" y="530">0.88</text>
+    <text x="780" y="530" text-anchor="middle" font-weight="600">9.50</text>
+    <text x="1100" y="530" text-anchor="end">-0.12</text><text x="1200" y="530" text-anchor="end">2.1k</text><text x="1300" y="530" text-anchor="end">240</text><text x="1400" y="530" text-anchor="end">0.10</text><text x="1500" y="530" text-anchor="end">0.08</text>
+  </g>
+
+  <!-- payoff sketch -->
+  <rect x="32" y="600" width="1536" height="340" rx="6" fill="#FFFFFF" stroke="#E2DCD0"/>
+  <text x="56" y="632" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#141B2D">Payoff at expiry · Buy 50 × $11 Put · cost $1,840</text>
+  <line x1="80" y1="880" x2="1540" y2="880" stroke="#B8AFA0"/>
+  <line x1="80" y1="660" x2="80" y2="880" stroke="#B8AFA0"/>
+  <polyline points="80,720 400,720 600,800 900,880 1540,880" stroke="#B8542A" stroke-width="2.5" fill="none"/>
+  <polyline points="80,720 400,720 600,800 900,880 1540,880 1540,920 80,920" fill="rgba(184,84,42,0.08)" stroke="none"/>
+  <line x1="900" y1="660" x2="900" y2="900" stroke="#E6E0D3" stroke-dasharray="4 4"/>
+  <text x="906" y="680" font-family="Inter, sans-serif" font-size="11" fill="#5A6075">strike $11.00</text>
+  <text x="80" y="908" font-family="Inter, sans-serif" font-size="11" fill="#5A6075">break-even $10.62</text>
+</svg>

@@ -1,0 +1,51 @@
+/* HedgeIQ landing page — supplemental styles
+   Most styling is inline (CSS-in-JS); this file holds:
+   - body overflow override (landing needs to scroll; app shell sets overflow:hidden)
+   - smooth scroll, hover micro-interactions
+   - mobile responsive breakpoints
+*/
+
+html.landing-html { scroll-behavior: smooth; }
+body.landing-body { overflow: auto !important; overflow-x: hidden !important; }
+
+/* CTA hover */
+.landing-cta { display: inline-flex; align-items: center; justify-content: center; }
+.landing-cta:hover { transform: translateY(-1px) scale(1.02); filter: brightness(1.05); }
+.landing-cta:active { transform: translateY(0) scale(0.99); }
+
+.landing-cta-ghost { display: inline-flex; align-items: center; justify-content: center; transition: background 120ms ease, transform 120ms ease; }
+.landing-cta-ghost:hover { background: var(--surface-2); transform: translateY(-1px); }
+
+/* Feature card hover */
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  box-shadow: 0 12px 32px rgba(20, 27, 45, 0.08);
+}
+
+/* FAQ chevron rotates when open */
+.landing-faq-item[open] .landing-faq-chev { transform: rotate(180deg); }
+.landing-faq-item summary::-webkit-details-marker { display: none; }
+.landing-faq-item:hover { border-color: var(--border-strong); }
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .landing-nav-links { display: none !important; }
+  .landing-nav-cta { display: none !important; }
+  .landing-burger { display: inline-flex !important; }
+  .landing-prob-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .landing-prob-grid > div:last-child { border-left: none !important; padding-left: 0 !important; border-top: 2px solid var(--accent); padding-top: 24px !important; }
+  .landing-3col { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .landing-feature-grid { grid-template-columns: 1fr !important; }
+  .landing-how-row { grid-template-columns: 1fr !important; gap: 24px !important; padding: 24px !important; }
+  .landing-how-row > div { order: 0 !important; }
+  .landing-footer-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 28px !important; }
+}
+
+/* Reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  html.landing-html { scroll-behavior: auto; }
+  .landing-cta, .landing-cta-ghost, .landing-feature-card, .landing-faq-chev {
+    transition: none !important;
+  }
+}
