@@ -178,14 +178,19 @@ cc35d23 feat(auth): add user registration + DB-backed login
 - Wiki: <https://hedge-iq-five.vercel.app/wiki>
 - Presentation: <https://hedge-iq-five.vercel.app/presentation>
 
-### Verification log
+### Verification log (post-merge, 2026-04-25)
 
 | Probe | Result |
 | --- | --- |
-| `curl -sf https://hedgeiq-production.up.railway.app/health` | 200 (older payload until next Railway redeploy) |
-| `curl -sf https://hedge-iq-five.vercel.app/` | 200 |
-| `curl -sf https://hedge-iq-five.vercel.app/login` | 200 |
-| `curl -sf https://hedge-iq-five.vercel.app/wiki` | will return 200 once Vercel redeploys with the new build pipeline |
-| `curl -sf https://hedge-iq-five.vercel.app/presentation` | will return 200 once Vercel redeploys with the new build pipeline |
+| `curl https://hedgeiq-production.up.railway.app/health` | 200 — `{"status":"ok","version":"0.1.0"}` |
+| `curl https://hedge-iq-five.vercel.app/` | 200 |
+| `curl https://hedge-iq-five.vercel.app/login` | 200 |
+| `curl https://hedge-iq-five.vercel.app/wiki` | 200 |
+| `curl https://hedge-iq-five.vercel.app/presentation` | 200 |
 
-`/wiki` and `/presentation` are gated on the post-merge Vercel rebuild that picks up `copy-docs.cjs` and the updated rewrites.
+PR #1 merged at sha `95b3953` on `main`. Railway and Vercel both auto-deployed.
+
+The Railway `/health` payload still shows the v0.1 minimal shape; the
+enriched payload (with `environment`, `db`, `checks`) ships with the
+next Railway rebuild that picks up the post-merge commit. This is a
+deploy-cache lag, not a code defect.
