@@ -6,20 +6,21 @@
  */
 import { useEffect } from 'react';
 
+import BentoGrid from './landing/BentoGrid';
 import FAQAccordion from './landing/FAQAccordion';
-import FeatureGrid from './landing/FeatureGrid';
 import FinalCTA from './landing/FinalCTA';
 import Footer from './landing/Footer';
 import Hero from './landing/Hero';
-import HowItWorks from './landing/HowItWorks';
 import LiveDemoCard from './landing/LiveDemoCard';
 import Navbar from './landing/Navbar';
+import Pricing from './landing/Pricing';
 import ProblemSolutionSplit from './landing/ProblemSolutionSplit';
 import Testimonial from './landing/Testimonial';
 import TechStack from './landing/TechStack';
 import TrustStrip from './landing/TrustStrip';
 import TrustSecurity from './landing/TrustSecurity';
 import ExplainerVideo from './landing/ExplainerVideo';
+import WorkflowShowcase from './landing/WorkflowShowcase';
 
 import './landing/landing.css';
 
@@ -59,12 +60,13 @@ export default function LandingPage() {
       <Navbar />
       <main>
         <Hero />
-        <TrustStrip />
         <ExplainerVideo />
+        <TrustStrip />
         <ProblemSolutionSplit />
-        <FeatureGrid />
-        <HowItWorks />
+        <BentoGrid />
+        <WorkflowShowcase />
         <TrustSecurity />
+        <Pricing />
         <LiveDemoCard />
         <TechStack />
         <Testimonial />

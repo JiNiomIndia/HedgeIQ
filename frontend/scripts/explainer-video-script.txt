@@ -1,0 +1,21 @@
+HedgeIQ — Explainer Video Script (5 scenes, ~60 seconds)
+
+SCENE 1 — Sunday night drop (10s)
+It's Sunday night. Your 5,000 shares of AAL just dropped 3 percent on news from
+the Middle East. Markets open in 12 hours. You need to hedge — fast.
+
+SCENE 2 — Broker connection (10s)
+HedgeIQ connects to your brokers via SnapTrade — the same secure layer used by
+Wealthsimple and Public. Your credentials never touch our servers.
+
+SCENE 3 — Top three puts (15s)
+Enter your position. HedgeIQ scans the options chain, filters by liquidity and
+time-to-expiry, and ranks the top three protective puts by value-per-dollar.
+
+SCENE 4 — Plain-English AI (15s)
+Claude — Anthropic's AI — explains each recommendation in plain English. No
+jargon. Why this strike, why this expiry, what it costs, what it protects.
+
+SCENE 5 — Trust & security (10s)
+Production-grade security. Full WCAG accessibility. Open source on GitHub.
+Built from a real loss — so it works the night you actually need it.

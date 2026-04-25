@@ -3,6 +3,7 @@
  * Inline SVG icons (lucide-style: ShieldCheck, Database, Brain).
  * @component
  */
+import { motion, useReducedMotion } from 'framer-motion';
 
 const ShieldCheckIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -64,6 +65,7 @@ const POWERED_BY = [
 ];
 
 export default function TrustSecurity() {
+  const reduce = useReducedMotion();
   return (
     <section
       id="trust"
@@ -111,10 +113,14 @@ export default function TrustSecurity() {
             gap: 24,
           }}
         >
-          {BLOCKS.map(({ Icon, heading, body }) => (
-            <article
+          {BLOCKS.map(({ Icon, heading, body }, i) => (
+            <motion.article
               key={heading}
               className="trust-card"
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
+              whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: reduce ? 0.2 : 0.5, delay: reduce ? 0 : i * 0.1 }}
               style={{
                 background: '#11172A',
                 border: '1px solid #1E293B',
@@ -130,7 +136,7 @@ export default function TrustSecurity() {
                 {heading}
               </h3>
               <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, margin: 0 }}>{body}</p>
-            </article>
+            </motion.article>
           ))}
         </div>
 
