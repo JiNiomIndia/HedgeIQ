@@ -488,11 +488,19 @@ a:hover { text-decoration: underline; }
 /* ---------- Content ---------- */
 .content {
   padding: 48px 56px 96px;
-  max-width: calc(760px + 112px);
   width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+@media (min-width: 1280px) {
+  .content {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 56px 96px;
+  }
 }
 .prose {
-  max-width: 760px;
+  max-width: 100%;
   font-size: 16px;
   line-height: 1.7;
   color: var(--text);
@@ -644,7 +652,7 @@ a:hover { text-decoration: underline; }
 
 /* Footer / page nav */
 .page-footer {
-  max-width: 760px;
+  max-width: 100%;
   margin-top: 64px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
