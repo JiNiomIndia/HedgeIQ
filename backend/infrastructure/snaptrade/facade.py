@@ -12,7 +12,6 @@ Pricing:
 """
 from typing import Any, Dict, List
 
-from backend.domain.common.errors import DataUnavailableError
 
 
 class SnapTradeFacade:

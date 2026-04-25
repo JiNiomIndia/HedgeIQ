@@ -7,7 +7,6 @@ Contract guarded:
 """
 import pytest
 from datetime import date, timedelta
-from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -65,7 +64,7 @@ class TestDailyLimitInClaudeFacade:
             mock_client.messages.create = MagicMock(return_value=mock_msg)
             # calls_today=4 is under the limit of 5 — should not raise
             try:
-                result = await facade.explain_option(
+                _result = await facade.explain_option(
                     option_data={"symbol": "AAL", "strike": 10.0},
                     calls_today=4,
                     is_free_user=True,
@@ -139,7 +138,7 @@ class TestDailyLimitInClaudeFacade:
             mock_client.messages.create = MagicMock(return_value=mock_msg)
 
             try:
-                result = await facade.explain_option(
+                _result = await facade.explain_option(
                     option_data={"symbol": "AAL"},
                     calls_today=99,
                     is_free_user=False,  # Pro user
@@ -263,7 +262,7 @@ class TestDailyLimitViaAPI:
         from httpx import AsyncClient, ASGITransport
         from backend.main import app
         from backend.api.v1.auth import get_current_user
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import patch
 
         pro_user = make_user_ns(is_pro=True, daily_ai_calls_used=99)
         app.dependency_overrides[get_current_user] = lambda: pro_user

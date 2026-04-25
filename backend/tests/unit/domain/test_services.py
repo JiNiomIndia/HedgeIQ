@@ -3,10 +3,9 @@ import asyncio
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 
 from backend.domain.options.service import OptionsService
-from backend.domain.positions.models import Portfolio, Position
+from backend.domain.positions.models import Position
 from backend.domain.positions.service import PositionService
 
 

@@ -141,7 +141,7 @@ class PolygonFacade:
 
     def _mock_bars(self, symbol: str, days: int) -> list:
         """Synthetic price history — deterministic random walk around recent price."""
-        import math, random
+        import random
         from datetime import date, timedelta
         price_map = {
             "AAL": 10.97, "AAPL": 175.00, "MSFT": 380.00, "TSLA": 240.00,

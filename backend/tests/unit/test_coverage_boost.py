@@ -5,9 +5,7 @@ FastAPI app (health + auth endpoints), JWT token creation, Pydantic schemas.
 """
 import pytest
 from decimal import Decimal
-from datetime import datetime
-from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 
 # ---------------------------------------------------------------------------

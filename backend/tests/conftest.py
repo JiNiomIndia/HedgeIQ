@@ -21,7 +21,6 @@ from backend.main import app
 from backend.db.models import Base, User
 from backend.db.session import get_db
 from backend.api.v1.auth import create_token, get_current_user, _hash_pw
-from backend.config import settings
 
 
 # ---------------------------------------------------------------------------

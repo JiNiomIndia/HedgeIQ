@@ -7,7 +7,6 @@ Implements AbstractPositionRepository by combining:
 from typing import List
 
 from backend.adapters.adapter_registry import AdapterRegistry
-from backend.domain.common.errors import DataUnavailableError
 from backend.domain.positions.models import Portfolio, Position
 from backend.domain.positions.repository import AbstractPositionRepository
 from backend.infrastructure.snaptrade.facade import SnapTradeFacade

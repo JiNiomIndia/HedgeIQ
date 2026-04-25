@@ -15,7 +15,6 @@ from backend.adapters.fidelity_adapter import FidelityAdapter
 from backend.adapters.ibkr_adapter import IBKRAdapter
 from backend.adapters.public_adapter import PublicAdapter
 from backend.adapters.robinhood_adapter import RobinhoodAdapter
-from backend.domain.positions.models import Position
 
 
 # ---------------------------------------------------------------------------

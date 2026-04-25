@@ -4,10 +4,7 @@ Contracts guarded:
   - _hash_pw / _verify_pw use PBKDF2-HMAC-SHA256 with random salt, 100k iterations
   - create_token produces HS256 JWT with correct sub/exp claims
 """
-import hmac
-import hashlib
-import time
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 
 import pytest
 from jose import jwt
@@ -46,13 +43,15 @@ class TestHashPw:
 
     def test_iteration_count_is_100k(self):
         """100,000 PBKDF2 iterations — check implementation constant."""
-        import inspect, backend.api.v1.auth as auth_module
+        import inspect
+        import backend.api.v1.auth as auth_module
         source = inspect.getsource(auth_module._hash_pw)
         assert "100_000" in source or "100000" in source
 
     def test_uses_sha256_algorithm(self):
         """Hash must use SHA-256 (not MD5 or SHA-1)."""
-        import inspect, backend.api.v1.auth as auth_module
+        import inspect
+        import backend.api.v1.auth as auth_module
         source = inspect.getsource(auth_module._hash_pw)
         assert "sha256" in source
 
@@ -77,7 +76,8 @@ class TestVerifyPw:
 
     def test_is_timing_safe_uses_compare_digest(self):
         """Implementation must use hmac.compare_digest — not == — for constant-time comparison."""
-        import inspect, backend.api.v1.auth as auth_module
+        import inspect
+        import backend.api.v1.auth as auth_module
         source = inspect.getsource(auth_module._verify_pw)
         assert "compare_digest" in source
 
@@ -108,7 +108,7 @@ class TestCreateToken:
         assert header["alg"] == "HS256"
 
     def test_expiry_is_24_hours_from_now(self):
-        before = datetime.now(UTC).replace(tzinfo=None)
+        _before = datetime.now(UTC).replace(tzinfo=None)
         token = create_token("exp-test-user")
         payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
         exp = datetime.utcfromtimestamp(payload["exp"])

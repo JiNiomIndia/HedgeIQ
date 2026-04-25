@@ -11,7 +11,6 @@ Note: External services (Polygon, SnapTrade, Claude) are mocked so network
       latency is excluded — we measure FastAPI routing + serialisation + domain logic only.
 """
 import asyncio
-import statistics
 import time
 from datetime import date, timedelta
 from decimal import Decimal
@@ -22,7 +21,7 @@ import pytest
 from httpx import AsyncClient, ASGITransport
 
 from backend.main import app
-from backend.api.v1.auth import create_token, get_current_user, ALGORITHM
+from backend.api.v1.auth import get_current_user
 from backend.config import settings
 
 

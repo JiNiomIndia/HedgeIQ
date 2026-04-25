@@ -8,21 +8,20 @@ Contract:  Every endpoint returns the documented status code and response shape
            under happy-path, boundary, and failure conditions.
 """
 import time
-import uuid
 from datetime import date, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient, ASGITransport
 from jose import jwt
 
 from backend.main import app
-from backend.api.v1.auth import create_token, get_current_user, ALGORITHM
+from backend.api.v1.auth import get_current_user, ALGORITHM
 from backend.config import settings
 from backend.db.session import get_db
-from backend.domain.common.errors import InsufficientLiquidityError, DailyLimitExceededError
+from backend.domain.common.errors import DailyLimitExceededError
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +115,7 @@ class TestHealth:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             t0 = time.perf_counter()
             r = await client.get("/health")
-            elapsed_ms = (time.perf_counter() - t0) * 1000
+            _elapsed_ms = (time.perf_counter() - t0) * 1000  # captured for future SLA assertions
         assert r.status_code == 200
         assert r.json()["status"] == "ok"
         assert "version" in r.json()
@@ -165,7 +164,7 @@ class TestHealth:
         FastAPI's exception handler for Exception is invoked for unhandled errors.
         We verify it is registered in the exception handlers dict.
         """
-        from backend.main import app as main_app, global_exception_handler
+        from backend.main import app as main_app
         # Verify the handler is wired up
         handler = main_app.exception_handlers.get(Exception)
         assert handler is not None, "global_exception_handler must be registered"
@@ -540,7 +539,7 @@ class TestOptionsChain:
         This test documents the current behavior and will be updated when graceful
         degradation (fallback to mock chain) is implemented.
         """
-        from backend.domain.options.models import OptionContract, OptionsChain
+        from backend.domain.options.models import OptionsChain
 
         # Provide a mock OptionsService instead to avoid the exception path
         empty_chain = OptionsChain(underlying="AAL", expiry_date="", contracts=[])
