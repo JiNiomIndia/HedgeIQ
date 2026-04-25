@@ -1,5 +1,33 @@
 # 05 — Frontend components
 
+<figure>
+  <img src="/landing/hedge.svg" alt="Emergency Hedge Calculator widget">
+  <figcaption>Emergency Hedge Calculator widget</figcaption>
+</figure>
+
+## Component hierarchy
+
+```mermaid
+graph TD
+  App --> BrowserRouter
+  BrowserRouter --> LandingPage
+  BrowserRouter --> LoginPage
+  BrowserRouter --> Dashboard
+  Dashboard --> Header
+  Dashboard --> Sidebar
+  Dashboard --> WidgetGrid
+  WidgetGrid --> PositionsTable
+  WidgetGrid --> OptionsChain
+  WidgetGrid --> EmergencyHedge
+  WidgetGrid --> AIChat
+  WidgetGrid --> PriceChart
+  WidgetGrid --> MarketTape
+  WidgetGrid --> PositionDrawer
+  WidgetGrid --> Preferences
+  Dashboard --> ThemeProvider
+  ThemeProvider -.context.-> WidgetGrid
+```
+
 ## Top-level
 
 ### `App.tsx`

@@ -1,5 +1,33 @@
 # 13 — Testing
 
+## Test distribution
+
+```mermaid
+pie title HedgeIQ Test Distribution (309 total)
+  "Backend Unit (137)" : 137
+  "Backend Integration (78)" : 78
+  "Backend Performance (11)" : 11
+  "Frontend Unit (87)" : 87
+```
+
+## CI pipeline
+
+```mermaid
+graph LR
+  PR[PR opened] --> JOBS{CI Jobs}
+  JOBS --> B[Backend Tests<br/>Python 3.12]
+  JOBS --> F[Frontend Tests<br/>Vitest]
+  JOBS --> E[E2E Tests<br/>Playwright]
+  JOBS --> A[Accessibility<br/>axe-core]
+  JOBS --> P[Performance<br/>p95 SLAs]
+  JOBS --> V[Vercel Preview]
+  B & F --> M{All Green?}
+  M -->|yes| MERGE[Merge to main]
+  M -->|no| FIX[Fix + push]
+  MERGE --> R[Railway Deploy]
+  MERGE --> VC[Vercel Deploy]
+```
+
 ## Test pyramid
 
 ```

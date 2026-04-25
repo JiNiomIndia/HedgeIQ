@@ -2,6 +2,35 @@
 
 The core of HedgeIQ is `ProtectivePutStrategy` — a deterministic ranking algorithm that selects the best protective puts from an options chain, given a long stock position.
 
+## Recommendation flow
+
+```mermaid
+flowchart TD
+  A[POST /hedge/recommend<br/>symbol, shares, prices] --> B{Validate}
+  B -->|invalid| E1[422 Unprocessable]
+  B -->|valid| C[OptionsService.get_chain]
+  C --> D[Polygon API<br/>or ChromaDB cache]
+  D --> F[ProtectivePutStrategy.filter]
+  F -->|filters: OI>=5000, DTE 14-90,<br/>strike 80-105%, ask>0| G{Any liquid puts?}
+  G -->|no| E2[404 No Liquid Options]
+  G -->|yes| H[Score each contract<br/>value_score = coverage / cost]
+  H --> I[Sort DESC by value_score]
+  I --> J[Take top N=3]
+  J --> K[Return Recommendation list]
+```
+
+## Value-score formula
+
+```mermaid
+graph LR
+  A[contracts_to_buy<br/>= ceil shares/100] --> Z[total_cost]
+  B[ask] --> Z
+  C[strike] --> X[coverage_at_10pct_drop<br/>= max 0, current*0.9 - strike * shares]
+  D[current_price] --> X
+  X --> Y[value_score<br/>= coverage / total_cost]
+  Z --> Y
+```
+
 ## Inputs
 
 - `position: Position` — the stock holding to hedge.
