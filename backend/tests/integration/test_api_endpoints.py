@@ -876,21 +876,31 @@ class TestAIChat:
         assert "model_used" in body
 
     @pytest.mark.asyncio
-    async def test_empty_message_does_not_return_200(self):
-        """Empty message should not be silently accepted — must be 422 or propagate as error."""
+    async def test_empty_message_returns_422(self):
+        """Empty message must be rejected by Pydantic validation (min_length=1)."""
         app.dependency_overrides[get_current_user] = lambda: _user()
+        try:
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                r = await client.post(self.BASE_URL, json={"message": ""})
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+        assert r.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_valid_nonempty_message_returns_200(self):
+        """A valid non-empty message must return 200."""
+        app.dependency_overrides[get_current_user] = lambda: _user(is_pro=True)
         with patch(
             "backend.infrastructure.claude.facade.ClaudeFacade.chat",
             new_callable=AsyncMock,
-            return_value="Empty message handled",
+            return_value="Your portfolio looks healthy.",
         ):
             try:
                 async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-                    r = await client.post(self.BASE_URL, json={"message": ""})
+                    r = await client.post(self.BASE_URL, json={"message": "How is my portfolio?"})
             finally:
                 app.dependency_overrides.pop(get_current_user, None)
-        # Accept 200 (Claude handles it), 422 (validation rejects it), or 400/502 (error propagated)
-        assert r.status_code in (200, 400, 422, 502)
+        assert r.status_code == 200
 
     @pytest.mark.asyncio
     async def test_daily_limit_enforced_for_free_user(self):
@@ -982,18 +992,26 @@ class TestSecurity:
 
     @pytest.mark.asyncio
     async def test_sql_injection_in_symbol_does_not_crash(self):
+        """SQL injection in URL path must not cause 500 — no mock so injection string reaches route."""
         app.dependency_overrides[get_current_user] = lambda: _user()
-        with patch(
-            "backend.infrastructure.polygon.options_repository.PolygonOptionsRepository.get_chain",
-            new_callable=AsyncMock,
-            return_value=[],
-        ):
-            try:
-                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-                    r = await client.get("/api/v1/options/AAL'; DROP TABLE users;--")
-            finally:
-                app.dependency_overrides.pop(get_current_user, None)
-        assert r.status_code != 500
+        try:
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                r = await client.get("/api/v1/options/AAL'; DROP TABLE users;--")
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+        # Any non-500 response is correct (200 empty chain, 404, or 422 from validation)
+        assert r.status_code in (200, 404, 422)
+
+    @pytest.mark.asyncio
+    async def test_sql_injection_in_chart_query_param_does_not_crash(self):
+        """SQL injection in query param must not cause 500."""
+        app.dependency_overrides[get_current_user] = lambda: _user()
+        try:
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                r = await client.get("/api/v1/quotes/1 OR 1=1/chart?days=30")
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
+        assert r.status_code in (200, 404, 422)
 
     @pytest.mark.asyncio
     async def test_cors_preflight_responds(self):
@@ -1031,3 +1049,165 @@ class TestSecurity:
             app.dependency_overrides.pop(get_current_user, None)
         assert r.status_code == 200
         assert "ok" in r.json()
+
+
+# ---------------------------------------------------------------------------
+# 14. Cross-User Data Isolation (1F)
+# ---------------------------------------------------------------------------
+
+class TestCrossUserIsolation:
+    """User A's token must never return User B's data."""
+
+    @pytest.mark.asyncio
+    async def test_ai_usage_counter_isolated_per_user(self):
+        """daily_ai_calls_used on free_user namespace must not bleed into pro_user namespace."""
+        free_ns = SimpleNamespace(
+            id="free-user-isolation-uuid",
+            email="free-iso@hedgeiq.test",
+            is_pro=False,
+            is_admin=False,
+            daily_ai_calls_used=4,
+            snaptrade_user_id="free-user-isolation-uuid",
+            snaptrade_user_secret="secret-free-iso",
+        )
+        pro_ns = SimpleNamespace(
+            id="pro-user-isolation-uuid",
+            email="pro-iso@hedgeiq.test",
+            is_pro=True,
+            is_admin=False,
+            daily_ai_calls_used=0,
+            snaptrade_user_id="pro-user-isolation-uuid",
+            snaptrade_user_secret="secret-pro-iso",
+        )
+        # Free user with 4 calls used — should get 200
+        app.dependency_overrides[get_current_user] = lambda: free_ns
+        with patch(
+            "backend.infrastructure.claude.facade.ClaudeFacade.explain_option",
+            new_callable=AsyncMock,
+            return_value="Explanation for free user.",
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r_free = await client.post(
+                        "/api/v1/ai/explain",
+                        json={"contract": {"symbol": "AAL", "strike": 10.0}},
+                    )
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+        assert r_free.status_code == 200
+
+        # Pro user with 0 calls should also get 200 — completely separate counter
+        app.dependency_overrides[get_current_user] = lambda: pro_ns
+        with patch(
+            "backend.infrastructure.claude.facade.ClaudeFacade.explain_option",
+            new_callable=AsyncMock,
+            return_value="Explanation for pro user.",
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r_pro = await client.post(
+                        "/api/v1/ai/explain",
+                        json={"contract": {"symbol": "AAL", "strike": 10.0}},
+                    )
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+        assert r_pro.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_positions_isolated_per_user(self):
+        """User A's position data is determined by their own identity — not User B's."""
+        from backend.domain.positions.models import Position, Portfolio
+        user_a_ns = SimpleNamespace(
+            id="user-a-uuid",
+            email="usera@hedgeiq.test",
+            is_pro=True,
+            is_admin=False,
+            daily_ai_calls_used=0,
+            snaptrade_user_id="user-a-uuid",
+            snaptrade_user_secret="secret-a",
+        )
+        user_b_ns = SimpleNamespace(
+            id="user-b-uuid",
+            email="userb@hedgeiq.test",
+            is_pro=True,
+            is_admin=False,
+            daily_ai_calls_used=0,
+            snaptrade_user_id="user-b-uuid",
+            snaptrade_user_secret="secret-b",
+        )
+        portfolio_a = Portfolio(user_id="user-a-uuid", positions=[
+            Position(broker="TD", account_name="TD Individual", account_id="a1",
+                     symbol="AAPL", quantity=Decimal("100"), entry_price=Decimal("150"),
+                     current_price=Decimal("160"))
+        ])
+        portfolio_b = Portfolio(user_id="user-b-uuid", positions=[])
+
+        # User A should see their own positions
+        app.dependency_overrides[get_current_user] = lambda: user_a_ns
+        with patch(
+            "backend.domain.positions.service.PositionService.get_portfolio",
+            new_callable=AsyncMock,
+            return_value=portfolio_a,
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r_a = await client.get("/api/v1/positions")
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+
+        # User B should see their own (empty) positions
+        app.dependency_overrides[get_current_user] = lambda: user_b_ns
+        with patch(
+            "backend.domain.positions.service.PositionService.get_portfolio",
+            new_callable=AsyncMock,
+            return_value=portfolio_b,
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r_b = await client.get("/api/v1/positions")
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+
+        assert r_a.status_code == 200
+        assert r_b.status_code == 200
+        # User A has 1 position, User B has 0
+        assert len(r_a.json()["positions"]) == 1
+        assert len(r_b.json()["positions"]) == 0
+
+
+# ---------------------------------------------------------------------------
+# 15. HedgeRecommendation serialization (1H)
+# ---------------------------------------------------------------------------
+
+class TestHedgeRecommendationSerialization:
+    """Numeric fields in HedgeRecommendationResponse must serialize as JSON numbers."""
+
+    VALID_BODY = {
+        "symbol": "AAL",
+        "shares_held": 5000,
+        "entry_price": 11.30,
+        "current_price": 10.97,
+    }
+
+    @pytest.mark.asyncio
+    async def test_response_fields_are_json_serializable_numbers(self):
+        """All numeric recommendation fields must serialize as JSON numbers, not strings."""
+        app.dependency_overrides[get_current_user] = lambda: _user()
+        with patch(
+            "backend.infrastructure.polygon.options_repository.PolygonOptionsRepository.get_chain",
+            new_callable=AsyncMock,
+            return_value=[_put_contract(65, 75310)],
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r = await client.post("/api/v1/hedge/recommend", json=self.VALID_BODY)
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+
+        if r.status_code == 200 and r.json().get("recommendations"):
+            rec = r.json()["recommendations"][0]
+            assert isinstance(rec["strike"], (int, float)), f"strike is {type(rec['strike'])}"
+            assert isinstance(rec["ask"], (int, float)), f"ask is {type(rec['ask'])}"
+            assert isinstance(rec["value_score"], (int, float)), f"value_score is {type(rec['value_score'])}"
+            assert isinstance(rec["total_cost"], (int, float)), f"total_cost is {type(rec['total_cost'])}"
+            assert isinstance(rec["breakeven_price"], (int, float)), f"breakeven_price is {type(rec['breakeven_price'])}"

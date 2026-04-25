@@ -2,12 +2,16 @@
 
 Provides shared DB session, user factories, authenticated HTTP clients,
 and domain model factories used across unit, integration, and performance tests.
+
+1A FIX: test_engine is now function-scoped + in-memory SQLite so each test
+         gets a fresh isolated DB and re-runs are always clean.
+1G FIX: autouse clear_dependency_overrides fixture added.
 """
+import uuid
 import pytest
-from decimal import Decimal
 from datetime import date, timedelta
+from decimal import Decimal
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock
 
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy import create_engine
@@ -16,24 +20,37 @@ from sqlalchemy.orm import sessionmaker
 from backend.main import app
 from backend.db.models import Base, User
 from backend.db.session import get_db
-from backend.api.v1.auth import create_token, get_current_user
+from backend.api.v1.auth import create_token, get_current_user, _hash_pw
 from backend.config import settings
 
 
 # ---------------------------------------------------------------------------
-# Database
+# 1G: Guarantee dependency_overrides is clean before and after every test.
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(scope="session")
+@pytest.fixture(autouse=True)
+def clear_dependency_overrides():
+    """Guarantee dependency_overrides is clean before and after every test."""
+    app.dependency_overrides.clear()
+    yield
+    app.dependency_overrides.clear()
+
+
+# ---------------------------------------------------------------------------
+# Database (1A FIX: function-scoped, in-memory SQLite)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
 def test_engine():
-    """Session-scoped SQLite engine — tables created once, torn down after all tests."""
+    """Function-scoped in-memory SQLite engine — tables created fresh per test."""
     engine = create_engine(
-        "sqlite:///./test_hedgeiq.db",
+        "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
     )
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest.fixture
@@ -47,83 +64,88 @@ def db_session(test_engine):
 
 
 # ---------------------------------------------------------------------------
-# User factories
+# User factories (1A FIX: uuid4 IDs, real PBKDF2 hashes, no guard-delete)
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
 def free_user(db_session):
     """Registered free-tier user with SnapTrade credentials."""
-    # Clean up if leftover from previous run
-    existing = db_session.query(User).filter(User.id == "free-user-uuid-0001").first()
-    if existing:
-        db_session.delete(existing)
-        db_session.commit()
-
+    user_id = str(uuid.uuid4())
     user = User(
-        id="free-user-uuid-0001",
+        id=user_id,
         email="free@hedgeiq.test",
-        hashed_password="salt:dk",  # not used for token-based tests
+        hashed_password=_hash_pw("TestPass123!"),
         is_pro=False,
         is_admin=False,
         daily_ai_calls_used=0,
-        snaptrade_user_id="free-user-uuid-0001",
-        snaptrade_user_secret="snap-secret-free-0001",
+        snaptrade_user_id=user_id,
+        snaptrade_user_secret="snap-secret-free",
     )
     db_session.add(user)
     db_session.commit()
+    db_session.refresh(user)
     yield user
-    db_session.delete(user)
-    db_session.commit()
 
 
 @pytest.fixture
 def pro_user(db_session):
     """Pro subscriber — no daily AI call limits."""
-    existing = db_session.query(User).filter(User.id == "pro-user-uuid-0002").first()
-    if existing:
-        db_session.delete(existing)
-        db_session.commit()
-
+    user_id = str(uuid.uuid4())
     user = User(
-        id="pro-user-uuid-0002",
+        id=user_id,
         email="pro@hedgeiq.test",
-        hashed_password="salt:dk",
+        hashed_password=_hash_pw("TestPass123!"),
         is_pro=True,
         is_admin=False,
         daily_ai_calls_used=0,
-        snaptrade_user_id="pro-user-uuid-0002",
-        snaptrade_user_secret="snap-secret-pro-0002",
+        snaptrade_user_id=user_id,
+        snaptrade_user_secret="snap-secret-pro",
     )
     db_session.add(user)
     db_session.commit()
+    db_session.refresh(user)
     yield user
-    db_session.delete(user)
-    db_session.commit()
 
 
 @pytest.fixture
 def admin_user(db_session):
     """Admin user — access to /auth/db-status."""
-    existing = db_session.query(User).filter(User.id == "admin-user-uuid-0003").first()
-    if existing:
-        db_session.delete(existing)
-        db_session.commit()
-
+    user_id = str(uuid.uuid4())
     user = User(
-        id="admin-user-uuid-0003",
+        id=user_id,
         email="admin@hedgeiq.test",
-        hashed_password="salt:dk",
+        hashed_password=_hash_pw("TestPass123!"),
         is_pro=True,
         is_admin=True,
         daily_ai_calls_used=0,
-        snaptrade_user_id="admin-user-uuid-0003",
-        snaptrade_user_secret="snap-secret-admin-0003",
+        snaptrade_user_id=user_id,
+        snaptrade_user_secret="snap-secret-admin",
     )
     db_session.add(user)
     db_session.commit()
+    db_session.refresh(user)
     yield user
-    db_session.delete(user)
+
+
+@pytest.fixture
+def exhausted_free_user(db_session):
+    """Free user who has used all 5 daily AI calls today."""
+    user_id = str(uuid.uuid4())
+    user = User(
+        id=user_id,
+        email="exhausted@hedgeiq.test",
+        hashed_password=_hash_pw("TestPass123!"),
+        is_pro=False,
+        is_admin=False,
+        daily_ai_calls_used=5,
+        daily_ai_calls_reset_date=str(date.today()),
+        snaptrade_user_id=user_id,
+        snaptrade_user_secret="snap-secret-exhausted",
+    )
+    db_session.add(user)
     db_session.commit()
+    db_session.refresh(user)
+    yield user
 
 
 @pytest.fixture
@@ -153,7 +175,7 @@ async def client(db_session):
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
         yield ac
-    app.dependency_overrides.clear()
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture

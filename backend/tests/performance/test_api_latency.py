@@ -87,8 +87,12 @@ def _mock_portfolio():
     )
 
 
-async def _measure_p95(client, method: str, url: str, iterations: int = 30, **kwargs) -> float:
-    """Run `iterations` sequential requests and return the p95 latency in ms."""
+async def _measure_p95(client, method: str, url: str, iterations: int = 100, **kwargs) -> float:
+    """Run `iterations` sequential requests and return the p95 latency in ms.
+
+    Default is 100 iterations for statistical reliability.
+    AI tests use 30 because the mock is fast but setup overhead is higher.
+    """
     latencies = []
     for _ in range(iterations):
         t0 = time.perf_counter()
@@ -122,6 +126,26 @@ async def test_health_p95_under_50ms():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         p95 = await _measure_p95(client, "GET", "/health")
     assert p95 < 50, f"Health p95={p95:.1f}ms exceeds 50ms SLA"
+
+
+@pytest.mark.asyncio
+async def test_login_p95_under_600ms(perf_client):
+    """POST /auth/login with real PBKDF2 must complete in < 600ms p95.
+
+    The login endpoint runs 100,000 PBKDF2-HMAC-SHA256 iterations.
+    On Railway shared CPU this typically takes 200-400ms.
+    600ms gives headroom without masking a regression.
+    Uses real credentials against real endpoint (no mocking) to validate the actual CPU cost.
+    """
+    # Use admin credentials which always work without needing a DB user
+    body = {
+        "email": settings.admin_email,
+        "password": settings.admin_password,
+    }
+    # 50 samples — PBKDF2 takes ~300ms each, so 50 samples takes ~15s max
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        p95 = await _measure_p95(client, "POST", "/api/v1/auth/login", json=body, iterations=50)
+    assert p95 < 600, f"Login p95={p95:.1f}ms exceeds 600ms SLA"
 
 
 @pytest.mark.asyncio
@@ -192,29 +216,39 @@ async def test_quotes_news_p95_under_300ms(perf_client):
 
 
 @pytest.mark.asyncio
-async def test_ai_explain_p95_under_3000ms(perf_client):
-    """POST /ai/explain — Claude mocked — p95 < 3000ms."""
+async def test_ai_explain_p95_under_500ms(perf_client):
+    """POST /ai/explain with mocked Claude must complete in < 500ms p95.
+
+    The real Claude API adds 1-3s of network latency.
+    This test validates the HedgeIQ routing layer only (Claude is mocked).
+    500ms allows for prompt construction, token counting, and serialization overhead.
+
+    Uses 30 samples (not 100) — Claude mock is fast but 100 would be slow in CI.
+    """
     with patch(
         "backend.infrastructure.claude.facade.ClaudeFacade.explain_option",
         new_callable=AsyncMock,
         return_value="This put provides downside protection at $10 through June 2026.",
     ):
         body = {"contract": {"symbol": "AAL260618P00010000", "strike": 10.0}}
-        p95 = await _measure_p95(perf_client, "POST", "/api/v1/ai/explain", json=body, iterations=20)
-    assert p95 < 3000, f"AI explain p95={p95:.1f}ms exceeds 3000ms SLA"
+        p95 = await _measure_p95(perf_client, "POST", "/api/v1/ai/explain", json=body, iterations=30)
+    assert p95 < 500, f"AI explain p95={p95:.1f}ms exceeds 500ms SLA"
 
 
 @pytest.mark.asyncio
-async def test_ai_chat_p95_under_3000ms(perf_client):
-    """POST /ai/chat — Claude mocked — p95 < 3000ms."""
+async def test_ai_chat_p95_under_500ms(perf_client):
+    """POST /ai/chat with mocked Claude must complete in < 500ms p95.
+
+    Uses 30 samples (not 100) — mock is fast but 100 would inflate CI runtime.
+    """
     with patch(
         "backend.infrastructure.claude.facade.ClaudeFacade.chat",
         new_callable=AsyncMock,
         return_value="Your largest position is AAL. Consider hedging with puts.",
     ):
         body = {"message": "What is my biggest risk?", "history": []}
-        p95 = await _measure_p95(perf_client, "POST", "/api/v1/ai/chat", json=body, iterations=20)
-    assert p95 < 3000, f"AI chat p95={p95:.1f}ms exceeds 3000ms SLA"
+        p95 = await _measure_p95(perf_client, "POST", "/api/v1/ai/chat", json=body, iterations=30)
+    assert p95 < 500, f"AI chat p95={p95:.1f}ms exceeds 500ms SLA"
 
 
 # ---------------------------------------------------------------------------

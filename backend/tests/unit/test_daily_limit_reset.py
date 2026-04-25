@@ -45,23 +45,67 @@ def make_user_ns(
 # ---------------------------------------------------------------------------
 
 class TestDailyLimitInClaudeFacade:
-    """Tests that the ClaudeFacade enforces the 5-call free limit."""
+    """Tests that the ClaudeFacade enforces the 5-call free limit (1D fix: functional tests)."""
 
-    def test_free_user_allowed_when_under_limit(self):
-        """Free user with 4 calls used should be allowed."""
+    @pytest.mark.asyncio
+    async def test_free_user_allowed_when_under_limit(self):
+        """Free user with 4 calls used must NOT raise DailyLimitExceededError."""
         from backend.infrastructure.claude.facade import ClaudeFacade
-        import inspect
-        source = inspect.getsource(ClaudeFacade)
-        # Verify the facade contains a daily limit check
-        assert "daily" in source.lower() or "limit" in source.lower() or "calls_today" in source.lower()
+        from backend.domain.common.errors import DailyLimitExceededError
 
-    def test_daily_limit_constant_is_five(self):
-        """The hard limit for free users must be exactly 5 calls/day."""
+        mock_cache = MagicMock()
+        mock_cache.get = MagicMock(return_value=None)
+        mock_cache.set = MagicMock()
+        facade = ClaudeFacade(api_key="test-key", cache=mock_cache)
+
+        mock_msg = MagicMock()
+        mock_msg.content = [MagicMock(text="This put protects your portfolio.")]
+
+        with patch.object(facade, "_client") as mock_client:
+            mock_client.messages.create = MagicMock(return_value=mock_msg)
+            # calls_today=4 is under the limit of 5 — should not raise
+            try:
+                result = await facade.explain_option(
+                    option_data={"symbol": "AAL", "strike": 10.0},
+                    calls_today=4,
+                    is_free_user=True,
+                )
+                # If we get here, no limit error was raised — correct
+            except DailyLimitExceededError:
+                pytest.fail("Free user with 4 calls should not be blocked (limit is 5)")
+
+    @pytest.mark.asyncio
+    async def test_daily_limit_constant_is_five(self):
+        """DailyLimitExceededError raised at calls_today=5 but not at calls_today=4."""
         from backend.infrastructure.claude.facade import ClaudeFacade
-        import inspect
-        source = inspect.getsource(ClaudeFacade)
-        # Check for the literal 5 as the limit
-        assert "5" in source
+        from backend.domain.common.errors import DailyLimitExceededError
+
+        mock_cache = MagicMock()
+        mock_cache.get = MagicMock(return_value=None)
+        mock_cache.set = MagicMock()
+        facade = ClaudeFacade(api_key="test-key", cache=mock_cache)
+
+        # calls_today=5 MUST raise
+        with pytest.raises(DailyLimitExceededError):
+            await facade.explain_option(
+                option_data={"symbol": "AAL", "strike": 10.0},
+                calls_today=5,
+                is_free_user=True,
+            )
+
+        # calls_today=4 must NOT raise
+        mock_msg = MagicMock()
+        mock_msg.content = [MagicMock(text="Explanation text.")]
+        with patch.object(facade, "_client") as mock_client:
+            mock_client.messages.create = MagicMock(return_value=mock_msg)
+            try:
+                await facade.explain_option(
+                    option_data={"symbol": "AAL", "strike": 10.0},
+                    calls_today=4,
+                    is_free_user=True,
+                )
+            except DailyLimitExceededError:
+                pytest.fail("calls_today=4 should be allowed (limit is 5, not 4)")
 
     @pytest.mark.asyncio
     async def test_explain_raises_daily_limit_error_at_limit(self):
