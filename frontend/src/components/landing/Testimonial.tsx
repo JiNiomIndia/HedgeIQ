@@ -2,10 +2,19 @@
  * Single large founder quote in serif.
  * @component
  */
+import { motion, useReducedMotion } from 'framer-motion';
+
 export default function Testimonial() {
+  const reduce = useReducedMotion();
   return (
     <section style={{ padding: 'clamp(64px, 10vw, 120px) 24px', background: 'var(--surface-2)' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
+      <motion.div
+        initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
+        whileInView={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: reduce ? 0.2 : 0.6 }}
+        style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}
+      >
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1" style={{ margin: '0 auto 24px', opacity: 0.7 }}>
           <path d="M7 7h4v4H7c0 3 1 5 4 5v2c-5 0-7-3-7-7V7zM15 7h4v4h-4c0 3 1 5 4 5v2c-5 0-7-3-7-7V7z"/>
         </svg>
@@ -29,7 +38,7 @@ export default function Testimonial() {
         <p style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.1rem, 1.8vw, 1.4rem)', lineHeight: 1.4, color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
           What if you'd had 60 seconds to find the right hedge?
         </p>
-      </div>
+      </motion.div>
     </section>
   );
 }

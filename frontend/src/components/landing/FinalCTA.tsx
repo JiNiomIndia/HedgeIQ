@@ -3,11 +3,19 @@
  * @component
  */
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function FinalCTA() {
+  const reduce = useReducedMotion();
   return (
     <section style={{ padding: 'clamp(64px, 10vw, 120px) 24px', background: 'var(--surface-2)' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
+      <motion.div
+        initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+        whileInView={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: reduce ? 0.2 : 0.6 }}
+        style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}
+      >
         <h2 style={{
           fontFamily: 'var(--font-display)',
           fontSize: 'clamp(2rem, 5vw, 3.6rem)',
@@ -52,7 +60,7 @@ export default function FinalCTA() {
             Read the docs
           </Link>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

@@ -25,6 +25,13 @@ beforeAll(() => {
       }),
     });
   }
+  // jsdom lacks IntersectionObserver; WorkflowShowcase needs it
+  if (!('IntersectionObserver' in globalThis)) {
+    // @ts-expect-error - test stub
+    globalThis.IntersectionObserver = class {
+      observe() {} unobserve() {} disconnect() {} takeRecords() { return []; }
+    };
+  }
 });
 
 describe('LandingPage', () => {
@@ -41,19 +48,39 @@ describe('LandingPage', () => {
     ctas.forEach(cta => expect(cta).toHaveAttribute('href', '/login'));
   });
 
-  it('renders at least 6 feature cards', () => {
+  it('renders the BentoGrid with at least 6 feature cards', () => {
     render(<LandingPage />);
     const titles = [
-      /Unified portfolio dashboard/i,
-      /Smart hedge calculator/i,
-      /Plain-English AI advisor/i,
-      /Real-time options chain/i,
+      /Unified portfolio/i,
+      /Smart hedge/i,
+      /AI advisor/i,
+      /Real-time chains/i,
       /Smart caching/i,
-      /Production-grade security/i,
+      /Production security/i,
     ];
-    titles.forEach(t => expect(screen.getByText(t)).toBeInTheDocument());
+    titles.forEach(t => expect(screen.getAllByText(t).length).toBeGreaterThanOrEqual(1));
     const featuresSection = document.getElementById('features');
     expect(featuresSection?.querySelectorAll('article').length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('renders the WorkflowShowcase with 4 steps', () => {
+    render(<LandingPage />);
+    const how = document.getElementById('how');
+    expect(how).not.toBeNull();
+    ['Connect', 'Sync', 'Hedge', 'Decide'].forEach(t => {
+      const headings = within(how!).getAllByRole('heading', { level: 3, name: t });
+      expect(headings.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('renders the Pricing section with 3 tiers', () => {
+    render(<LandingPage />);
+    const pricing = document.getElementById('pricing');
+    expect(pricing).not.toBeNull();
+    expect(pricing?.querySelectorAll('article').length).toBe(3);
+    expect(screen.getByText('$0')).toBeInTheDocument();
+    expect(screen.getByText('$19')).toBeInTheDocument();
+    expect(screen.getByText('$99')).toBeInTheDocument();
   });
 
   it('FAQ section has exactly 8 questions', () => {

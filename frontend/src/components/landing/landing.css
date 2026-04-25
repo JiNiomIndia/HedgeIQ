@@ -33,6 +33,112 @@ html.landing-html, body.landing-body {
 .landing-faq-item summary::-webkit-details-marker { display: none; }
 .landing-faq-item:hover { border-color: var(--border-strong); }
 
+/* ============ Bento grid ============ */
+.landing-bento-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 1px; /* gap for the gradient ring */
+  background: #11172A;
+  border: 1px solid #1E293B;
+  transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+  overflow: hidden;
+}
+.landing-bento-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--bento-angle, 0deg), #6366F1, #8B5CF6, #EC4899, #6366F1);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+  animation: bento-rotate 6s linear infinite;
+}
+@property --bento-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes bento-rotate {
+  to { --bento-angle: 360deg; }
+}
+.landing-bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(139, 92, 246, 0.18), 0 0 0 1px rgba(139, 92, 246, 0.25);
+}
+.landing-bento-card:hover::before { opacity: 1; }
+.landing-bento-card-inner {
+  position: relative;
+  background: #11172A;
+  border-radius: 15px;
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.landing-bento-head { display: flex; gap: 14px; align-items: flex-start; }
+.landing-bento-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.landing-bento-title {
+  font-family: var(--font-display, Fraunces, Georgia, serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.landing-bento-desc {
+  font-family: var(--font-sans, 'Inter Tight', Inter, sans-serif);
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.landing-bento-visual {
+  flex: 1;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(11, 17, 32, 0.5);
+  border: 1px solid rgba(30, 41, 59, 0.5);
+  padding: 12px;
+}
+
+/* ============ Pricing ============ */
+.landing-pricing-card.is-emphasized::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  padding: 1px;
+  background: conic-gradient(from var(--bento-angle, 0deg), #6366F1, #8B5CF6, #EC4899, #6366F1);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: bento-rotate 6s linear infinite;
+}
+
+/* ============ Workflow showcase ============ */
+.landing-workflow-step .landing-workflow-step-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .landing-nav-links { display: none !important; }
@@ -45,12 +151,39 @@ html.landing-html, body.landing-body {
   .landing-how-row { grid-template-columns: 1fr !important; gap: 24px !important; padding: 24px !important; }
   .landing-how-row > div { order: 0 !important; }
   .landing-footer-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 28px !important; }
+  .landing-pricing-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Bento + workflow responsive: collapse below 1024 */
+@media (max-width: 1023px) {
+  .landing-bento-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+  }
+  .landing-bento-grid > * {
+    grid-area: auto !important;
+  }
+  .landing-workflow-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .landing-workflow-sticky {
+    position: relative !important;
+    top: 0 !important;
+    height: auto !important;
+  }
+  .landing-workflow-step {
+    min-height: auto !important;
+    padding-block: 32px !important;
+  }
 }
 
 /* Reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   html.landing-html { scroll-behavior: auto; }
-  .landing-cta, .landing-cta-ghost, .landing-feature-card, .landing-faq-chev {
+  .landing-cta, .landing-cta-ghost, .landing-feature-card, .landing-bento-card, .landing-faq-chev {
     transition: none !important;
+    animation: none !important;
   }
+  .landing-bento-card::before, .landing-pricing-card.is-emphasized::before { animation: none !important; }
 }

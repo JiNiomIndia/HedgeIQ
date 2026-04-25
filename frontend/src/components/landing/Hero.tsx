@@ -5,12 +5,17 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 
 import LiveDemoWidget from './LiveDemoWidget';
 import VideoModal from './VideoModal';
 
 export default function Hero() {
   const [modalOpen, setModalOpen] = useState(false);
+  const reduce = useReducedMotion();
+  const baseT = (delay: number) => reduce
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.2 } }
+    : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.6, delay } };
 
   return (
     <section
@@ -75,7 +80,8 @@ export default function Hero() {
           }}
         >
           <div className="hero-v2-copy" style={{ maxWidth: 560 }}>
-            <p
+            <motion.p
+              {...baseT(0)}
               style={{
                 fontSize: 12,
                 letterSpacing: '0.18em',
@@ -86,9 +92,10 @@ export default function Hero() {
               }}
             >
               AI-Powered Portfolio Hedging
-            </p>
+            </motion.p>
 
-            <h1
+            <motion.h1
+              {...baseT(0.1)}
               style={{
                 fontFamily: 'var(--font-display, Fraunces, Georgia, serif)',
                 fontSize: 'clamp(3rem, 7vw, 6rem)',
@@ -112,9 +119,10 @@ export default function Hero() {
                 60 seconds
               </span>
               .
-            </h1>
+            </motion.h1>
 
-            <p
+            <motion.p
+              {...baseT(0.2)}
               style={{
                 fontFamily: 'var(--font-sans, Inter Tight, Inter, sans-serif)',
                 fontSize: 18,
@@ -126,9 +134,10 @@ export default function Hero() {
             >
               Built from a real $2,355 loss. Production-ready, with broker sync, options analysis,
               and an AI advisor that explains every decision in plain English.
-            </p>
+            </motion.p>
 
-            <div
+            <motion.div
+              {...baseT(0.3)}
               style={{
                 display: 'flex',
                 gap: 16,
@@ -171,10 +180,13 @@ export default function Hero() {
               >
                 Watch demo
               </button>
-            </div>
+            </motion.div>
           </div>
 
-          <div
+          <motion.div
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            transition={{ duration: reduce ? 0.2 : 0.6, delay: reduce ? 0 : 0.4 }}
             className="hero-v2-demo"
             style={{
               width: '100%',
@@ -183,7 +195,7 @@ export default function Hero() {
             }}
           >
             <LiveDemoWidget />
-          </div>
+          </motion.div>
         </div>
       </div>
 
