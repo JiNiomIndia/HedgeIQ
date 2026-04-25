@@ -14,7 +14,11 @@
     },
     {
       "source": "/wiki",
-      "destination": "/wiki/README.md"
+      "destination": "/wiki/index.html"
+    },
+    {
+      "source": "/wiki/:slug((?!.*\\.).+)",
+      "destination": "/wiki/:slug.html"
     },
     {
       "source": "/presentation/:path*",
