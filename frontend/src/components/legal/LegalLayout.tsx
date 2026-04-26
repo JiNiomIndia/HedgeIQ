@@ -117,6 +117,7 @@ export default function LegalLayout({ title, children }: Props) {
       <footer style={{ padding: '32px 24px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
         <p style={{ fontSize: 12, color: 'var(--text-subtle)', margin: 0 }}>
           © {new Date().getFullYear()} HedgeIQ ·{' '}
+          <a href="/help" style={{ color: 'var(--text-subtle)' }}>Documentation</a> ·{' '}
           <Link to="/privacy" style={{ color: 'var(--text-subtle)' }}>Privacy</Link> ·{' '}
           <Link to="/terms" style={{ color: 'var(--text-subtle)' }}>Terms</Link> ·{' '}
           <Link to="/security" style={{ color: 'var(--text-subtle)' }}>Security</Link> ·{' '}

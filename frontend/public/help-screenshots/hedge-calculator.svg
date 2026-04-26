@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-label="Hedge calculator with AAL example and three recommendations">
+  <style>
+    .bg { fill: var(--bg, #0A0E1A); }
+    .surface { fill: var(--surface, #11172A); }
+    .surface-2 { fill: var(--surface-2, #161D33); }
+    .text { fill: var(--text, #F8FAFC); font-family: 'Inter Tight', sans-serif; }
+    .text-muted { fill: var(--text-muted, #94A3B8); font-family: 'Inter Tight', sans-serif; }
+    .text-subtle { fill: var(--text-subtle, #64748B); font-family: 'Inter Tight', sans-serif; }
+    .accent { fill: var(--accent, #8B5CF6); }
+    .pos { fill: var(--pos, #34E893); }
+    .neg { fill: var(--neg, #FF6B6F); }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  </style>
+  <rect class="bg" width="800" height="560"/>
+  <rect class="surface" x="32" y="32" width="736" height="496" rx="10"/>
+
+  <text class="text" x="56" y="68" font-size="20" font-weight="700">Hedge Calculator</text>
+  <text class="text-muted" x="56" y="92" font-size="13">Top 3 protective puts for your position</text>
+
+  <!-- Form -->
+  <rect class="surface-2" x="56" y="112" width="160" height="56" rx="8"/>
+  <text class="text-subtle" x="68" y="132" font-size="10" font-weight="600">SYMBOL</text>
+  <text class="text mono" x="68" y="156" font-size="18" font-weight="600">AAL</text>
+
+  <rect class="surface-2" x="232" y="112" width="160" height="56" rx="8"/>
+  <text class="text-subtle" x="244" y="132" font-size="10" font-weight="600">SHARES</text>
+  <text class="text mono" x="244" y="156" font-size="18" font-weight="600">5,000</text>
+
+  <rect class="surface-2" x="408" y="112" width="160" height="56" rx="8"/>
+  <text class="text-subtle" x="420" y="132" font-size="10" font-weight="600">ENTRY</text>
+  <text class="text mono" x="420" y="156" font-size="18" font-weight="600">$11.30</text>
+
+  <rect class="surface-2" x="584" y="112" width="160" height="56" rx="8"/>
+  <text class="text-subtle" x="596" y="132" font-size="10" font-weight="600">CURRENT</text>
+  <text class="text mono" x="596" y="156" font-size="18" font-weight="600">$10.97</text>
+
+  <rect class="accent" x="56" y="184" width="688" height="44" rx="8"/>
+  <text x="400" y="212" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">Find Best Hedge</text>
+
+  <text class="text-subtle" x="56" y="260" font-size="11" font-weight="600">RECOMMENDATIONS · 50 contracts to fully hedge</text>
+
+  <!-- Card 1: best -->
+  <rect class="surface-2" x="56" y="276" width="688" height="68" rx="8"/>
+  <rect x="56" y="276" width="4" height="68" class="accent"/>
+  <text class="accent" x="76" y="298" font-size="11" font-weight="700">RANK 1 · BEST VALUE</text>
+  <text class="text" x="76" y="324" font-size="16" font-weight="700">$10.00 PUT</text>
+  <text class="text-muted" x="200" y="324" font-size="13">Expires 2026-06-21 (45 DTE)</text>
+  <text class="text-subtle" x="76" y="340" font-size="11">Premium $0.25 · Total cost $1,250 · Coverage -8.8%</text>
+  <text class="accent" x="720" y="320" text-anchor="end" font-size="28" font-weight="700">88</text>
+  <text class="text-subtle" x="720" y="340" text-anchor="end" font-size="10">VALUE SCORE</text>
+
+  <!-- Card 2 -->
+  <rect class="surface-2" x="56" y="356" width="688" height="68" rx="8"/>
+  <text class="text-subtle" x="76" y="378" font-size="11" font-weight="700">RANK 2</text>
+  <text class="text" x="76" y="402" font-size="16" font-weight="700">$10.50 PUT</text>
+  <text class="text-muted" x="200" y="402" font-size="13">Expires 2026-06-21 (45 DTE)</text>
+  <text class="text-subtle" x="76" y="418" font-size="11">Premium $0.42 · Total cost $2,100 · Coverage -4.3%</text>
+  <text class="text" x="720" y="400" text-anchor="end" font-size="28" font-weight="700">81</text>
+  <text class="text-subtle" x="720" y="418" text-anchor="end" font-size="10">VALUE SCORE</text>
+
+  <!-- Card 3 -->
+  <rect class="surface-2" x="56" y="436" width="688" height="68" rx="8"/>
+  <text class="text-subtle" x="76" y="458" font-size="11" font-weight="700">RANK 3</text>
+  <text class="text" x="76" y="482" font-size="16" font-weight="700">$9.50 PUT</text>
+  <text class="text-muted" x="200" y="482" font-size="13">Expires 2026-06-07 (30 DTE)</text>
+  <text class="text-subtle" x="76" y="498" font-size="11">Premium $0.13 · Total cost $650 · Coverage -13.4%</text>
+  <text class="text" x="720" y="480" text-anchor="end" font-size="28" font-weight="700">74</text>
+  <text class="text-subtle" x="720" y="498" text-anchor="end" font-size="10">VALUE SCORE</text>
+</svg>

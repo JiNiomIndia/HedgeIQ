@@ -21,6 +21,14 @@
       "destination": "/wiki/:slug.html"
     },
     {
+      "source": "/help",
+      "destination": "/help/index.html"
+    },
+    {
+      "source": "/help/:slug((?!.*\\.).+)",
+      "destination": "/help/:slug.html"
+    },
+    {
       "source": "/presentation/:path*",
       "destination": "/presentation/:path*"
     },
@@ -29,7 +37,11 @@
       "destination": "/wiki/:path*"
     },
     {
-      "source": "/((?!api|presentation|wiki|assets).*)",
+      "source": "/help/:path*",
+      "destination": "/help/:path*"
+    },
+    {
+      "source": "/((?!api|presentation|wiki|help|assets).*)",
       "destination": "/index.html"
     }
   ],

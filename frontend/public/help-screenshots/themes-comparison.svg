@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" role="img" aria-label="The four HedgeIQ themes side by side">
+  <style>
+    .label { font-family: 'Inter Tight', sans-serif; font-weight: 700; font-size: 14px; }
+    .meta { font-family: 'Inter Tight', sans-serif; font-size: 11px; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  </style>
+
+  <!-- Midnight (theme-fixed) -->
+  <g transform="translate(20,20)">
+    <rect width="280" height="320" rx="10" fill="#0A0E1A"/>
+    <rect x="12" y="12" width="256" height="36" rx="6" fill="#11172A"/>
+    <text class="label" x="24" y="36" fill="#F8FAFC">HedgeIQ</text>
+    <rect x="220" y="20" width="40" height="20" rx="4" fill="#8B5CF6"/>
+    <rect x="12" y="60" width="256" height="100" rx="6" fill="#11172A"/>
+    <text class="meta" x="24" y="80" fill="#94A3B8">AAL · 5,000 sh</text>
+    <text class="meta mono" x="24" y="100" fill="#F8FAFC">$10.97</text>
+    <text class="meta mono" x="24" y="118" fill="#FF6B6F">-$1,650 (-2.9%)</text>
+    <rect x="24" y="132" width="232" height="20" rx="4" fill="#8B5CF6" fill-opacity="0.18"/>
+    <text class="meta" x="36" y="147" fill="#A78BFA">Find Best Hedge →</text>
+    <rect x="12" y="172" width="256" height="60" rx="6" fill="#161D33"/>
+    <text class="meta" x="24" y="192" fill="#A78BFA">$10 PUT · 88</text>
+    <text class="meta" x="24" y="208" fill="#94A3B8">$1,250 to hedge</text>
+    <text class="label" x="140" y="276" text-anchor="middle" fill="#F8FAFC">Midnight</text>
+    <text class="meta" x="140" y="296" text-anchor="middle" fill="#94A3B8">Default · low-light</text>
+  </g>
+
+  <!-- Meridian (theme-fixed) -->
+  <g transform="translate(320,20)">
+    <rect width="280" height="320" rx="10" fill="#F4F1EC"/>
+    <rect x="12" y="12" width="256" height="36" rx="6" fill="#FFFFFF"/>
+    <text class="label" x="24" y="36" fill="#141B2D">HedgeIQ</text>
+    <rect x="220" y="20" width="40" height="20" rx="4" fill="#B8542A"/>
+    <rect x="12" y="60" width="256" height="100" rx="6" fill="#FFFFFF" stroke="#E2DCD0"/>
+    <text class="meta" x="24" y="80" fill="#5A6075">AAL · 5,000 sh</text>
+    <text class="meta mono" x="24" y="100" fill="#141B2D">$10.97</text>
+    <text class="meta mono" x="24" y="118" fill="#C0392B">-$1,650 (-2.9%)</text>
+    <rect x="24" y="132" width="232" height="20" rx="4" fill="#B8542A" fill-opacity="0.18"/>
+    <text class="meta" x="36" y="147" fill="#B8542A">Find Best Hedge →</text>
+    <rect x="12" y="172" width="256" height="60" rx="6" fill="#FAF7F2" stroke="#E2DCD0"/>
+    <text class="meta" x="24" y="192" fill="#B8542A">$10 PUT · 88</text>
+    <text class="meta" x="24" y="208" fill="#5A6075">$1,250 to hedge</text>
+    <text class="label" x="140" y="276" text-anchor="middle" fill="#F8FAFC">Meridian</text>
+    <text class="meta" x="140" y="296" text-anchor="middle" fill="#94A3B8">Warm · daylight</text>
+  </g>
+
+  <!-- Lumen (theme-fixed) -->
+  <g transform="translate(620,20)">
+    <rect width="280" height="320" rx="10" fill="#F7F8FB"/>
+    <rect x="12" y="12" width="256" height="36" rx="6" fill="#FFFFFF"/>
+    <text class="label" x="24" y="36" fill="#0E1323">HedgeIQ</text>
+    <rect x="220" y="20" width="40" height="20" rx="4" fill="#4F46E5"/>
+    <rect x="12" y="60" width="256" height="100" rx="6" fill="#FFFFFF" stroke="#E5E8F0"/>
+    <text class="meta" x="24" y="80" fill="#5A6278">AAL · 5,000 sh</text>
+    <text class="meta mono" x="24" y="100" fill="#0E1323">$10.97</text>
+    <text class="meta mono" x="24" y="118" fill="#DC2626">-$1,650 (-2.9%)</text>
+    <rect x="24" y="132" width="232" height="20" rx="4" fill="#4F46E5" fill-opacity="0.18"/>
+    <text class="meta" x="36" y="147" fill="#4F46E5">Find Best Hedge →</text>
+    <rect x="12" y="172" width="256" height="60" rx="6" fill="#FAFBFE" stroke="#E5E8F0"/>
+    <text class="meta" x="24" y="192" fill="#4F46E5">$10 PUT · 88</text>
+    <text class="meta" x="24" y="208" fill="#5A6278">$1,250 to hedge</text>
+    <text class="label" x="140" y="276" text-anchor="middle" fill="#F8FAFC">Lumen</text>
+    <text class="meta" x="140" y="296" text-anchor="middle" fill="#94A3B8">Clean · presentations</text>
+  </g>
+
+  <!-- Terminal (theme-fixed) -->
+  <g transform="translate(920,20)">
+    <rect width="260" height="320" rx="10" fill="#0A0D12"/>
+    <rect x="12" y="12" width="236" height="36" rx="6" fill="#11151C"/>
+    <text class="label" x="24" y="36" fill="#E7ECF3" font-family="JetBrains Mono, monospace">HEDGEIQ</text>
+    <rect x="200" y="20" width="40" height="20" rx="4" fill="#C6F24E"/>
+    <rect x="12" y="60" width="236" height="100" rx="6" fill="#11151C" stroke="#1E2530"/>
+    <text class="meta mono" x="24" y="80" fill="#8A94A6">AAL · 5,000 sh</text>
+    <text class="meta mono" x="24" y="100" fill="#E7ECF3">$10.97</text>
+    <text class="meta mono" x="24" y="118" fill="#FF6B6F">-$1,650 (-2.9%)</text>
+    <rect x="24" y="132" width="212" height="20" rx="4" fill="#C6F24E" fill-opacity="0.22"/>
+    <text class="meta mono" x="36" y="147" fill="#C6F24E">FIND_HEDGE →</text>
+    <rect x="12" y="172" width="236" height="60" rx="6" fill="#151A22" stroke="#1E2530"/>
+    <text class="meta mono" x="24" y="192" fill="#C6F24E">$10 PUT · 88</text>
+    <text class="meta mono" x="24" y="208" fill="#8A94A6">$1,250 to hedge</text>
+    <text class="label" x="130" y="276" text-anchor="middle" fill="#F8FAFC">Terminal</text>
+    <text class="meta" x="130" y="296" text-anchor="middle" fill="#94A3B8">Power-tool · mono</text>
+  </g>
+</svg>

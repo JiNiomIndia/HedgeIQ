@@ -1,0 +1,227 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-label="HedgeIQ dashboard layout">
+  <style>
+    .bg { fill: var(--bg, #0A0E1A); }
+    .surface { fill: var(--surface, #11172A); }
+    .surface-2 { fill: var(--surface-2, #161D33); }
+    .border { stroke: var(--border, #1E2742); stroke-width: 1; fill: none; }
+    .text { fill: var(--text, #F8FAFC); font-family: 'Inter Tight', sans-serif; }
+    .text-muted { fill: var(--text-muted, #94A3B8); font-family: 'Inter Tight', sans-serif; }
+    .text-subtle { fill: var(--text-subtle, #64748B); font-family: 'Inter Tight', sans-serif; }
+    .accent { fill: var(--accent, #8B5CF6); }
+    .pos { fill: var(--pos, #34E893); }
+    .neg { fill: var(--neg, #FF6B6F); }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  </style>
+  <rect class="bg" width="1280" height="800"/>
+
+  <!-- Topbar -->
+  <rect class="surface" x="0" y="0" width="1280" height="56"/>
+  <rect class="border" x="0" y="55" width="1280" height="1"/>
+  <text class="text" x="24" y="34" font-size="16" font-weight="700">HedgeIQ</text>
+  <rect class="surface-2" x="120" y="14" width="280" height="28" rx="6"/>
+  <text class="text-subtle" x="132" y="32" font-size="12">Search positions, options, help...</text>
+  <rect class="accent" x="1180" y="14" width="80" height="28" rx="6"/>
+  <text x="1196" y="32" font-size="12" fill="#fff" font-weight="600">Sign out</text>
+
+  <!-- Market tape -->
+  <rect class="surface-2" x="16" y="72" width="1248" height="36" rx="6"/>
+  <text class="text" x="32" y="95" font-size="12" font-weight="600">SPY</text>
+  <text class="pos mono" x="68" y="95" font-size="12">528.40 +0.42%</text>
+  <text class="text" x="180" y="95" font-size="12" font-weight="600">QQQ</text>
+  <text class="pos mono" x="216" y="95" font-size="12">456.18 +0.73%</text>
+  <text class="text" x="328" y="95" font-size="12" font-weight="600">VIX</text>
+  <text class="neg mono" x="358" y="95" font-size="12">14.22 -3.14%</text>
+  <text class="text" x="448" y="95" font-size="12" font-weight="600">AAL</text>
+  <text class="neg mono" x="480" y="95" font-size="12">10.97 -2.92%</text>
+  <text class="text" x="592" y="95" font-size="12" font-weight="600">AAPL</text>
+  <text class="pos mono" x="630" y="95" font-size="12">192.40 +0.18%</text>
+  <text class="text" x="752" y="95" font-size="12" font-weight="600">NVDA</text>
+  <text class="pos mono" x="794" y="95" font-size="12">876.20 +1.22%</text>
+
+  <!-- Positions panel -->
+  <rect class="surface" x="16" y="124" width="620" height="380" rx="8"/>
+  <rect class="border" x="16" y="124" width="620" height="380" rx="8"/>
+  <text class="text" x="32" y="148" font-size="14" font-weight="600">Positions</text>
+  <text class="text-subtle" x="32" y="166" font-size="11">3 brokers · 12 holdings</text>
+
+  <!-- Position rows -->
+  <g font-size="12">
+    <text class="text-subtle" x="32" y="192" font-size="10" font-weight="600">SYMBOL</text>
+    <text class="text-subtle" x="160" y="192" font-size="10" font-weight="600">BROKER</text>
+    <text class="text-subtle" x="280" y="192" font-size="10" font-weight="600">QTY</text>
+    <text class="text-subtle" x="360" y="192" font-size="10" font-weight="600">AVG</text>
+    <text class="text-subtle" x="440" y="192" font-size="10" font-weight="600">CURRENT</text>
+    <text class="text-subtle" x="540" y="192" font-size="10" font-weight="600">P&amp;L</text>
+
+    <line x1="32" y1="200" x2="618" y2="200" stroke="#1E2742"/>
+
+    <text class="text" x="32" y="222" font-weight="600">AAL</text>
+    <text class="text-muted" x="160" y="222">Robinhood</text>
+    <text class="text mono" x="280" y="222">5,000</text>
+    <text class="text mono" x="360" y="222">$11.30</text>
+    <text class="text mono" x="440" y="222">$10.97</text>
+    <text class="neg mono" x="540" y="222">-$1,650</text>
+
+    <text class="text" x="32" y="248" font-weight="600">AAPL</text>
+    <text class="text-muted" x="160" y="248">Fidelity</text>
+    <text class="text mono" x="280" y="248">120</text>
+    <text class="text mono" x="360" y="248">$178.50</text>
+    <text class="text mono" x="440" y="248">$192.40</text>
+    <text class="pos mono" x="540" y="248">+$1,668</text>
+
+    <text class="text" x="32" y="274" font-weight="600">NVDA</text>
+    <text class="text-muted" x="160" y="274">IBKR</text>
+    <text class="text mono" x="280" y="274">40</text>
+    <text class="text mono" x="360" y="274">$520.00</text>
+    <text class="text mono" x="440" y="274">$876.20</text>
+    <text class="pos mono" x="540" y="274">+$14,248</text>
+
+    <text class="text" x="32" y="300" font-weight="600">DOGE-USD</text>
+    <text class="text-muted" x="160" y="300">Coinbase</text>
+    <text class="text mono" x="280" y="300">12,500</text>
+    <text class="text mono" x="360" y="300">$0.082</text>
+    <text class="text mono" x="440" y="300">$0.094</text>
+    <text class="pos mono" x="540" y="300">+$150</text>
+
+    <text class="text" x="32" y="326" font-weight="600">TSLA</text>
+    <text class="text-muted" x="160" y="326">Robinhood</text>
+    <text class="text mono" x="280" y="326">25</text>
+    <text class="text mono" x="360" y="326">$240.50</text>
+    <text class="text mono" x="440" y="326">$214.20</text>
+    <text class="neg mono" x="540" y="326">-$658</text>
+
+    <text class="text" x="32" y="352" font-weight="600">MSFT</text>
+    <text class="text-muted" x="160" y="352">Fidelity</text>
+    <text class="text mono" x="280" y="352">75</text>
+    <text class="text mono" x="360" y="352">$340.00</text>
+    <text class="text mono" x="440" y="352">$418.20</text>
+    <text class="pos mono" x="540" y="352">+$5,865</text>
+  </g>
+
+  <!-- Hedge Calculator -->
+  <rect class="surface" x="652" y="124" width="376" height="380" rx="8"/>
+  <rect class="border" x="652" y="124" width="376" height="380" rx="8"/>
+  <text class="text" x="668" y="148" font-size="14" font-weight="600">Hedge Calculator</text>
+  <text class="text-subtle" x="668" y="166" font-size="11">Find protective puts for any holding</text>
+
+  <rect class="surface-2" x="668" y="184" width="160" height="32" rx="6"/>
+  <text class="text-subtle" x="678" y="194" font-size="9">SYMBOL</text>
+  <text class="text mono" x="678" y="208" font-size="13">AAL</text>
+
+  <rect class="surface-2" x="836" y="184" width="178" height="32" rx="6"/>
+  <text class="text-subtle" x="846" y="194" font-size="9">SHARES</text>
+  <text class="text mono" x="846" y="208" font-size="13">5,000</text>
+
+  <rect class="surface-2" x="668" y="224" width="160" height="32" rx="6"/>
+  <text class="text-subtle" x="678" y="234" font-size="9">ENTRY</text>
+  <text class="text mono" x="678" y="248" font-size="13">$11.30</text>
+
+  <rect class="surface-2" x="836" y="224" width="178" height="32" rx="6"/>
+  <text class="text-subtle" x="846" y="234" font-size="9">CURRENT</text>
+  <text class="text mono" x="846" y="248" font-size="13">$10.97</text>
+
+  <rect class="accent" x="668" y="266" width="346" height="36" rx="6"/>
+  <text x="804" y="290" text-anchor="middle" fill="#fff" font-weight="600" font-size="13">Find Best Hedge</text>
+
+  <!-- Recommendation cards -->
+  <rect class="surface-2" x="668" y="318" width="346" height="50" rx="6"/>
+  <text class="text" x="678" y="338" font-size="11" font-weight="600">$10 PUT · 45 DTE</text>
+  <text class="text-muted mono" x="678" y="356" font-size="11">$0.25 prem · $1,250 cost · -8.8% cov</text>
+  <text class="accent" x="980" y="350" font-size="14" font-weight="700">88</text>
+
+  <rect class="surface-2" x="668" y="376" width="346" height="50" rx="6"/>
+  <text class="text" x="678" y="396" font-size="11" font-weight="600">$10.50 PUT · 45 DTE</text>
+  <text class="text-muted mono" x="678" y="414" font-size="11">$0.42 prem · $2,100 cost · -4.3% cov</text>
+  <text class="accent" x="980" y="408" font-size="14" font-weight="700">81</text>
+
+  <rect class="surface-2" x="668" y="434" width="346" height="50" rx="6"/>
+  <text class="text" x="678" y="454" font-size="11" font-weight="600">$9.50 PUT · 30 DTE</text>
+  <text class="text-muted mono" x="678" y="472" font-size="11">$0.13 prem · $650 cost · -13.4% cov</text>
+  <text class="accent" x="980" y="466" font-size="14" font-weight="700">74</text>
+
+  <!-- AI Advisor -->
+  <rect class="surface" x="1044" y="124" width="220" height="380" rx="8"/>
+  <rect class="border" x="1044" y="124" width="220" height="380" rx="8"/>
+  <text class="text" x="1060" y="148" font-size="14" font-weight="600">AI Advisor</text>
+  <text class="text-subtle" x="1060" y="166" font-size="10">Powered by Claude</text>
+
+  <rect class="surface-2" x="1060" y="184" width="190" height="56" rx="6"/>
+  <text class="text" x="1070" y="200" font-size="10" font-weight="600">You</text>
+  <text class="text-muted" x="1070" y="218" font-size="10">Why is the $10 strike</text>
+  <text class="text-muted" x="1070" y="232" font-size="10">a better deal?</text>
+
+  <rect class="surface-2" x="1060" y="248" width="190" height="160" rx="6"/>
+  <text class="accent" x="1070" y="264" font-size="10" font-weight="600">Claude</text>
+  <text class="text-muted" x="1070" y="282" font-size="9.5">The $10 put gives 8.8%</text>
+  <text class="text-muted" x="1070" y="294" font-size="9.5">downside coverage at</text>
+  <text class="text-muted" x="1070" y="306" font-size="9.5">~half the premium of</text>
+  <text class="text-muted" x="1070" y="318" font-size="9.5">the $10.50 strike. The</text>
+  <text class="text-muted" x="1070" y="330" font-size="9.5">tradeoff: AAL has to</text>
+  <text class="text-muted" x="1070" y="342" font-size="9.5">drop another 8.8% from</text>
+  <text class="text-muted" x="1070" y="354" font-size="9.5">here before the put</text>
+  <text class="text-muted" x="1070" y="366" font-size="9.5">starts paying off...</text>
+  <text class="accent mono" x="1070" y="394" font-size="9">▍</text>
+
+  <rect class="surface-2" x="1060" y="460" width="190" height="32" rx="6"/>
+  <text class="text-subtle" x="1070" y="480" font-size="11">Ask anything...</text>
+
+  <!-- Options chain placeholder -->
+  <rect class="surface" x="16" y="520" width="1248" height="260" rx="8"/>
+  <rect class="border" x="16" y="520" width="1248" height="260" rx="8"/>
+  <text class="text" x="32" y="544" font-size="14" font-weight="600">Options Chain</text>
+  <text class="text-subtle" x="32" y="562" font-size="11">AAL · Expiring Jun 21, 2026 (45 DTE)</text>
+  <line x1="32" y1="572" x2="1248" y2="572" stroke="#1E2742"/>
+  <text class="text-subtle" x="120" y="592" font-size="10" font-weight="600">CALLS</text>
+  <text class="text-subtle" x="640" y="592" font-size="10" font-weight="600">STRIKE</text>
+  <text class="text-subtle" x="980" y="592" font-size="10" font-weight="600">PUTS</text>
+
+  <g font-size="11">
+    <text class="text mono" x="80" y="616">2.45</text>
+    <text class="text-muted mono" x="160" y="616">3,210</text>
+    <text class="text-muted mono" x="240" y="616">14,820</text>
+    <text class="text" x="640" y="616" font-weight="600">9.00</text>
+    <text class="text mono" x="780" y="616">0.04</text>
+    <text class="text-muted mono" x="860" y="616">220</text>
+    <text class="text-muted mono" x="940" y="616">8,432</text>
+
+    <text class="text mono" x="80" y="640">1.85</text>
+    <text class="text-muted mono" x="160" y="640">5,420</text>
+    <text class="text-muted mono" x="240" y="640">22,108</text>
+    <text class="text" x="640" y="640" font-weight="600">9.50</text>
+    <text class="text mono" x="780" y="640">0.13</text>
+    <text class="text-muted mono" x="860" y="640">1,820</text>
+    <text class="text-muted mono" x="940" y="640">12,250</text>
+
+    <text class="text mono accent" x="80" y="664">1.30</text>
+    <text class="text-muted mono" x="160" y="664">8,640</text>
+    <text class="text-muted mono" x="240" y="664">33,420</text>
+    <text class="text accent" x="640" y="664" font-weight="700">10.00</text>
+    <text class="text mono accent" x="780" y="664">0.25</text>
+    <text class="text-muted mono" x="860" y="664">3,840</text>
+    <text class="text-muted mono" x="940" y="664">18,604</text>
+
+    <text class="text mono" x="80" y="688">0.85</text>
+    <text class="text-muted mono" x="160" y="688">12,200</text>
+    <text class="text-muted mono" x="240" y="688">28,640</text>
+    <text class="text" x="640" y="688" font-weight="600">10.50</text>
+    <text class="text mono" x="780" y="688">0.42</text>
+    <text class="text-muted mono" x="860" y="688">5,210</text>
+    <text class="text-muted mono" x="940" y="688">15,840</text>
+
+    <text class="text mono" x="80" y="712">0.52</text>
+    <text class="text-muted mono" x="160" y="712">9,840</text>
+    <text class="text-muted mono" x="240" y="712">21,300</text>
+    <text class="text" x="640" y="712" font-weight="600">11.00</text>
+    <text class="text mono" x="780" y="712">0.68</text>
+    <text class="text-muted mono" x="860" y="712">4,820</text>
+    <text class="text-muted mono" x="940" y="712">12,420</text>
+
+    <text class="text mono" x="80" y="736">0.31</text>
+    <text class="text-muted mono" x="160" y="736">6,210</text>
+    <text class="text-muted mono" x="240" y="736">15,840</text>
+    <text class="text" x="640" y="736" font-weight="600">11.50</text>
+    <text class="text mono" x="780" y="736">1.04</text>
+    <text class="text-muted mono" x="860" y="736">2,140</text>
+    <text class="text-muted mono" x="940" y="736">9,820</text>
+  </g>
+</svg>

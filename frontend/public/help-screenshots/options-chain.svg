@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" role="img" aria-label="Options chain calls and puts">
+  <style>
+    .bg { fill: var(--bg, #0A0E1A); }
+    .surface { fill: var(--surface, #11172A); }
+    .surface-2 { fill: var(--surface-2, #161D33); }
+    .text { fill: var(--text, #F8FAFC); font-family: 'Inter Tight', sans-serif; }
+    .text-muted { fill: var(--text-muted, #94A3B8); font-family: 'Inter Tight', sans-serif; }
+    .text-subtle { fill: var(--text-subtle, #64748B); font-family: 'Inter Tight', sans-serif; }
+    .accent { fill: var(--accent, #8B5CF6); }
+    .pos { fill: var(--pos, #34E893); }
+    .neg { fill: var(--neg, #FF6B6F); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+  <rect class="bg" width="1000" height="600"/>
+  <rect class="surface" x="20" y="20" width="960" height="560" rx="10"/>
+  <text class="text" x="44" y="56" font-size="18" font-weight="700">Options Chain · AAL</text>
+  <text class="text-subtle" x="44" y="78" font-size="12">Spot $10.97 · Expiring Jun 21, 2026 (45 DTE)</text>
+
+  <rect class="surface-2" x="800" y="36" width="160" height="32" rx="6"/>
+  <text class="text-muted" x="880" y="56" text-anchor="middle" font-size="12">Both ▾</text>
+
+  <!-- Headers -->
+  <line x1="44" y1="100" x2="956" y2="100" stroke="#1E2742"/>
+  <text class="text-subtle" x="80" y="120" font-size="10" font-weight="600">BID</text>
+  <text class="text-subtle" x="160" y="120" font-size="10" font-weight="600">ASK</text>
+  <text class="text-subtle" x="240" y="120" font-size="10" font-weight="600">VOL</text>
+  <text class="text-subtle" x="320" y="120" font-size="10" font-weight="600">OI</text>
+  <text class="text-subtle" x="400" y="120" font-size="10" font-weight="600">IV</text>
+  <text class="text-subtle accent" x="500" y="120" text-anchor="middle" font-size="10" font-weight="700">STRIKE</text>
+  <text class="text-subtle" x="600" y="120" font-size="10" font-weight="600">BID</text>
+  <text class="text-subtle" x="680" y="120" font-size="10" font-weight="600">ASK</text>
+  <text class="text-subtle" x="760" y="120" font-size="10" font-weight="600">VOL</text>
+  <text class="text-subtle" x="840" y="120" font-size="10" font-weight="600">OI</text>
+  <text class="text-subtle" x="920" y="120" font-size="10" font-weight="600">IV</text>
+
+  <text class="text-muted" x="200" y="142" font-size="10" font-weight="600">CALLS</text>
+  <text class="text-muted" x="780" y="142" font-size="10" font-weight="600">PUTS</text>
+  <line x1="44" y1="152" x2="956" y2="152" stroke="#1E2742"/>
+
+  <g font-size="12">
+    <text class="text mono" x="80" y="180">2.40</text>
+    <text class="text mono" x="160" y="180">2.50</text>
+    <text class="text-muted mono" x="240" y="180">3,210</text>
+    <text class="text-muted mono" x="320" y="180">14,820</text>
+    <text class="text-muted mono" x="400" y="180">38%</text>
+    <text class="text" x="500" y="180" text-anchor="middle" font-weight="600">9.00</text>
+    <text class="text mono" x="600" y="180">0.03</text>
+    <text class="text mono" x="680" y="180">0.05</text>
+    <text class="text-muted mono" x="760" y="180">220</text>
+    <text class="text-muted mono" x="840" y="180">8,432</text>
+    <text class="text-muted mono" x="920" y="180">42%</text>
+
+    <text class="text mono" x="80" y="208">1.80</text>
+    <text class="text mono" x="160" y="208">1.90</text>
+    <text class="text-muted mono" x="240" y="208">5,420</text>
+    <text class="text-muted mono" x="320" y="208">22,108</text>
+    <text class="text-muted mono" x="400" y="208">36%</text>
+    <text class="text" x="500" y="208" text-anchor="middle" font-weight="600">9.50</text>
+    <text class="text mono" x="600" y="208">0.11</text>
+    <text class="text mono" x="680" y="208">0.15</text>
+    <text class="text-muted mono" x="760" y="208">1,820</text>
+    <text class="text-muted mono" x="840" y="208">12,250</text>
+    <text class="text-muted mono" x="920" y="208">38%</text>
+
+    <rect x="44" y="220" width="912" height="28" rx="4" fill="#8B5CF6" fill-opacity="0.08"/>
+    <text class="text mono" x="80" y="238">1.25</text>
+    <text class="text mono" x="160" y="238">1.35</text>
+    <text class="text-muted mono" x="240" y="238">8,640</text>
+    <text class="text-muted mono" x="320" y="238">33,420</text>
+    <text class="text-muted mono" x="400" y="238">35%</text>
+    <text class="accent" x="500" y="238" text-anchor="middle" font-weight="700">10.00</text>
+    <text class="text mono accent" x="600" y="238">0.23</text>
+    <text class="text mono accent" x="680" y="238">0.27</text>
+    <text class="text-muted mono" x="760" y="238">3,840</text>
+    <text class="text-muted mono" x="840" y="238">18,604</text>
+    <text class="text-muted mono" x="920" y="238">35%</text>
+
+    <text class="text mono" x="80" y="266">0.82</text>
+    <text class="text mono" x="160" y="266">0.88</text>
+    <text class="text-muted mono" x="240" y="266">12,200</text>
+    <text class="text-muted mono" x="320" y="266">28,640</text>
+    <text class="text-muted mono" x="400" y="266">34%</text>
+    <text class="text" x="500" y="266" text-anchor="middle" font-weight="600">10.50</text>
+    <text class="text mono" x="600" y="266">0.40</text>
+    <text class="text mono" x="680" y="266">0.44</text>
+    <text class="text-muted mono" x="760" y="266">5,210</text>
+    <text class="text-muted mono" x="840" y="266">15,840</text>
+    <text class="text-muted mono" x="920" y="266">34%</text>
+
+    <text class="text mono" x="80" y="294">0.50</text>
+    <text class="text mono" x="160" y="294">0.54</text>
+    <text class="text-muted mono" x="240" y="294">9,840</text>
+    <text class="text-muted mono" x="320" y="294">21,300</text>
+    <text class="text-muted mono" x="400" y="294">33%</text>
+    <text class="text" x="500" y="294" text-anchor="middle" font-weight="600">11.00</text>
+    <text class="text mono" x="600" y="294">0.66</text>
+    <text class="text mono" x="680" y="294">0.70</text>
+    <text class="text-muted mono" x="760" y="294">4,820</text>
+    <text class="text-muted mono" x="840" y="294">12,420</text>
+    <text class="text-muted mono" x="920" y="294">33%</text>
+
+    <text class="text mono" x="80" y="322">0.29</text>
+    <text class="text mono" x="160" y="322">0.33</text>
+    <text class="text-muted mono" x="240" y="322">6,210</text>
+    <text class="text-muted mono" x="320" y="322">15,840</text>
+    <text class="text-muted mono" x="400" y="322">33%</text>
+    <text class="text" x="500" y="322" text-anchor="middle" font-weight="600">11.50</text>
+    <text class="text mono" x="600" y="322">1.02</text>
+    <text class="text mono" x="680" y="322">1.06</text>
+    <text class="text-muted mono" x="760" y="322">2,140</text>
+    <text class="text-muted mono" x="840" y="322">9,820</text>
+    <text class="text-muted mono" x="920" y="322">33%</text>
+
+    <text class="text mono" x="80" y="350">0.16</text>
+    <text class="text mono" x="160" y="350">0.20</text>
+    <text class="text-muted mono" x="240" y="350">3,820</text>
+    <text class="text-muted mono" x="320" y="350">11,210</text>
+    <text class="text-muted mono" x="400" y="350">34%</text>
+    <text class="text" x="500" y="350" text-anchor="middle" font-weight="600">12.00</text>
+    <text class="text mono" x="600" y="350">1.46</text>
+    <text class="text mono" x="680" y="350">1.52</text>
+    <text class="text-muted mono" x="760" y="350">980</text>
+    <text class="text-muted mono" x="840" y="350">6,420</text>
+    <text class="text-muted mono" x="920" y="350">34%</text>
+  </g>
+
+  <text class="text-subtle" x="44" y="540" font-size="11">Click any row to send to AI advisor</text>
+</svg>
