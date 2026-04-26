@@ -256,9 +256,12 @@ async def connect_broker(
         user_secret = await facade.register_user(snap_user_id)
 
     if not user_secret:
+        # Surface SnapTrade's actual error so we (and admins watching logs)
+        # can see whether it's a plan limit, rate limit, or auth issue.
+        last = getattr(facade, "last_error", "") or "unknown reason"
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Could not register with SnapTrade. Please try again in a moment.",
+            detail=f"Could not register with SnapTrade: {last}",
         )
 
     # Persist updates to DB (only if it's a real DB row)

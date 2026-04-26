@@ -46,18 +46,38 @@ class SnapTradeFacade:
     # Public API
     # ------------------------------------------------------------------
 
+    # Last error captured during register_user / get_connection_url. Lets the
+    # API route surface a useful message instead of "Could not register" when
+    # SnapTrade rejects a call (rate limit, plan limit, invalid params, etc.).
+    last_error: str = ""
+
     async def register_user(self, user_id: str) -> str | None:
         """Register a new user with SnapTrade and return their userSecret.
 
-        Returns None if the SDK is unavailable or the call fails.
+        Returns None if the SDK is unavailable or the call fails. On failure,
+        ``self.last_error`` carries a short diagnostic string for the caller.
         """
+        self.last_error = ""
         if self._client is None:
+            self.last_error = "SnapTrade SDK not configured"
             return None
         try:
             resp = self._client.authentication.register_snap_trade_user(user_id=user_id)
             body = resp.body if hasattr(resp, "body") else (resp if isinstance(resp, dict) else {})
-            return body.get("userSecret") or body.get("user_secret")
-        except Exception:
+            secret = body.get("userSecret") or body.get("user_secret")
+            if not secret:
+                self.last_error = f"SnapTrade response missing userSecret: {body!r}"[:300]
+            return secret
+        except Exception as exc:
+            # Capture status + body if available (snaptrade-client raises rich exceptions)
+            msg = f"{type(exc).__name__}: {exc}"
+            for attr in ("status", "code", "body", "reason"):
+                v = getattr(exc, attr, None)
+                if v:
+                    msg += f" [{attr}={str(v)[:200]}]"
+            self.last_error = msg[:500]
+            import logging
+            logging.getLogger("snaptrade").warning("register_user failed: %s", msg)
             return None
 
     async def get_connection_url(self, user_id: str, broker: str, user_secret: str | None = None) -> str:
