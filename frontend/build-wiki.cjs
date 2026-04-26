@@ -179,7 +179,8 @@ function pageTemplate({ section, body, pageTitle, h2s, prev, next }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#141B2D">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="robots" content="noindex, nofollow">
 <title>${escapeHtml(pageTitle)} — HedgeIQ Docs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -188,9 +189,19 @@ function pageTemplate({ section, body, pageTitle, h2s, prev, next }) {
 <script>
   (function(){
     try {
-      var t = localStorage.getItem('hedgeiq_wiki_theme') || 'meridian';
+      // Migrate legacy 'hedgeiq_wiki_theme' → unified 'hedgeiq_theme'.
+      var t = localStorage.getItem('hedgeiq_theme');
+      if (!t) {
+        var legacy = localStorage.getItem('hedgeiq_wiki_theme');
+        if (legacy) {
+          localStorage.setItem('hedgeiq_theme', legacy);
+          localStorage.removeItem('hedgeiq_wiki_theme');
+          t = legacy;
+        }
+      }
+      if (!t) t = 'midnight';
       document.documentElement.setAttribute('data-theme', t);
-    } catch(e) { document.documentElement.setAttribute('data-theme', 'meridian'); }
+    } catch(e) { document.documentElement.setAttribute('data-theme', 'midnight'); }
   })();
 </script>
 </head>
@@ -205,6 +216,7 @@ function pageTemplate({ section, body, pageTitle, h2s, prev, next }) {
     <div class="search-results" role="listbox" hidden></div>
   </div>
   <div class="theme-switcher" role="group" aria-label="Theme">
+    <button data-theme-btn="midnight" type="button" title="Midnight theme">Midnight</button>
     <button data-theme-btn="meridian" type="button" title="Meridian theme">Meridian</button>
     <button data-theme-btn="lumen" type="button" title="Lumen theme">Lumen</button>
     <button data-theme-btn="terminal" type="button" title="Terminal theme">Terminal</button>
@@ -231,17 +243,17 @@ function pageTemplate({ section, body, pageTitle, h2s, prev, next }) {
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
   function mermaidThemeFor(t) {
-    if (t === 'terminal') return 'dark';
+    if (t === 'terminal' || t === 'midnight') return 'dark';
     if (t === 'lumen') return 'default';
     return 'default';
   }
-  const initial = document.documentElement.getAttribute('data-theme') || 'meridian';
+  const initial = document.documentElement.getAttribute('data-theme') || 'midnight';
   mermaid.initialize({ startOnLoad: true, theme: mermaidThemeFor(initial), securityLevel: 'loose' });
   // Re-render when the wiki theme switches
   const obs = new MutationObserver(async (muts) => {
     for (const m of muts) {
       if (m.attributeName === 'data-theme') {
-        const t = document.documentElement.getAttribute('data-theme') || 'meridian';
+        const t = document.documentElement.getAttribute('data-theme') || 'midnight';
         // Reset processed nodes and re-init
         document.querySelectorAll('pre.mermaid').forEach((el) => {
           if (el.dataset.source) el.innerHTML = el.dataset.source;
@@ -329,7 +341,19 @@ function build() {
 // ---------- CSS ----------
 function wikiCss() {
   return `/* HedgeIQ wiki — GitBook-style docs */
-:root, [data-theme="meridian"] {
+:root, [data-theme="midnight"] {
+  --bg: #0A0E1A; --surface: #11172A; --surface-2: #1A2236; --surface-sunken: #060910;
+  --border: #1E293B; --border-strong: #334155;
+  --text: #F8FAFC; --text-muted: #94A3B8; --text-subtle: #64748B;
+  --accent: #8B5CF6; --accent-2: #6366F1; --accent-contrast: #FFFFFF;
+  --code-bg: #060910; --code-text: #F8FAFC;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 12px 40px rgba(139, 92, 246, 0.18);
+  --font-sans: 'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-display: 'Fraunces',Georgia,serif;
+  --font-mono: 'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+[data-theme="meridian"] {
   --bg: #F4F1EC; --surface: #FFFFFF; --surface-2: #FAF7F2; --surface-sunken: #EBE6DE;
   --border: #E2DCD0; --border-strong: #CFC7B8;
   --text: #141B2D; --text-muted: #5A6075; --text-subtle: #6E7384;
@@ -788,22 +812,41 @@ function wikiJs() {
 (function () {
   'use strict';
 
-  // ---------- Theme switcher ----------
-  var THEME_KEY = 'hedgeiq_wiki_theme';
-  var THEMES = ['meridian', 'lumen', 'terminal'];
+  // ---------- Theme switcher (unified 'hedgeiq_theme' key, shared across app) ----------
+  var THEME_KEY = 'hedgeiq_theme';
+  var LEGACY_KEY = 'hedgeiq_wiki_theme';
+  var THEMES = ['midnight', 'meridian', 'lumen', 'terminal'];
   function getTheme() {
-    try { return localStorage.getItem(THEME_KEY) || 'meridian'; } catch (e) { return 'meridian'; }
+    try {
+      var t = localStorage.getItem(THEME_KEY);
+      if (!t) {
+        var legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy) {
+          localStorage.setItem(THEME_KEY, legacy);
+          localStorage.removeItem(LEGACY_KEY);
+          t = legacy;
+        }
+      }
+      return t || 'midnight';
+    } catch (e) { return 'midnight'; }
   }
   function setTheme(t) {
-    if (THEMES.indexOf(t) < 0) t = 'meridian';
+    if (THEMES.indexOf(t) < 0) t = 'midnight';
     document.documentElement.setAttribute('data-theme', t);
     try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent('hedgeiq:theme', { detail: t })); } catch (e) {}
     document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
       b.classList.toggle('is-active', b.getAttribute('data-theme-btn') === t);
     });
   }
   document.querySelectorAll('[data-theme-btn]').forEach(function (b) {
     b.addEventListener('click', function () { setTheme(b.getAttribute('data-theme-btn')); });
+  });
+  // Cross-tab sync
+  window.addEventListener('storage', function (e) {
+    if (e.key === THEME_KEY && e.newValue && THEMES.indexOf(e.newValue) >= 0) {
+      setTheme(e.newValue);
+    }
   });
   setTheme(getTheme());
 

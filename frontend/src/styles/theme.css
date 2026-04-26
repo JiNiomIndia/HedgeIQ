@@ -100,6 +100,50 @@ a { color: inherit; text-decoration: none; }
   --font-display: var(--font-mono);
 }
 
+/* ---------- Midnight — dark indigo/violet/pink (default) ---------- */
+[data-theme="midnight"] {
+  --bg: #0A0E1A;
+  --surface: #11172A;
+  --surface-2: #1A2236;
+  --surface-sunken: #060910;
+  --border: #1E293B;
+  --border-strong: #334155;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --accent: #8B5CF6;
+  --accent-2: #6366F1;
+  --accent-contrast: #FFFFFF;
+  --chip: #1A2236;
+  --overlay: rgba(10, 14, 26, 0.65);
+  --grid: #1E293B;
+  --chart-axis: #475569;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 12px 40px rgba(139, 92, 246, 0.18);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --font-sans: 'Inter Tight', 'Inter', sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: var(--font-serif);
+  /* Gradient tokens used by hero, pricing, bento accents */
+  --grad-start: #6366F1;
+  --grad-mid: #8B5CF6;
+  --grad-end: #EC4899;
+}
+
+/* Direction colors for Midnight (override the default :root pos/neg) */
+[data-theme="midnight"] {
+  --pos: #34E893;
+  --pos-bg: rgba(52, 232, 147, 0.10);
+  --neg: #FF6B6F;
+  --neg-bg: rgba(255, 107, 111, 0.10);
+  --warn: #FBBF24;
+  --warn-bg: rgba(251, 191, 36, 0.10);
+  --accent-bg: rgba(139, 92, 246, 0.10);
+}
+
 /* ---------- Direction colors (red/green default, blue/orange for accessibility) ---------- */
 :root {
   --pos: #0E8F4A;

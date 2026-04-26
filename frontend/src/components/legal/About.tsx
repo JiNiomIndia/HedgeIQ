@@ -51,6 +51,15 @@ export default function About() {
         HedgeIQ is currently <strong>v0.1</strong>. The free tier is permanent — 5 AI calls per day, full hedge analytics, no credit card. A Pro tier with unlimited AI calls and advanced features is on the roadmap.
       </p>
 
+      <h2>For developers</h2>
+      <p>
+        HedgeIQ ships with a deep technical solution wiki — system architecture,
+        the hedge algorithm internals, JWT lifecycle, broker integration, and more.
+        It's intended for engineers who want to understand or contribute to the codebase,
+        not for end-user help.{' '}
+        <a href="/wiki">Read the technical solution wiki →</a>
+      </p>
+
       <h2>Built by</h2>
       <p>
         Built by traders for traders. A small team — no Series A press release, no growth-hacked landing page testimonials. Just a tool that we wished existed the night AAL dropped, and that we hope helps you avoid the same loss.

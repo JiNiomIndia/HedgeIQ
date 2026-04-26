@@ -45,7 +45,7 @@ export default function FinalCTA() {
             Get started — free
           </Link>
           <Link
-            to="/wiki"
+            to="/help"
             className="landing-cta-ghost"
             style={{
               border: '1px solid var(--border-strong)',

@@ -121,9 +121,24 @@ describe('LandingPage', () => {
     });
   });
 
-  it('final CTA includes a docs link to /wiki', () => {
+  it('final CTA includes a docs link to /help', () => {
     render(<LandingPage />);
     const docs = screen.getByRole('link', { name: /read the docs/i });
-    expect(docs).toHaveAttribute('href', '/wiki');
+    expect(docs).toHaveAttribute('href', '/help');
+  });
+
+  it('Footer "Documentation" link points to /help', () => {
+    render(<LandingPage />);
+    const docs = screen.getByRole('link', { name: /^documentation$/i });
+    expect(docs).toHaveAttribute('href', '/help');
+  });
+
+  it('navbar exposes 4 theme buttons (Midnight, Meridian, Lumen, Terminal)', () => {
+    render(<LandingPage />);
+    ['Midnight', 'Meridian', 'Lumen', 'Terminal'].forEach(name => {
+      const btn = screen.getByRole('button', { name: new RegExp(`^${name}$`, 'i') });
+      expect(btn).toBeInTheDocument();
+      expect(btn.getAttribute('data-theme-btn')).toBe(name.toLowerCase());
+    });
   });
 });
