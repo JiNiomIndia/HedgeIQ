@@ -34,8 +34,9 @@ import Widget from '../widgets/Widget';
 import PositionDrawer from './PositionDrawer';
 import MarketTape from './MarketTape';
 import Onboarding, { useOnboarding } from './Onboarding';
+import BrokerPicker from './BrokerPicker';
 
-function PreferencesPopover({ onClose }: { onClose: () => void }) {
+function PreferencesPopover({ onClose, onConnectBroker }: { onClose: () => void; onConnectBroker: () => void }) {
   const { theme, setTheme, density, setDensity, colorblind, setColorblind, mode, setMode } = useTheme();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -92,12 +93,24 @@ function PreferencesPopover({ onClose }: { onClose: () => void }) {
         </label>
       </div>
 
-      <div>
+      <div style={{ marginBottom: 14 }}>
         <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6 }}>Interface mode</div>
         <div className="seg" style={{ width: '100%' }}>
           <button className={mode === 'classic' ? 'active' : ''} onClick={() => setMode('classic')} style={{ flex: 1, textAlign: 'center' }}>Classic</button>
           <button className={mode === 'futuristic' ? 'active' : ''} onClick={() => setMode('futuristic')} style={{ flex: 1, textAlign: 'center' }}>Futuristic</button>
         </div>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 10, color: 'var(--text-subtle)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 6 }}>Connected brokers</div>
+        <button
+          type="button"
+          className="btn btn-sm"
+          onClick={() => { onConnectBroker(); onClose(); }}
+          style={{ width: '100%', justifyContent: 'center', fontSize: 'var(--fs-xs)' }}
+        >
+          + Connect a broker
+        </button>
       </div>
     </div>
   );
@@ -146,6 +159,7 @@ export default function Dashboard() {
   const [editMode, setEditMode] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
   const [showAddWidget, setShowAddWidget] = useState(false);
+  const [showBrokerPicker, setShowBrokerPicker] = useState(false);
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1200);
@@ -273,7 +287,12 @@ export default function Dashboard() {
             <button onClick={() => setShowPrefs(v => !v)} className="btn btn-sm btn-ghost" title="Preferences" aria-label="Preferences" aria-haspopup="dialog" aria-expanded={showPrefs}>
               <I.Settings size={14} />
             </button>
-            {showPrefs && <PreferencesPopover onClose={() => setShowPrefs(false)} />}
+            {showPrefs && (
+              <PreferencesPopover
+                onClose={() => setShowPrefs(false)}
+                onConnectBroker={() => setShowBrokerPicker(true)}
+              />
+            )}
           </div>
 
           {/* Theme chip */}
@@ -316,6 +335,7 @@ export default function Dashboard() {
       </div>
       <PositionDrawer />
       {showOnboarding && <Onboarding onDone={() => setShowOnboarding(false)} />}
+      {showBrokerPicker && <BrokerPicker onClose={() => setShowBrokerPicker(false)} />}
     </LayoutContext.Provider>
   );
 }

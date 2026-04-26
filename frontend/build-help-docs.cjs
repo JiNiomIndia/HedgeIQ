@@ -100,6 +100,27 @@ renderer.code = function ({ text, lang }) {
 </div>\n`;
 };
 
+// Hostnames that count as "internal" — same-origin nav, no new tab.
+const INTERNAL_HOSTS = new Set([
+  'hedge-iq-five.vercel.app',
+  'hedgeiq.app',
+  'www.hedgeiq.app',
+  'localhost',
+  '127.0.0.1',
+]);
+
+function isExternalUrl(target) {
+  if (!target) return false;
+  if (target.startsWith('mailto:')) return false; // mailto opens mail client, not a tab
+  if (!/^https?:/i.test(target)) return false;
+  try {
+    const u = new URL(target);
+    return !INTERNAL_HOSTS.has(u.hostname.toLowerCase());
+  } catch (e) {
+    return false;
+  }
+}
+
 renderer.link = function ({ href, title, tokens }) {
   const text = this.parser.parseInline(tokens);
   let target = href || '';
@@ -113,7 +134,13 @@ renderer.link = function ({ href, title, tokens }) {
     target = `/help${slug ? '/' + slug : ''}${hash}`;
   }
   const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-  const ext = /^https?:/i.test(target) || target.startsWith('mailto:') ? ' target="_blank" rel="noopener"' : '';
+  // External http(s) links open in a new tab; mailto: stays in same window.
+  let ext = '';
+  if (isExternalUrl(target)) {
+    ext = ' target="_blank" rel="noopener noreferrer"';
+  } else if (target.startsWith('mailto:')) {
+    ext = ' rel="noopener"';
+  }
   return `<a href="${target}"${titleAttr}${ext}>${text}</a>`;
 };
 

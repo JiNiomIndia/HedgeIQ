@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { API } from '../lib/api';
 import Sparkline from './Sparkline';
 import { bus, EVENTS } from '../lib/event-bus';
+import BrokerPicker from './BrokerPicker';
 
 interface Position {
   broker: string; accountName: string; symbol: string;
@@ -21,6 +22,7 @@ export default function PositionsTable() {
   const [totalPnl, setTotalPnl]       = useState(0);
   const [isDemo, setIsDemo]           = useState(false);
   const [dayChanges, setDayChanges]   = useState<Record<string, ChartData>>({});
+  const [showPicker, setShowPicker]   = useState(false);
 
   useEffect(() => {
     fetch(`${API}/api/v1/positions`, {
@@ -62,16 +64,36 @@ export default function PositionsTable() {
   if (loading) return <div style={{ padding: 24, color: 'var(--text-muted)' }}>Loading positions...</div>;
 
   if (!positions.length) return (
-    <div style={{ padding: 24, textAlign: 'center' }}>
-      <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>No broker accounts connected.</p>
-      <button onClick={connectBroker} className="btn btn-primary">Connect Robinhood</button>
-    </div>
+    <>
+      <div style={{ padding: 24, textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>No broker accounts connected.</p>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={connectBroker} className="btn btn-primary">Connect Robinhood</button>
+          <button onClick={() => setShowPicker(true)} className="btn">+ Add broker</button>
+        </div>
+      </div>
+      {showPicker && <BrokerPicker onClose={() => setShowPicker(false)} />}
+    </>
   );
 
   const summaryCard = { background: 'var(--surface)', borderRadius: 'var(--radius-md)', padding: 12, border: '1px solid var(--border)' };
 
   return (
     <div style={{ padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <h3 style={{ margin: 0, fontSize: 'var(--fs-md)', fontWeight: 700, color: 'var(--text)' }}>Positions</h3>
+        <button
+          type="button"
+          onClick={() => setShowPicker(true)}
+          className="btn btn-sm btn-ghost"
+          style={{ fontSize: 'var(--fs-xs)' }}
+          aria-label="Connect another broker"
+          title="Connect a broker via SnapTrade"
+        >
+          + Add broker
+        </button>
+      </div>
+      {showPicker && <BrokerPicker onClose={() => setShowPicker(false)} />}
       {isDemo && (
         <div style={{ borderRadius: 'var(--radius-md)', padding: '10px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'var(--fs-sm)', background: 'var(--warn-bg)', border: '1px solid var(--warn)', color: 'var(--warn)' }}>
           <span>⚠️ Showing <strong>demo data</strong> — connect your broker to see live positions</span>

@@ -44,8 +44,8 @@ export default function FinalCTA() {
           >
             Get started — free
           </Link>
-          <Link
-            to="/help"
+          <a
+            href="/help"
             className="landing-cta-ghost"
             style={{
               border: '1px solid var(--border-strong)',
@@ -55,10 +55,11 @@ export default function FinalCTA() {
               fontWeight: 500,
               color: 'var(--text)',
               background: 'transparent',
+              textDecoration: 'none',
             }}
           >
             Read the docs
-          </Link>
+          </a>
         </div>
       </motion.div>
     </section>

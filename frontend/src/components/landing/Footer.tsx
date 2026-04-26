@@ -14,12 +14,19 @@ const COLS: { title: string; items: readonly Item[] }[] = [
   { title: 'Legal',     items: [['Privacy', '/privacy'], ['Terms', '/terms']] },
 ];
 
+// Paths served as static HTML by Vercel rewrites (NOT React routes).
+// These must use plain <a> so the browser does a full page navigation.
+const STATIC_HTML_PREFIXES = ['/help', '/wiki', '/presentation'] as const;
+function isStaticHtmlPath(href: string): boolean {
+  return STATIC_HTML_PREFIXES.some(p => href === p || href.startsWith(`${p}/`) || href.startsWith(`${p}#`));
+}
+
 function FooterLink({ item }: { item: Item }) {
   const [label, href, external] = item;
   const style = { fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' } as const;
   const isHash = href.startsWith('/#') || href.startsWith('#');
-  const isInternal = !external && href.startsWith('/') && !isHash;
-  if (isInternal) {
+  const isInternalSpa = !external && href.startsWith('/') && !isHash && !isStaticHtmlPath(href);
+  if (isInternalSpa) {
     return <Link to={href} style={style}>{label}</Link>;
   }
   return <a href={href} style={style}>{label}</a>;
