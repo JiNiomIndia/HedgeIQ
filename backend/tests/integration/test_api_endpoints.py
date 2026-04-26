@@ -351,7 +351,7 @@ class TestConnectBroker:
         with patch(
             "backend.infrastructure.snaptrade.facade.SnapTradeFacade.get_connection_url",
             new_callable=AsyncMock,
-            return_value="https://app.snaptrade.com/connect?token=xyz",
+            return_value="https://app.snaptrade.com/snapTrade/redeemToken?token=xyz&broker=ROBINHOOD",
         ):
             try:
                 async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -390,7 +390,7 @@ class TestConnectBroker:
 
         async def mock_url(user_id, broker, user_secret=None):
             captured_broker.append(broker)
-            return f"https://app.snaptrade.com/connect?broker={broker}"
+            return f"https://app.snaptrade.com/snapTrade/redeemToken?token=abc&broker={broker}"
 
         with patch(
             "backend.infrastructure.snaptrade.facade.SnapTradeFacade.get_connection_url",
@@ -418,7 +418,7 @@ class TestConnectBroker:
             patch(
                 "backend.infrastructure.snaptrade.facade.SnapTradeFacade.get_connection_url",
                 new_callable=AsyncMock,
-                return_value="https://app.snaptrade.com/connect?token=new",
+                return_value="https://app.snaptrade.com/snapTrade/redeemToken?token=new&broker=ROBINHOOD",
             ),
         ):
             try:
@@ -427,6 +427,45 @@ class TestConnectBroker:
             finally:
                 app.dependency_overrides.pop(get_current_user, None)
         assert r.status_code == 200
+
+    @pytest.mark.asyncio
+    async def test_registration_failure_returns_502_not_fake_url(self):
+        """If SnapTrade can't register the user, return 502 — never a fake URL.
+
+        Earlier versions returned a fake fallback URL like
+        ``https://app.snaptrade.com/connect?user=...&broker=...`` which looked
+        legitimate but did not work when clicked. We now refuse to return
+        any URL that doesn't contain ``redeemToken``.
+        """
+        app.dependency_overrides[get_current_user] = lambda: _user(snap_secret=None)
+        with patch(
+            "backend.infrastructure.snaptrade.facade.SnapTradeFacade.register_user",
+            new_callable=AsyncMock,
+            return_value=None,  # all registration attempts fail
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r = await client.get(f"{self.BASE_URL}?broker=ROBINHOOD")
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+        assert r.status_code == 502
+        assert "snaptrade" in r.json()["detail"].lower()
+
+    @pytest.mark.asyncio
+    async def test_invalid_url_from_facade_returns_502(self):
+        """Defence in depth — if the facade returns a non-redeemToken URL, surface 502."""
+        app.dependency_overrides[get_current_user] = lambda: _user(snap_secret="valid")
+        with patch(
+            "backend.infrastructure.snaptrade.facade.SnapTradeFacade.get_connection_url",
+            new_callable=AsyncMock,
+            return_value="https://example.com/oops",
+        ):
+            try:
+                async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+                    r = await client.get(f"{self.BASE_URL}?broker=ROBINHOOD")
+            finally:
+                app.dependency_overrides.pop(get_current_user, None)
+        assert r.status_code == 502
 
 
 # ---------------------------------------------------------------------------

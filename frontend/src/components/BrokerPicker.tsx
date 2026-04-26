@@ -68,22 +68,30 @@ export default function BrokerPicker({ onClose }: Props) {
       const res = await fetch(`${API}/api/v1/auth/connect-broker?broker=${encodeURIComponent(broker.id)}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        let detail = '';
+        try { detail = (await res.json())?.detail || ''; } catch { /* not json */ }
+        throw new Error(detail || `HTTP ${res.status}`);
+      }
       const data = await res.json();
-      if (!data.connection_url) throw new Error('No connection URL returned');
+      const url = data.connection_url || '';
+      // Defence: refuse known-broken placeholder shape returned by older builds.
+      if (!url || !url.includes('redeemToken')) {
+        throw new Error('SnapTrade did not return a valid connection URL.');
+      }
 
       if (newTab) {
-        // Opener already nulled by the noopener flag, but be defensive.
         try { newTab.opener = null; } catch { /* ignore cross-origin */ }
-        newTab.location.href = data.connection_url;
+        newTab.location.href = url;
       } else {
         // Popup blocked: fall back to current-tab redirect so the flow still works.
-        window.location.href = data.connection_url;
+        window.location.href = url;
       }
       setBusyId(null);
     } catch (e) {
       setBusyId(null);
-      setError(`Could not start ${broker.name} connection. Try again.`);
+      const msg = e instanceof Error ? e.message : '';
+      setError(msg || `Could not start ${broker.name} connection. Try again.`);
       if (newTab && !newTab.closed) {
         try { newTab.close(); } catch { /* ignore */ }
       }
