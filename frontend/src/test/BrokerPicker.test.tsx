@@ -44,7 +44,7 @@ describe('BrokerPicker', () => {
   it('clicking a broker card calls /api/v1/auth/connect-broker with bearer token', async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: async () => ({ connection_url: 'https://snaptrade.example/oauth/abc' }),
+      json: async () => ({ connection_url: 'https://app.snaptrade.com/snapTrade/redeemToken?token=abc&broker=ROBINHOOD' }),
     });
     render(<BrokerPicker onClose={() => {}} />);
     fireEvent.click(screen.getByLabelText('Connect Robinhood'));
@@ -54,7 +54,7 @@ describe('BrokerPicker', () => {
     expect(url).toContain('broker=ROBINHOOD');
     expect(opts.headers.Authorization).toBe('Bearer test-token');
     await waitFor(() => {
-      expect(window.location.href).toBe('https://snaptrade.example/oauth/abc');
+      expect(window.location.href).toBe('https://app.snaptrade.com/snapTrade/redeemToken?token=abc&broker=ROBINHOOD');
     });
   });
 

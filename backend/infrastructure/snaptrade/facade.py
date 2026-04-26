@@ -72,19 +72,25 @@ class SnapTradeFacade:
             user_secret: SnapTrade user secret (required by SDK for live calls).
 
         Returns:
-            URL string the user visits to authorise their broker account.
+            Real SnapTrade ``redirectURI`` (contains a one-time redeemToken).
+            Returns an empty string if the SDK is unavailable or the call
+            fails — callers (the API route) decide whether to surface a 502.
+            **No fake placeholder URLs are returned** — earlier versions
+            returned ``app.snaptrade.com/connect?user=...&broker=...`` which
+            looked legitimate but never worked when clicked.
         """
         if self._client is None or not user_secret:
-            return (
-                f"https://app.snaptrade.com/connect"
-                f"?user={user_id}&broker={broker}"
+            return ""
+        try:
+            response = self._client.authentication.login_snap_trade_user(
+                user_id=user_id,
+                user_secret=user_secret,
+                broker=broker,
             )
-        response = self._client.authentication.login_snap_trade_user(
-            user_id=user_id,
-            user_secret=user_secret,
-            broker=broker,
-        )
-        return response.body.get("redirectURI", "")
+            body = response.body if hasattr(response, "body") else (response if isinstance(response, dict) else {})
+            return body.get("redirectURI", "")
+        except Exception:
+            return ""
 
     async def get_raw_positions(
         self,

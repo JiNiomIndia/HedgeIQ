@@ -207,21 +207,79 @@ async def db_status(current_user=Depends(get_current_user)):
 
 
 @router.get("/connect-broker", summary="Get SnapTrade broker connection URL")
-async def connect_broker(broker: str, current_user=Depends(get_current_user)):
-    """Generate SnapTrade OAuth URL for user to connect their broker."""
+async def connect_broker(
+    broker: str,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Generate SnapTrade OAuth URL for user to connect their broker.
+
+    Flow:
+      1. Look up the user's stored ``snaptrade_user_secret``.
+      2. If missing, register them with SnapTrade now and persist the
+         returned secret to the DB so subsequent calls reuse it.
+      3. If registration fails because the user is already registered
+         under a stale ``snaptrade_user_id`` (no secret persisted),
+         generate a fresh UUID, retry, and persist the new id+secret.
+      4. Call SnapTrade's ``loginSnapTradeUser`` to get a real one-time
+         redirect URL the user clicks to authorise the broker.
+
+    Returns 502 if SnapTrade can't be reached or the URL would be
+    a fake fallback — we never serve a non-functional connection link.
+    """
+    import uuid as _uuid
     from backend.infrastructure.snaptrade.facade import SnapTradeFacade
 
     facade = SnapTradeFacade(settings.snaptrade_client_id, settings.snaptrade_consumer_key)
 
-    user_secret = current_user.snaptrade_user_secret
+    # Refetch from DB so we can persist any updates (current_user is a snapshot)
+    db_user = db.query(User).filter(User.id == current_user.id).first()
+    if db_user is None:
+        # Admin via env vars: fall back to in-memory current_user, no persistence
+        db_user = SimpleNamespace(
+            id=current_user.id,
+            snaptrade_user_id=current_user.snaptrade_user_id,
+            snaptrade_user_secret=current_user.snaptrade_user_secret,
+        )
 
-    # If user has no SnapTrade secret yet, attempt registration now
+    user_secret = db_user.snaptrade_user_secret
+    snap_user_id = db_user.snaptrade_user_id or db_user.id
+
+    # Step 1+2: register if needed
     if not user_secret:
-        user_secret = await facade.register_user(current_user.snaptrade_user_id)
+        user_secret = await facade.register_user(snap_user_id)
 
+    # Step 3: registration may have failed because that user_id is already
+    # taken at SnapTrade but we don't have the secret. Retry with a fresh id.
+    if not user_secret:
+        snap_user_id = str(_uuid.uuid4())
+        user_secret = await facade.register_user(snap_user_id)
+
+    if not user_secret:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Could not register with SnapTrade. Please try again in a moment.",
+        )
+
+    # Persist updates to DB (only if it's a real DB row)
+    if hasattr(db_user, "__table__"):  # SQLAlchemy model
+        db_user.snaptrade_user_id = snap_user_id
+        db_user.snaptrade_user_secret = user_secret
+        db.commit()
+
+    # Step 4: get the real connection URL
     url = await facade.get_connection_url(
-        current_user.snaptrade_user_id,
+        snap_user_id,
         broker.upper(),
         user_secret=user_secret,
     )
+
+    if not url or "redeemToken" not in url:
+        # Defensive: if facade returned an empty or non-redeem-token URL we'd
+        # rather show an error than a broken link.
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="SnapTrade did not return a valid connection URL. Please try again.",
+        )
+
     return {"connection_url": url, "broker": broker.upper()}

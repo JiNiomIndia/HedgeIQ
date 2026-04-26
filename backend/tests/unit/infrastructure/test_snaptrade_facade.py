@@ -34,6 +34,13 @@ def test_mock_positions_include_fidelity(facade):
 # Connection URL
 # ---------------------------------------------------------------------------
 
-def test_connection_url_returns_string(facade):
+def test_connection_url_without_secret_returns_empty(facade):
+    """Without a user_secret, the facade returns empty string — not a fake URL.
+
+    Earlier versions returned a placeholder ``app.snaptrade.com/connect?...``
+    URL that looked legitimate but never worked when clicked. The facade now
+    returns "" so the API route can surface a 502 error instead of serving
+    a broken link to the user.
+    """
     url = asyncio.run(facade.get_connection_url("user123", "FIDELITY"))
-    assert isinstance(url, str) and len(url) > 0
+    assert url == ""
