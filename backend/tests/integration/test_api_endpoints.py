@@ -429,13 +429,14 @@ class TestConnectBroker:
         assert r.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_registration_failure_returns_502_not_fake_url(self):
-        """If SnapTrade can't register the user, return 502 — never a fake URL.
+    async def test_registration_failure_returns_503_not_fake_url(self):
+        """If SnapTrade can't register the user, return 503 — never a fake URL.
 
         Earlier versions returned a fake fallback URL like
         ``https://app.snaptrade.com/connect?user=...&broker=...`` which looked
         legitimate but did not work when clicked. We now refuse to return
-        any URL that doesn't contain ``redeemToken``.
+        any URL that doesn't contain ``redeemToken`` and surface 503 with a
+        user-friendly message.
         """
         app.dependency_overrides[get_current_user] = lambda: _user(snap_secret=None)
         with patch(
@@ -448,8 +449,9 @@ class TestConnectBroker:
                     r = await client.get(f"{self.BASE_URL}?broker=ROBINHOOD")
             finally:
                 app.dependency_overrides.pop(get_current_user, None)
-        assert r.status_code == 502
-        assert "snaptrade" in r.json()["detail"].lower()
+        assert r.status_code == 503
+        # Either generic message or the personal-keys upgrade prompt
+        assert "broker" in r.json()["detail"].lower() or "upgrade" in r.json()["detail"].lower()
 
     @pytest.mark.asyncio
     async def test_invalid_url_from_facade_returns_502(self):
@@ -466,6 +468,7 @@ class TestConnectBroker:
             finally:
                 app.dependency_overrides.pop(get_current_user, None)
         assert r.status_code == 502
+        assert "snaptrade" in r.json()["detail"].lower()
 
 
 # ---------------------------------------------------------------------------
