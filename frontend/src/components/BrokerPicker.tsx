@@ -58,6 +58,12 @@ export default function BrokerPicker({ onClose }: Props) {
   async function connect(broker: BrokerOption) {
     setError(null);
     setBusyId(broker.id);
+
+    // Open a blank tab synchronously inside the click handler so popup blockers
+    // don't suppress it. We'll redirect this tab once the API call resolves.
+    // If we open *after* the await, browsers treat it as programmatic and block.
+    const newTab = window.open('about:blank', '_blank', 'noopener=yes,noreferrer=yes');
+
     try {
       const res = await fetch(`${API}/api/v1/auth/connect-broker?broker=${encodeURIComponent(broker.id)}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('hedgeiq_token')}` },
@@ -65,10 +71,22 @@ export default function BrokerPicker({ onClose }: Props) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!data.connection_url) throw new Error('No connection URL returned');
-      window.location.href = data.connection_url;
+
+      if (newTab) {
+        // Opener already nulled by the noopener flag, but be defensive.
+        try { newTab.opener = null; } catch { /* ignore cross-origin */ }
+        newTab.location.href = data.connection_url;
+      } else {
+        // Popup blocked: fall back to current-tab redirect so the flow still works.
+        window.location.href = data.connection_url;
+      }
+      setBusyId(null);
     } catch (e) {
       setBusyId(null);
       setError(`Could not start ${broker.name} connection. Try again.`);
+      if (newTab && !newTab.closed) {
+        try { newTab.close(); } catch { /* ignore */ }
+      }
     }
   }
 
