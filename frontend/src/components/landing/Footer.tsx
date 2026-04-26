@@ -10,7 +10,7 @@ type Item = readonly [label: string, href: string, external?: boolean];
 const COLS: { title: string; items: readonly Item[] }[] = [
   { title: 'Product',   items: [['Home', '/'], ['Features', '/#features'], ['How it works', '/#how'], ['FAQ', '/#faq']] },
   { title: 'Company',   items: [['About', '/about'], ['Contact', '/contact']] },
-  { title: 'Resources', items: [['Documentation', '/wiki', true], ['Security', '/security'], ['Status', '/status']] },
+  { title: 'Resources', items: [['Documentation', '/help'], ['Security', '/security'], ['Status', '/status']] },
   { title: 'Legal',     items: [['Privacy', '/privacy'], ['Terms', '/terms']] },
 ];
 

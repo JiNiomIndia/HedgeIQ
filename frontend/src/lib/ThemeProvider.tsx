@@ -14,10 +14,37 @@ interface ThemeCtx {
 
 const Ctx = createContext<ThemeCtx | null>(null);
 
+const VALID_THEMES: readonly Theme[] = ['midnight', 'meridian', 'lumen', 'terminal'];
+
+/**
+ * Read the unified theme from localStorage.
+ * Performs a one-shot migration from the legacy `hedgeiq_wiki_theme` key:
+ *   if `hedgeiq_theme` is empty but `hedgeiq_wiki_theme` exists, copy the value
+ *   over and remove the legacy key.
+ * Falls back to 'midnight' (the new app-wide default).
+ */
+function loadInitialTheme(): Theme {
+  try {
+    let stored = localStorage.getItem('hedgeiq_theme');
+    if (!stored) {
+      const legacy = localStorage.getItem('hedgeiq_wiki_theme');
+      if (legacy) {
+        localStorage.setItem('hedgeiq_theme', legacy);
+        localStorage.removeItem('hedgeiq_wiki_theme');
+        stored = legacy;
+      }
+    }
+    if (stored && (VALID_THEMES as readonly string[]).includes(stored)) {
+      return stored as Theme;
+    }
+  } catch {
+    /* ignore */
+  }
+  return 'midnight';
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem('hedgeiq_theme') as Theme) ?? 'meridian'
-  );
+  const [theme, setThemeState] = useState<Theme>(loadInitialTheme);
   const [density, setDensityState] = useState<Density>(
     () => (localStorage.getItem('hedgeiq_density') as Density) ?? 'balanced'
   );
@@ -51,6 +78,30 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.body.setAttribute('data-mode', mode);
     localStorage.setItem('hedgeiq_mode', mode);
   }, [mode]);
+
+  // Cross-tab sync: react to localStorage changes from another tab.
+  // Same-tab sync: react to a custom 'hedgeiq:theme' event so the navbar /
+  // landing theme switcher can update the dashboard provider live.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key !== 'hedgeiq_theme' || !e.newValue) return;
+      if ((VALID_THEMES as readonly string[]).includes(e.newValue)) {
+        setThemeState(e.newValue as Theme);
+      }
+    }
+    function onCustom(e: Event) {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail && (VALID_THEMES as readonly string[]).includes(detail)) {
+        setThemeState(detail as Theme);
+      }
+    }
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('hedgeiq:theme', onCustom as EventListener);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('hedgeiq:theme', onCustom as EventListener);
+    };
+  }, []);
 
   const setTheme = (t: Theme) => setThemeState(t);
   const setDensity = (d: Density) => setDensityState(d);

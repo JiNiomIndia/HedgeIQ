@@ -17,6 +17,26 @@ export default function LegalLayout({ title, children }: Props) {
     document.documentElement.classList.add('landing-html');
     document.body.classList.add('landing-body');
     document.title = `${title} — HedgeIQ`;
+
+    // Apply unified theme so legal pages match landing/dashboard/wiki.
+    const VALID = ['midnight', 'meridian', 'lumen', 'terminal'];
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem('hedgeiq_theme');
+      if (!stored) {
+        const legacy = localStorage.getItem('hedgeiq_wiki_theme');
+        if (legacy) {
+          localStorage.setItem('hedgeiq_theme', legacy);
+          localStorage.removeItem('hedgeiq_wiki_theme');
+          stored = legacy;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    const theme = stored && VALID.includes(stored) ? stored : 'midnight';
+    document.documentElement.setAttribute('data-theme', theme);
+
     return () => {
       document.documentElement.classList.remove('landing-html');
       document.body.classList.remove('landing-body');
@@ -112,8 +132,8 @@ export default function LegalLayout({ title, children }: Props) {
         .legal-prose li { margin-bottom: 8px; }
         .legal-prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
         .legal-prose strong { color: var(--text); }
-        .legal-prose code { font-family: var(--font-mono, monospace); background: #11172A; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-        .legal-prose blockquote { border-left: 3px solid var(--accent); padding: 12px 16px; margin: 16px 0; background: #11172A; border-radius: 0 8px 8px 0; }
+        .legal-prose code { font-family: var(--font-mono, monospace); background: var(--surface); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--text); }
+        .legal-prose blockquote { border-left: 3px solid var(--accent); padding: 12px 16px; margin: 16px 0; background: var(--surface); border-radius: 0 8px 8px 0; }
       `}</style>
     </div>
   );

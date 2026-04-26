@@ -1,9 +1,10 @@
-export type Theme = 'meridian' | 'lumen' | 'terminal';
+export type Theme = 'midnight' | 'meridian' | 'lumen' | 'terminal';
 export type Density = 'balanced' | 'dense' | 'sparse';
 export type Mode = 'classic' | 'futuristic';
 
 export const THEMES: { key: Theme; name: string; desc: string; swatches: [string, string, string] }[] = [
-  { key: 'meridian', name: 'Meridian', desc: 'Editorial · navy + copper',  swatches: ['#1E2A4A', '#B8542A', '#F4F1EC'] },
+  { key: 'midnight', name: 'Midnight', desc: 'Dark · indigo + violet',      swatches: ['#0A0E1A', '#8B5CF6', '#EC4899'] },
+  { key: 'meridian', name: 'Meridian', desc: 'Editorial · navy + copper',   swatches: ['#1E2A4A', '#B8542A', '#F4F1EC'] },
   { key: 'lumen',    name: 'Lumen',    desc: 'Light modern · indigo',       swatches: ['#4F46E5', '#22D3EE', '#F7F8FB'] },
   { key: 'terminal', name: 'Terminal', desc: 'Pro dark · neon lime',        swatches: ['#0A0D12', '#C6F24E', '#22D3EE'] },
 ];

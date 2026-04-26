@@ -1,14 +1,38 @@
 /**
  * Sticky top navbar — transparent at top, blurred surface on scroll.
  * Uses react-router Link for in-app routes so navigation is SPA-fast.
+ *
+ * Includes a small theme switcher (Midnight / Meridian / Lumen / Terminal)
+ * that writes to the unified `hedgeiq_theme` localStorage key and broadcasts
+ * via the `hedgeiq:theme` custom event so the dashboard ThemeProvider
+ * picks up the change live.
  * @component
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const THEMES = [
+  { key: 'midnight', label: 'Midnight' },
+  { key: 'meridian', label: 'Meridian' },
+  { key: 'lumen', label: 'Lumen' },
+  { key: 'terminal', label: 'Terminal' },
+] as const;
+const THEME_KEYS = THEMES.map(t => t.key) as readonly string[];
+
+function readTheme(): string {
+  try {
+    const t = localStorage.getItem('hedgeiq_theme');
+    if (t && THEME_KEYS.includes(t)) return t;
+  } catch {
+    /* ignore */
+  }
+  return 'midnight';
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<string>(readTheme);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -16,6 +40,41 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Cross-tab + cross-component theme sync.
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key === 'hedgeiq_theme' && e.newValue && THEME_KEYS.includes(e.newValue)) {
+        setTheme(e.newValue);
+        document.documentElement.setAttribute('data-theme', e.newValue);
+      }
+    }
+    function onCustom(e: Event) {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail && THEME_KEYS.includes(detail)) setTheme(detail);
+    }
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('hedgeiq:theme', onCustom as EventListener);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('hedgeiq:theme', onCustom as EventListener);
+    };
+  }, []);
+
+  function applyTheme(name: string) {
+    setTheme(name);
+    try {
+      localStorage.setItem('hedgeiq_theme', name);
+    } catch {
+      /* ignore */
+    }
+    document.documentElement.setAttribute('data-theme', name);
+    try {
+      window.dispatchEvent(new CustomEvent('hedgeiq:theme', { detail: name }));
+    } catch {
+      /* ignore */
+    }
+  }
 
   const linkStyle: React.CSSProperties = {
     fontSize: 14,
@@ -60,6 +119,45 @@ export default function Navbar() {
         </nav>
 
         <div className="landing-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
+            className="landing-theme-switcher"
+            role="group"
+            aria-label="Theme"
+            style={{
+              display: 'inline-flex',
+              padding: 2,
+              background: 'color-mix(in srgb, var(--surface) 60%, transparent)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+            }}
+          >
+            {THEMES.map(t => {
+              const active = t.key === theme;
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  data-theme-btn={t.key}
+                  aria-pressed={active}
+                  title={`${t.label} theme`}
+                  onClick={() => applyTheme(t.key)}
+                  style={{
+                    padding: '4px 9px',
+                    fontSize: 12,
+                    fontFamily: 'inherit',
+                    background: active ? 'var(--surface)' : 'transparent',
+                    color: active ? 'var(--text)' : 'var(--text-muted)',
+                    border: 0,
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    fontWeight: active ? 600 : 500,
+                  }}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
           <Link to="/login" style={{ ...linkStyle, color: 'var(--text)' }}>Sign in</Link>
           <Link
             to="/login"

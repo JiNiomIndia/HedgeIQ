@@ -23,6 +23,7 @@ function ThemeConsumer() {
       <button onClick={() => setTheme('terminal')}>set-terminal</button>
       <button onClick={() => setTheme('lumen')}>set-lumen</button>
       <button onClick={() => setTheme('meridian')}>set-meridian</button>
+      <button onClick={() => setTheme('midnight')}>set-midnight</button>
       <button onClick={() => setDensity('dense')}>set-dense</button>
       <button onClick={() => setDensity('balanced')}>set-balanced</button>
       <button onClick={() => setMode('futuristic')}>set-futuristic</button>
@@ -59,9 +60,24 @@ beforeEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('ThemeProvider — defaults', () => {
-  it('default theme is "meridian" when localStorage is empty', () => {
+  it('default theme is "midnight" when localStorage is empty', () => {
     render(<Wrapper />);
-    expect(screen.getByTestId('theme').textContent).toBe('meridian');
+    expect(screen.getByTestId('theme').textContent).toBe('midnight');
+  });
+
+  it('migrates legacy "hedgeiq_wiki_theme" to "hedgeiq_theme" on first load', () => {
+    localStorage.setItem('hedgeiq_wiki_theme', 'terminal');
+    render(<Wrapper />);
+    expect(screen.getByTestId('theme').textContent).toBe('terminal');
+    expect(localStorage.getItem('hedgeiq_theme')).toBe('terminal');
+    expect(localStorage.getItem('hedgeiq_wiki_theme')).toBeNull();
+  });
+
+  it('prefers "hedgeiq_theme" when both keys exist (no migration overwrite)', () => {
+    localStorage.setItem('hedgeiq_theme', 'lumen');
+    localStorage.setItem('hedgeiq_wiki_theme', 'terminal');
+    render(<Wrapper />);
+    expect(screen.getByTestId('theme').textContent).toBe('lumen');
   });
 
   it('default density is "balanced"', () => {
