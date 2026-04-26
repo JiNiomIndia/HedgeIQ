@@ -256,12 +256,24 @@ async def connect_broker(
         user_secret = await facade.register_user(snap_user_id)
 
     if not user_secret:
-        # Surface SnapTrade's actual error so we (and admins watching logs)
-        # can see whether it's a plan limit, rate limit, or auth issue.
+        # Translate well-known SnapTrade rejection codes into user-friendly
+        # messages. The full diagnostic is logged for ops; users see plain text.
         last = getattr(facade, "last_error", "") or "unknown reason"
+        # Code 1012: "Personal keys can only register one user." This is a
+        # SnapTrade plan limitation, not a transient error. Surface honestly.
+        if "1012" in last or "Personal keys" in last:
+            user_msg = (
+                "Broker connections are currently limited to the platform admin "
+                "account because SnapTrade is on a personal plan that only "
+                "allows one connected user. We're upgrading our SnapTrade "
+                "plan — please email contact@hedgeiq.app to be notified when "
+                "this is enabled for your account."
+            )
+        else:
+            user_msg = "Could not connect to broker right now. Please try again in a moment."
         raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Could not register with SnapTrade: {last}",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=user_msg,
         )
 
     # Persist updates to DB (only if it's a real DB row)
