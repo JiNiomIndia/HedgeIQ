@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-label="Preferences popover">
+  <style>
+    .bg { fill: var(--bg, #0A0E1A); }
+    .surface { fill: var(--surface, #11172A); }
+    .surface-2 { fill: var(--surface-2, #161D33); }
+    .text { fill: var(--text, #F8FAFC); font-family: 'Inter Tight', sans-serif; }
+    .text-muted { fill: var(--text-muted, #94A3B8); font-family: 'Inter Tight', sans-serif; }
+    .text-subtle { fill: var(--text-subtle, #64748B); font-family: 'Inter Tight', sans-serif; }
+    .accent { fill: var(--accent, #8B5CF6); }
+    .neg { fill: var(--neg, #FF6B6F); }
+  </style>
+  <rect class="bg" width="480" height="600"/>
+  <rect class="surface" x="40" y="40" width="400" height="520" rx="12"/>
+
+  <text class="text" x="64" y="76" font-size="18" font-weight="700">Preferences</text>
+
+  <text class="text-subtle" x="64" y="116" font-size="11" font-weight="600">THEME</text>
+  <rect class="accent" x="64" y="124" width="84" height="32" rx="6"/>
+  <text x="106" y="144" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Midnight</text>
+  <rect class="surface-2" x="156" y="124" width="84" height="32" rx="6"/>
+  <text class="text-muted" x="198" y="144" text-anchor="middle" font-size="12">Meridian</text>
+  <rect class="surface-2" x="248" y="124" width="76" height="32" rx="6"/>
+  <text class="text-muted" x="286" y="144" text-anchor="middle" font-size="12">Lumen</text>
+  <rect class="surface-2" x="332" y="124" width="84" height="32" rx="6"/>
+  <text class="text-muted" x="374" y="144" text-anchor="middle" font-size="12">Terminal</text>
+
+  <text class="text-subtle" x="64" y="196" font-size="11" font-weight="600">DENSITY</text>
+  <rect class="surface-2" x="64" y="204" width="116" height="32" rx="6"/>
+  <text class="text-muted" x="122" y="224" text-anchor="middle" font-size="12">Comfortable</text>
+  <rect class="accent" x="188" y="204" width="100" height="32" rx="6"/>
+  <text x="238" y="224" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Balanced</text>
+  <rect class="surface-2" x="296" y="204" width="84" height="32" rx="6"/>
+  <text class="text-muted" x="338" y="224" text-anchor="middle" font-size="12">Dense</text>
+
+  <text class="text-subtle" x="64" y="276" font-size="11" font-weight="600">MODE</text>
+  <rect class="accent" x="64" y="284" width="100" height="32" rx="6"/>
+  <text x="114" y="304" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">Classic</text>
+  <rect class="surface-2" x="172" y="284" width="116" height="32" rx="6"/>
+  <text class="text-muted" x="230" y="304" text-anchor="middle" font-size="12">Futuristic</text>
+
+  <text class="text-subtle" x="64" y="356" font-size="11" font-weight="600">ACCESSIBILITY</text>
+
+  <rect class="surface-2" x="64" y="372" width="352" height="48" rx="8"/>
+  <text class="text" x="80" y="392" font-size="13" font-weight="600">Colorblind mode</text>
+  <text class="text-subtle" x="80" y="408" font-size="11">Swap green/red for blue/orange</text>
+  <rect class="surface" x="380" y="384" width="28" height="20" rx="10" stroke="#1E2742"/>
+  <circle cx="386" cy="394" r="7" fill="#94A3B8"/>
+
+  <rect class="surface-2" x="64" y="432" width="352" height="48" rx="8"/>
+  <text class="text" x="80" y="452" font-size="13" font-weight="600">Reduced motion</text>
+  <text class="text-subtle" x="80" y="468" font-size="11">Auto (follow OS setting)</text>
+  <rect class="accent" x="380" y="444" width="28" height="20" rx="10"/>
+  <circle cx="402" cy="454" r="7" fill="#fff"/>
+
+  <rect class="surface-2" x="64" y="500" width="352" height="40" rx="8" stroke="#FF6B6F" stroke-opacity="0.3"/>
+  <text class="neg" x="240" y="524" text-anchor="middle" font-size="13" font-weight="600">Sign out</text>
+</svg>

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" role="img" aria-label="Position drawer with chart and news">
+  <style>
+    .bg { fill: var(--bg, #0A0E1A); }
+    .surface { fill: var(--surface, #11172A); }
+    .surface-2 { fill: var(--surface-2, #161D33); }
+    .text { fill: var(--text, #F8FAFC); font-family: 'Inter Tight', sans-serif; }
+    .text-muted { fill: var(--text-muted, #94A3B8); font-family: 'Inter Tight', sans-serif; }
+    .text-subtle { fill: var(--text-subtle, #64748B); font-family: 'Inter Tight', sans-serif; }
+    .accent { fill: var(--accent, #8B5CF6); }
+    .pos { stroke: var(--pos, #34E893); fill: none; }
+    .neg { stroke: var(--neg, #FF6B6F); fill: none; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+  <rect class="bg" width="1280" height="800"/>
+
+  <!-- Faded background dashboard -->
+  <rect class="surface" x="40" y="40" width="660" height="720" rx="10" opacity="0.4"/>
+  <text class="text" x="68" y="76" font-size="16" font-weight="700" opacity="0.4">Positions</text>
+
+  <!-- Drawer overlay backdrop -->
+  <rect x="0" y="0" width="1280" height="800" fill="#000" opacity="0.4"/>
+
+  <!-- Drawer -->
+  <rect class="surface" x="720" y="0" width="560" height="800"/>
+  <rect class="surface-2" x="720" y="0" width="560" height="80"/>
+
+  <text class="text" x="752" y="42" font-size="22" font-weight="700">AAL</text>
+  <text class="text-muted" x="752" y="62" font-size="13">American Airlines Group</text>
+
+  <text class="text mono" x="1240" y="38" text-anchor="end" font-size="22" font-weight="700">$10.97</text>
+  <text x="1240" y="60" text-anchor="end" font-size="12" font-weight="600" fill="#FF6B6F">-$0.33 (-2.92%)</text>
+
+  <!-- Position summary -->
+  <rect class="surface-2" x="744" y="100" width="512" height="84" rx="8"/>
+  <text class="text-subtle" x="764" y="124" font-size="10" font-weight="600">QUANTITY</text>
+  <text class="text mono" x="764" y="148" font-size="18" font-weight="600">5,000</text>
+  <text class="text-subtle" x="764" y="170" font-size="10">Robinhood</text>
+
+  <text class="text-subtle" x="900" y="124" font-size="10" font-weight="600">AVG COST</text>
+  <text class="text mono" x="900" y="148" font-size="18" font-weight="600">$11.30</text>
+
+  <text class="text-subtle" x="1040" y="124" font-size="10" font-weight="600">TOTAL P&amp;L</text>
+  <text x="1040" y="148" font-size="18" font-weight="600" fill="#FF6B6F" font-family="JetBrains Mono, monospace">-$1,650</text>
+  <text x="1040" y="170" font-size="11" fill="#FF6B6F">-2.9%</text>
+
+  <!-- Chart -->
+  <text class="text-subtle" x="752" y="216" font-size="11" font-weight="600">PRICE · 1M</text>
+  <rect class="surface-2" x="744" y="228" width="512" height="220" rx="8"/>
+  <!-- Simulated candle line -->
+  <polyline points="760,330 790,310 820,320 850,300 880,290 910,310 940,330 970,340 1000,360 1030,355 1060,370 1090,380 1120,400 1150,395 1180,410 1210,420 1240,415" stroke="#FF6B6F" stroke-width="2" fill="none"/>
+  <polyline points="760,330 790,310 820,320 850,300 880,290 910,310 940,330 970,340 1000,360 1030,355 1060,370 1090,380 1120,400 1150,395 1180,410 1210,420 1240,415" stroke="#FF6B6F" stroke-width="2" fill="#FF6B6F" fill-opacity="0.08"/>
+
+  <g font-size="9" font-family="JetBrains Mono, monospace" fill="#64748B">
+    <text x="752" y="260">$11.50</text>
+    <text x="752" y="320">$11.20</text>
+    <text x="752" y="380">$10.90</text>
+    <text x="752" y="440">$10.60</text>
+  </g>
+
+  <rect class="surface-2" x="744" y="460" width="100" height="28" rx="4"/>
+  <text class="text-muted" x="794" y="478" text-anchor="middle" font-size="11">1D</text>
+  <rect x="848" y="460" width="100" height="28" rx="4" fill="#8B5CF6" fill-opacity="0.18"/>
+  <text class="accent" x="898" y="478" text-anchor="middle" font-size="11" font-weight="600">1M</text>
+  <rect class="surface-2" x="952" y="460" width="100" height="28" rx="4"/>
+  <text class="text-muted" x="1002" y="478" text-anchor="middle" font-size="11">3M</text>
+  <rect class="surface-2" x="1056" y="460" width="100" height="28" rx="4"/>
+  <text class="text-muted" x="1106" y="478" text-anchor="middle" font-size="11">1Y</text>
+
+  <!-- News -->
+  <text class="text-subtle" x="752" y="520" font-size="11" font-weight="600">RECENT NEWS</text>
+
+  <rect class="surface-2" x="744" y="532" width="512" height="56" rx="8"/>
+  <text class="text" x="760" y="554" font-size="13" font-weight="600">American Airlines posts Q1 miss on fuel costs</text>
+  <text class="text-subtle" x="760" y="574" font-size="11">Reuters · 2 hours ago</text>
+
+  <rect class="surface-2" x="744" y="600" width="512" height="56" rx="8"/>
+  <text class="text" x="760" y="622" font-size="13" font-weight="600">JetBlue earnings preview reverberates across legacy carriers</text>
+  <text class="text-subtle" x="760" y="642" font-size="11">Bloomberg · 6 hours ago</text>
+
+  <rect class="surface-2" x="744" y="668" width="512" height="56" rx="8"/>
+  <text class="text" x="760" y="690" font-size="13" font-weight="600">Pilots union ratifies new contract terms</text>
+  <text class="text-subtle" x="760" y="710" font-size="11">WSJ · yesterday</text>
+
+  <!-- Quick actions -->
+  <rect class="accent" x="744" y="744" width="248" height="40" rx="8"/>
+  <text x="868" y="768" text-anchor="middle" fill="#fff" font-weight="700" font-size="13">Hedge this position</text>
+
+  <rect class="surface-2" x="1000" y="744" width="256" height="40" rx="8"/>
+  <text class="text" x="1128" y="768" text-anchor="middle" font-weight="600" font-size="13">Ask AI advisor</text>
+</svg>

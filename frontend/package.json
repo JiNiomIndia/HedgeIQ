@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node copy-docs.cjs && node build-wiki.cjs",
+    "build": "tsc -b && vite build && node copy-docs.cjs && node build-wiki.cjs && node build-help-docs.cjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

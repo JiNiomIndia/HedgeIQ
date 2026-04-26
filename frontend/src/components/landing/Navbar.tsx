@@ -57,6 +57,7 @@ export default function Navbar() {
           <a href="#features" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>Features</a>
           <a href="#how" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>How it works</a>
           <a href="#faq" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>FAQ</a>
+          <a href="/help" style={linkStyle} onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>Help</a>
         </nav>
 
         <div className="landing-nav-cta" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -109,6 +110,7 @@ export default function Navbar() {
           <a href="#features" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Features</a>
           <a href="#how" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>How it works</a>
           <a href="#faq" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>FAQ</a>
+          <a href="/help" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Help</a>
           <div style={{ height: 1, background: 'var(--border)' }} />
           <Link to="/login" onClick={() => setOpen(false)} style={{ color: 'var(--text)', padding: '8px 0' }}>Sign in</Link>
           <Link to="/login" onClick={() => setOpen(false)} style={{ background: 'var(--accent)', color: 'var(--accent-contrast)', padding: '11px 16px', borderRadius: 6, fontWeight: 600, textAlign: 'center' }}>Get started — free</Link>
