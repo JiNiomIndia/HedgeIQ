@@ -4,27 +4,29 @@ HedgeIQ supports 30+ brokers across the US, Canada, UK, Australia, and crypto ex
 
 If your broker isn't listed, [email us](mailto:contact@hedgeiq.app) — SnapTrade adds new brokers regularly and we can request prioritization.
 
+> **Need a new account?** Click any "Open account" link in the tables below and the broker's homepage opens in a new tab — HedgeIQ stays put. From the broker's homepage, look for "Open account", "Sign up", or "Get started" — every broker on this list has it prominently in their top nav.
+
 ## United States — Stocks &amp; Options
 
 The bulk of our users are here. Every broker listed below supports read-only OAuth (or credentials, where noted) and returns positions, balances, and order history.
 
-| Broker                       | Auth method     | Stocks | Options | Crypto | Sign up | Notes |
+| Broker                       | Auth method     | Stocks | Options | Crypto | Open account | Notes |
 | ---------------------------- | --------------- | :----: | :-----: | :----: | ------- | ----- |
-| Robinhood                    | OAuth + SMS 2FA |   ✓    |    ✓    |   ✓    | [Open account ↗](https://robinhood.com/us/en/) | SMS verification on first connect |
-| Fidelity                     | OAuth (Plaid)   |   ✓    |    ✓    |        | [Open account ↗](https://www.fidelity.com/open-an-account/overview) | Routes through Plaid |
-| Charles Schwab               | OAuth           |   ✓    |    ✓    |        | [Open account ↗](https://www.schwab.com/open-an-account) | Includes legacy TD Ameritrade accounts |
-| E*TRADE                      | OAuth           |   ✓    |    ✓    |        | [Open account ↗](https://us.etrade.com/e/t/welcome/openanaccount) | 90-day token lifetime |
-| TastyTrade                   | Credentials     |   ✓    |    ✓    |        | [Open account ↗](https://my.tastytrade.com/sign-up) | Username/password (no OAuth available) |
-| TradeStation                 | OAuth           |   ✓    |    ✓    |        | [Open account ↗](https://www.tradestation.com/account/applications/start) | API access requires account approval |
-| Webull                       | OAuth + mobile  |   ✓    |    ✓    |   ✓    | [Open account ↗](https://www.webull.com/account/open) | Confirms via mobile app push notification |
-| Public                       | OAuth           |   ✓    |    ✓    |   ✓    | [Open account ↗](https://public.com/) | Straightforward; ~60 day token |
-| Interactive Brokers (IBKR)   | OAuth           |   ✓    |    ✓    |   ✓    | [Open account ↗](https://www.interactivebrokers.com/en/index.php?f=4969) | Requires "Read-Only API" enabled |
-| M1 Finance                   | OAuth           |   ✓    |         |   ✓    | [Open account ↗](https://m1.com/sign-up/) | Pies map to virtual sub-positions |
-| SoFi Invest                  | OAuth           |   ✓    |         |   ✓    | [Open account ↗](https://www.sofi.com/invest/) | Crypto in same account as equities |
-| Stash                        | OAuth           |   ✓    |         |        | [Open account ↗](https://www.stash.com/get-started) | Fractional-only |
-| Acorns                       | OAuth           |   ✓    |         |        | [Open account ↗](https://www.acorns.com/start/) | ETF-only portfolios |
-| Wealthfront                  | OAuth           |   ✓    |         |        | [Open account ↗](https://www.wealthfront.com/get-started) | Robo-advised allocations |
-| Stockpile                    | OAuth           |   ✓    |         |        | [Open account ↗](https://www.stockpile.com/) | Fractional gift platform |
+| Robinhood                    | OAuth + SMS 2FA |   ✓    |    ✓    |   ✓    | [Visit Robinhood ↗](https://robinhood.com/) | SMS verification on first connect |
+| Fidelity                     | OAuth (Plaid)   |   ✓    |    ✓    |        | [Visit Fidelity ↗](https://www.fidelity.com/) | Routes through Plaid |
+| Charles Schwab               | OAuth           |   ✓    |    ✓    |        | [Visit Schwab ↗](https://www.schwab.com/) | Includes legacy TD Ameritrade accounts |
+| E*TRADE                      | OAuth           |   ✓    |    ✓    |        | [Visit E*TRADE ↗](https://us.etrade.com/) | 90-day token lifetime |
+| TastyTrade                   | Credentials     |   ✓    |    ✓    |        | [Visit TastyTrade ↗](https://tastytrade.com/) | Username/password (no OAuth available) |
+| TradeStation                 | OAuth           |   ✓    |    ✓    |        | [Visit TradeStation ↗](https://www.tradestation.com/) | API access requires account approval |
+| Webull                       | OAuth + mobile  |   ✓    |    ✓    |   ✓    | [Visit Webull ↗](https://www.webull.com/) | Confirms via mobile app push notification |
+| Public                       | OAuth           |   ✓    |    ✓    |   ✓    | [Visit Public ↗](https://public.com/) | Straightforward; ~60 day token |
+| Interactive Brokers (IBKR)   | OAuth           |   ✓    |    ✓    |   ✓    | [Visit IBKR ↗](https://www.interactivebrokers.com/) | Requires "Read-Only API" enabled |
+| M1 Finance                   | OAuth           |   ✓    |         |   ✓    | [Visit M1 ↗](https://m1.com/) | Pies map to virtual sub-positions |
+| SoFi Invest                  | OAuth           |   ✓    |         |   ✓    | [Visit SoFi ↗](https://www.sofi.com/) | Crypto in same account as equities |
+| Stash                        | OAuth           |   ✓    |         |        | [Visit Stash ↗](https://www.stash.com/) | Fractional-only |
+| Acorns                       | OAuth           |   ✓    |         |        | [Visit Acorns ↗](https://www.acorns.com/) | ETF-only portfolios |
+| Wealthfront                  | OAuth           |   ✓    |         |        | [Visit Wealthfront ↗](https://www.wealthfront.com/) | Robo-advised allocations |
+| Stockpile                    | OAuth           |   ✓    |         |        | [Visit Stockpile ↗](https://stockpile.com/) | Fractional gift platform |
 
 US regulatory note: every broker on this list is a FINRA-registered member. SnapTrade's data access is governed by each broker's API terms. If a broker tightens its API (rare but happens), we'll notify affected users by email.
 
@@ -32,46 +34,46 @@ US regulatory note: every broker on this list is a FINRA-registered member. Snap
 
 We pull holdings from these but don't yet fetch price/options data for crypto inside HedgeIQ. The hedge calculator is equities-only.
 
-| Exchange     | Auth method | Sign up | Notes |
+| Exchange     | Auth method | Open account | Notes |
 | ------------ | ----------- | ------- | ----- |
-| Coinbase     | OAuth       | [Open account ↗](https://www.coinbase.com/signup) | Includes Coinbase Pro accounts |
-| Kraken       | API key     | [Open account ↗](https://www.kraken.com/sign-up) | You generate a read-only API key in Kraken's settings and paste it |
-| Gemini       | OAuth       | [Open account ↗](https://exchange.gemini.com/register) | Earn balances are reported separately |
-| Binance.US   | API key     | [Open account ↗](https://accounts.binance.us/en/register) | US-only; international Binance is not available |
-| KuCoin       | API key     | [Open account ↗](https://www.kucoin.com/ucenter/signup) | |
-| Bitstamp     | API key     | [Open account ↗](https://www.bitstamp.net/account/register/) | |
-| Crypto.com   | OAuth       | [Open account ↗](https://crypto.com/exchange/signup) | |
-| Bitfinex     | API key     | [Open account ↗](https://www.bitfinex.com/sign-up) | |
+| Coinbase     | OAuth       | [Visit Coinbase ↗](https://www.coinbase.com/) | Includes Coinbase Pro accounts |
+| Kraken       | API key     | [Visit Kraken ↗](https://www.kraken.com/) | You generate a read-only API key in Kraken's settings and paste it |
+| Gemini       | OAuth       | [Visit Gemini ↗](https://www.gemini.com/) | Earn balances are reported separately |
+| Binance.US   | API key     | [Visit Binance.US ↗](https://www.binance.us/) | US-only; international Binance is not available |
+| KuCoin       | API key     | [Visit KuCoin ↗](https://www.kucoin.com/) | |
+| Bitstamp     | API key     | [Visit Bitstamp ↗](https://www.bitstamp.net/) | |
+| Crypto.com   | OAuth       | [Visit Crypto.com ↗](https://crypto.com/) | |
+| Bitfinex     | API key     | [Visit Bitfinex ↗](https://www.bitfinex.com/) | |
 
 US regulatory note: crypto exchanges operate under a different framework than securities brokers (some are state money transmitters, some operate under MSB licensing). HedgeIQ treats crypto holdings as informational — we don't render hedging recommendations because crypto options markets are too thin for our scoring algorithm.
 
 ## Canada
 
-| Broker                        | Auth method | Sign up | Notes |
+| Broker                        | Auth method | Open account | Notes |
 | ----------------------------- | ----------- | ------- | ----- |
-| Wealthsimple                  | OAuth       | [Open account ↗](https://www.wealthsimple.com/en-ca/) | Stocks, ETFs, crypto. Most popular Canadian broker on our platform. |
-| Questrade                     | OAuth       | [Open account ↗](https://www.questrade.com/online-brokerage/open-an-account) | Active-trader friendly; full options chain support. |
-| Tangerine Investment          | OAuth       | [Open account ↗](https://www.tangerine.ca/en/products/investing/) | Mutual-fund-only accounts; limited reporting. |
+| Wealthsimple                  | OAuth       | [Visit Wealthsimple ↗](https://www.wealthsimple.com/) | Stocks, ETFs, crypto. Most popular Canadian broker on our platform. |
+| Questrade                     | OAuth       | [Visit Questrade ↗](https://www.questrade.com/) | Active-trader friendly; full options chain support. |
+| Tangerine Investment          | OAuth       | [Visit Tangerine ↗](https://www.tangerine.ca/) | Mutual-fund-only accounts; limited reporting. |
 
 Canadian regulatory note: Canadian brokers report in CAD. HedgeIQ shows the broker's native currency in the positions table; an aggregate view in your home currency is on the roadmap.
 
 ## Australia and New Zealand
 
-| Broker     | Auth method | Sign up | Notes |
+| Broker     | Auth method | Open account | Notes |
 | ---------- | ----------- | ------- | ----- |
-| Stake      | OAuth       | [Open account ↗](https://hellostake.com/au/) | US equities + ASX; supported regions: AU, NZ, UK, BR. |
-| Sharesies  | OAuth       | [Open account ↗](https://sharesies.com.au/) | NZ-based; US, NZX, ASX equities. |
-| CommSec    | Credentials | [Open account ↗](https://www.commsec.com.au/) | Limited support; positions only, no orders. |
+| Stake      | OAuth       | [Visit Stake ↗](https://hellostake.com/) | US equities + ASX; supported regions: AU, NZ, UK, BR. |
+| Sharesies  | OAuth       | [Visit Sharesies ↗](https://sharesies.com.au/) | NZ-based; US, NZX, ASX equities. |
+| CommSec    | Credentials | [Visit CommSec ↗](https://www.commsec.com.au/) | Limited support; positions only, no orders. |
 
 ANZ regulatory note: Australian brokers report in AUD; NZ brokers in NZD. The hedge calculator is US-equities-only, so for AU-listed positions HedgeIQ shows positions but doesn't recommend hedges.
 
 ## United Kingdom
 
-| Broker              | Auth method | Sign up | Notes |
+| Broker              | Auth method | Open account | Notes |
 | ------------------- | ----------- | ------- | ----- |
-| Trading 212         | OAuth       | [Open account ↗](https://www.trading212.com/) | Stocks &amp; ETFs in their Invest accounts. |
-| Lightyear           | OAuth       | [Open account ↗](https://lightyear.com/gb/) | Newer EU/UK broker; growing coverage. |
-| Hargreaves Lansdown | Credentials | [Open account ↗](https://www.hl.co.uk/) | Limited support — positions only, slow refresh. |
+| Trading 212         | OAuth       | [Visit Trading 212 ↗](https://www.trading212.com/) | Stocks &amp; ETFs in their Invest accounts. |
+| Lightyear           | OAuth       | [Visit Lightyear ↗](https://lightyear.com/) | Newer EU/UK broker; growing coverage. |
+| Hargreaves Lansdown | Credentials | [Visit Hargreaves Lansdown ↗](https://www.hl.co.uk/) | Limited support — positions only, slow refresh. |
 
 UK regulatory note: UK brokers are FCA-regulated. Most don't offer US-style options chains, so the hedge calculator is rarely useful for UK-only portfolios. We're researching adding UK options-market data; no firm timeline yet.
 
