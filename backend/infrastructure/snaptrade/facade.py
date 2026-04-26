@@ -69,15 +69,22 @@ class SnapTradeFacade:
                 self.last_error = f"SnapTrade response missing userSecret: {body!r}"[:300]
             return secret
         except Exception as exc:
-            # Capture status + body if available (snaptrade-client raises rich exceptions)
-            msg = f"{type(exc).__name__}: {exc}"
-            for attr in ("status", "code", "body", "reason"):
-                v = getattr(exc, attr, None)
-                if v:
-                    msg += f" [{attr}={str(v)[:200]}]"
-            self.last_error = msg[:500]
+            # Capture body and status from snaptrade-client (openapi) exceptions.
+            # Body comes first so it isn't truncated by len limits.
+            status_v = getattr(exc, "status", None)
+            reason_v = getattr(exc, "reason", None)
+            body_v = getattr(exc, "body", None)
+            parts = [type(exc).__name__]
+            if status_v: parts.append(f"status={status_v}")
+            if reason_v: parts.append(f"reason={reason_v}")
+            if body_v:
+                # body is typically a JSON string with {"detail": "..."}; show verbatim
+                parts.append(f"body={str(body_v)[:300]}")
+            else:
+                parts.append(f"msg={str(exc)[:200]}")
+            self.last_error = " | ".join(parts)
             import logging
-            logging.getLogger("snaptrade").warning("register_user failed: %s", msg)
+            logging.getLogger("snaptrade").warning("register_user failed: %s", self.last_error)
             return None
 
     async def get_connection_url(self, user_id: str, broker: str, user_secret: str | None = None) -> str:
